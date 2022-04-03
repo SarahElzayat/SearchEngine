@@ -1,0 +1,743 @@
+<!--
+ This is the default body that is displayed when people visit the
+ tracker. The tag below lists the currently open issues. You may
+ replace it with a greeting message, or a different list of issues or
+ whatever. It's a good idea to have the issues on the front page though
+--><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+ <head> 
+  <title>
+  List of issues
+   - Python tracker
+</title> 
+  <link rel="shortcut icon" href="@@file/favicon.ico"> 
+  <link rel="stylesheet" type="text/css" href="@@file/main.css"> 
+  <link rel="stylesheet" type="text/css" href="@@file/style.css"> 
+  <link rel="search" type="application/opensearchdescription+xml" href="@@file/osd.xml" title="Python bug tracker search"> 
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"> 
+  <script nonce="34dedbf44ebe1d1882eecddcb833c127a3a45c728a6910535d8b5b72e648e798" type="text/javascript">
+submitted = false;
+function submit_once() {
+    if (submitted) {
+        alert("Your request is being processed.\nPlease be patient.");
+        return false;
+    }
+    submitted = true;
+    return true;
+}
+
+function help_window(helpurl, width, height) {
+    HelpWin = window.open('https://bugs.python.org/' + helpurl, 'RoundupHelpWindow', 'scrollbars=yes,resizable=yes,toolbar=no,height='+height+',width='+width);
+    HelpWin.focus ()
+}
+</script> 
+ </head> 
+ <body> <!--  Logo  --> 
+  <h1 id="logoheader"> <a accesskey="1" href="." id="logolink"> <img src="@@file/python-logo.gif" alt="homepage" border="0" id="logo"></a> </h1> 
+  <div id="utility-menu"> <!-- Search Box --> 
+   <div id="searchbox"> 
+    <form name="searchform" method="get" action="issue" id="searchform"> 
+     <div id="search"> 
+      <input type="hidden" name="@columns" value="id,activity,title,creator,assignee,status,type"> 
+      <input type="hidden" name="@sort" value="-activity"> 
+      <input type="hidden" name="@filter" value="status"> 
+      <input type="hidden" name="@action" value="searchid"> 
+      <input type="hidden" name="ignore" value="file:content"> 
+      <input class="input-text" id="search-text" name="@search_text" size="10"> 
+      <input type="submit" id="submit" value="search" name="submit" class="input-button"> 
+      <input type="radio" name="status" id="status_notresolved" value="-1,1,3"> <label for="status_notresolved">open</label> 
+      <input type="radio" name="status" checked id="status_all" value="-1,1,2,3"> <label for="status_all">all</label> 
+     </div> 
+    </form> 
+   </div> 
+  </div> 
+  <div id="left-hand-navigation"> <!--  Main Menu NEED LEVEL TWO HEADER AND FOOTER --> 
+   <div id="menu"> 
+    <ul class="level-one"> 
+     <li><a href="https://www.python.org/" title="Go to the Python homepage">Python Home</a></li> 
+     <li><a href="https://www.python.org/about/" title="About The Python Language">About</a></li> 
+     <li><a href="https://www.python.org/blogs/" title="">News</a></li> 
+     <li><a href="https://www.python.org/doc/" title="">Documentation</a></li> 
+     <li><a href="https://www.python.org/downloads/" title="">Downloads</a></li> 
+     <li><a href="https://www.python.org/community/" title="">Community</a></li> 
+     <li><a href="https://www.python.org/psf/" title="Python Software Foundation">Foundation</a></li> 
+     <li><a href="https://devguide.python.org/" title="Python Developer's Guide">Developer's Guide</a></li> 
+     <li class="selected"><a href="." class="selected" title="Python Issue Tracker">Issue Tracker</a> 
+      <ul class="level-two"> 
+       <li> <strong>Issues</strong> 
+        <ul class="level-three"> 
+         <li><a href="issue?@template=search&amp;status=1">Search</a></li> 
+         <li><a href="issue?@action=random">Random Issue</a></li> 
+         <li> 
+          <form method="post" action=""> 
+           <input type="submit" class="form-small" value="Show issue:"> 
+           <input class="form-small" size="4" type="text" name="@number"> 
+           <input type="hidden" name="@type" value="issue"> 
+           <input type="hidden" name="@action" value="show"> 
+          </form> </li> 
+        </ul> </li> 
+       <li> <strong>Summaries</strong> 
+        <ul class="level-three"> 
+         <li> <a href="issue?status=1&amp;@sort=-activity&amp;@columns=id%2Cactivity%2Ctitle%2Ccreator%2Cstatus&amp;@dispname=Issues%20with%20patch&amp;@startwith=0&amp;@group=priority&amp;keywords=2&amp;@action=search&amp;@filter=&amp;@pagesize=50">Issues with patch</a> </li> 
+         <li> <a href="issue?status=1&amp;@sort=-activity&amp;@columns=id%2Cactivity%2Ctitle%2Ccreator%2Cstatus&amp;@dispname=Easy%20issues&amp;@startwith=0&amp;@group=priority&amp;keywords=6&amp;@action=search&amp;@filter=&amp;@pagesize=50">Easy issues</a> </li> 
+         <li> <a href="issue?@template=stats">Stats</a> </li> 
+        </ul> </li> 
+       <li> <strong>User</strong> 
+        <form method="post" action=""> 
+         <ul class="level-three"> 
+          <li> Login&nbsp;(OpenID&nbsp;possible)<br> <a style="display:inline;width:0;margin:0" href="?@action=oic_login&amp;provider=Google"> <img hspace="0" vspace="0" width="16" height="16" src="https://www.google.com/favicon.ico" alt="Google" title="Google"></a> <a style="display:inline;width:0;margin:0" href="?@action=oic_login&amp;provider=GitHub"> <img hspace="0" vspace="0" width="16" height="16" src="https://www.github.com/favicon.ico" alt="GitHub" title="GitHub"></a> <a style="display:inline;width:0;margin:0" href="?@action=openid_login&amp;provider=Launchpad"> <img hspace="0" vspace="0" width="16" height="16" src="https://launchpad.net/favicon.ico" alt="Launchpad" title="Launchpad"></a> <input size="10" name="openid_identifier" style="background:url(@@file/openid-16x16.gif)
+                  center left no-repeat;padding-left:16px"><br> <input size="10" type="password" name="__login_password"><br> <input type="hidden" name="@action" value="Login"> <input type="checkbox" name="remember" id="remember"> <label for="remember">Remember me?</label><br> <input class="form-small" type="submit" value="Login"><br> <input type="hidden" name="__came_from" value="https://bugs.python.org/?"> <input type="hidden" name="@columns" value="id,activity,title,creator,assignee,status,type,message_count"> <input type="hidden" name="@sort" value="-activity"> <input type="hidden" name="@group" value=""> <input type="hidden" name="@filter" value="status"> <input type="hidden" name="status" value="1,3"> <input type="hidden" name="@pagesize" value="50"> <input type="hidden" name="@startwith" value="0"> </li> 
+          <li> <a href="user?@template=register">Register</a> </li> 
+          <li><a href="user?@template=forgotten">Lost&nbsp;your&nbsp;login?</a></li> 
+         </ul> 
+        </form> </li> 
+       <li> <strong>Administration</strong> 
+        <ul class="level-three"> 
+         <li> <a href="user?@sort=username">User List</a></li> 
+         <li> <a href="user?iscommitter=1&amp;@action=search&amp;@sort=username&amp;@pagesize=300">Committer List</a></li> 
+        </ul> </li> 
+       <li> <strong>Help</strong> 
+        <ul class="level-three"> 
+         <li><a href="http://docs.python.org/devguide/triaging.html"> Tracker Documentation</a></li> 
+         <li><a href="http://wiki.python.org/moin/TrackerDevelopment"> Tracker Development</a></li> 
+         <li><a href="https://github.com/python/psf-infra-meta/issues"> Report Tracker Problem</a></li> 
+        </ul> </li> 
+      </ul> </li> 
+    </ul> 
+   </div> <!-- menu --> 
+  </div> <!-- left-hand-navigation --> 
+  <div id="content-body"> 
+   <div id="body-main"> 
+    <div id="content"> 
+     <div id="breadcrumb">
+       List of issues 
+     </div> 
+     <div id="migration-notice"> 
+      <div id="migration-images"> 
+       <img width="32" src="@@file/python-logo-small.png"> ➜ 
+       <img width="32" src="@@file/gh-icon.png"> 
+      </div> 
+      <p>This issue tracker will soon become read-only and move to GitHub.<br> For a smoother transition, remember to log in and link your GitHub username to your profile. <br> For more information, <a title="Github Issues Migration is coming soon" href="https://discuss.python.org/t/github-issues-migration-is-coming-soon/13791"> see this post about the migration.</a> </p> 
+     </div> 
+     <table class="list"> 
+      <tbody>
+       <tr> 
+        <th>ID</th> 
+        <th>Activity</th> 
+        <th colspan="3">Title</th> 
+        <th>Status</th> 
+        <th>Creator</th> 
+        <th>Assigned&nbsp;To</th> 
+        <th>Type</th> 
+        <th>Msgs</th> 
+       </tr> 
+       <tr class="odd"> 
+        <td>42238</td> 
+        <td class="date">1/4 hour ago</td> 
+        <td> <a href="issue42238">Deprecate suspicious.py?</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>mdk</td> 
+        <td>mdk</td> 
+        <td>&nbsp;</td> 
+        <td>53</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>39064</td> 
+        <td class="date">3/4 hours ago</td> 
+        <td> <a href="issue39064">ValueError in zipfile.ZipFile</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>jvoisin</td> 
+        <td>&nbsp;</td> 
+        <td>behavior</td> 
+        <td>8</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>46614</td> 
+        <td class="date">3/4 hours ago</td> 
+        <td> <a href="issue46614">Add option to output UTC datetimes as "Z" in `.isoformat()`</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>p-ganssle</td> 
+        <td>p-ganssle</td> 
+        <td>enhancement</td> 
+        <td>5</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47185</td> 
+        <td class="date">3/4 hours ago</td> 
+        <td> <a href="issue47185">code.replace(co_code=new_code) no longer catch exceptions on Python 3.11</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>vstinner</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>6</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>46337</td> 
+        <td class="date">1 3/4 hours ago</td> 
+        <td> <a href="issue46337">urllib.parse: Allow more flexibility in schemes and URL resolution behavior</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>lincolnauster</td> 
+        <td>&nbsp;</td> 
+        <td>behavior</td> 
+        <td>11</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47152</td> 
+        <td class="date">2 hours ago</td> 
+        <td> <a href="issue47152">Reorganize the re module sources</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>serhiy.storchaka</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>19</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>26792</td> 
+        <td class="date">3 hours ago</td> 
+        <td> <a href="issue26792">docstrings of runpy.run_{module,path} are rather sparse</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>Antony.Lee</td> 
+        <td>docs@python</td> 
+        <td>enhancement</td> 
+        <td>2</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47203</td> 
+        <td class="date">3 hours ago</td> 
+        <td> <a href="issue47203">ImportError: DLL load failed while importing binascii: %1 is not a valid Win32 application.</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>MatthewJ</td> 
+        <td>&nbsp;</td> 
+        <td>behavior</td> 
+        <td>4</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47207</td> 
+        <td class="date">3 hours ago</td> 
+        <td> <a href="issue47207">Switch datetime docstrings / documentation to using "Returns" rather than "Return"?</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>p-ganssle</td> 
+        <td>docs@python</td> 
+        <td>&nbsp;</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47197</td> 
+        <td class="date">3 hours ago</td> 
+        <td> <a href="issue47197">ctypes mishandles `void` return type</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>hoodchatham</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>15795</td> 
+        <td class="date">3 hours ago</td> 
+        <td> <a href="issue15795">Zipfile.extractall does not preserve file permissions</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>uruz</td> 
+        <td>serhiy.storchaka</td> 
+        <td>enhancement</td> 
+        <td>21</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47205</td> 
+        <td class="date">3 hours ago</td> 
+        <td> <a href="issue47205">test_sched_getaffinity and setaffinity fail on FreeBSD buildbit</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>christian.heimes</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>6</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>46126</td> 
+        <td class="date">3 hours ago</td> 
+        <td> <a href="issue46126">Unittest output drives developers to avoid docstrings</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>jaraco</td> 
+        <td>jaraco</td> 
+        <td>&nbsp;</td> 
+        <td>22</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47206</td> 
+        <td class="date">4 hours ago</td> 
+        <td> <a href="issue47206">pickle docs are wrong about nested classes</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>JelleZijlstra</td> 
+        <td>docs@python</td> 
+        <td>behavior</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47142</td> 
+        <td class="date">6 hours ago</td> 
+        <td> <a href="issue47142">Document importlib.resources.abc.Traversable</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>petr.viktorin</td> 
+        <td>jaraco</td> 
+        <td>&nbsp;</td> 
+        <td>4</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>40280</td> 
+        <td class="date">9 hours ago</td> 
+        <td> <a href="issue40280">Consider supporting emscripten/webassembly as a build target</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>Simon Biggs</td> 
+        <td>&nbsp;</td> 
+        <td>enhancement</td> 
+        <td>59</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47196</td> 
+        <td class="date">11 hours ago</td> 
+        <td> <a href="issue47196">Function pointer cast in test_imp</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>hoodchatham</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>4</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>44800</td> 
+        <td class="date">12 hours ago</td> 
+        <td> <a href="issue44800">Code readability: rename InterpreterFrame to `_Py_framedata`</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>ncoghlan</td> 
+        <td>ncoghlan</td> 
+        <td>enhancement</td> 
+        <td>9</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47204</td> 
+        <td class="date">12 hours ago</td> 
+        <td> <a href="issue47204">Ensure PyEval_GetGlobals() doesn't set an exception when returning NULL</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>ncoghlan</td> 
+        <td>ncoghlan</td> 
+        <td>enhancement</td> 
+        <td>2</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>43557</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue43557">Deprecate getlocale() and normalize() functions</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>vstinner</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>4</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>18624</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue18624">Add alias for iso-8859-8-i which is the same as iso-8859-8</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>r.david.murray</td> 
+        <td>&nbsp;</td> 
+        <td>enhancement</td> 
+        <td>11</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>45847</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue45847">Port module setup to PY_STDLIB_MOD() macro and addext()</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>christian.heimes</td> 
+        <td>&nbsp;</td> 
+        <td>enhancement</td> 
+        <td>59</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47145</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47145">Improve graphlib.TopologicalSort by removing the prepare step</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>larry</td> 
+        <td>larry</td> 
+        <td>enhancement</td> 
+        <td>12</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47200</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47200">Add ZipInfo.mode property</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>sam_ezeh</td> 
+        <td>&nbsp;</td> 
+        <td>enhancement</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>4833</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue4833">Explicit directories for zipfiles</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>schuppenies</td> 
+        <td>&nbsp;</td> 
+        <td>enhancement</td> 
+        <td>5</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>46315</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue46315">Add support for WebAssembly System Interface (wasm32-wasi)</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>christian.heimes</td> 
+        <td>christian.heimes</td> 
+        <td>enhancement</td> 
+        <td>4</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>34480</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue34480">_markupbase.py fails with UnboundLocalError on invalid keyword in marked section</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>kodial</td> 
+        <td>ezio.melotti</td> 
+        <td>behavior</td> 
+        <td>14</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>41395</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue41395">pickle and pickletools cli interface doesn't close input and output file.</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>xtreak</td> 
+        <td>&nbsp;</td> 
+        <td>behavior</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47201</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47201">pip3.10.4 is configured with locations that require TLS/SSL, however the ssl module in Python is not available</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>alessandro.pioli</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>2</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>26023</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue26023">Missing signatures operator module</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>pending</td> 
+        <td>Frederik Rietdijk</td> 
+        <td>&nbsp;</td> 
+        <td>enhancement</td> 
+        <td>3</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47194</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47194">Upgrade to zlib v1.2.12 in CPython binary releases</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>gregory.p.smith</td> 
+        <td>&nbsp;</td> 
+        <td>security</td> 
+        <td>4</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47192</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47192">sys._getframe audit event has frame as argument in 3.8-3.10</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>Dutcho</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>2</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47143</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47143">Add types.copy_class() which updates closures</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>vstinner</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>20</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47193</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47193">Use zlib-ng rather than zlib in binary releases</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>gregory.p.smith</td> 
+        <td>&nbsp;</td> 
+        <td>performance</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47195</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47195">importlib lock race issue in deadlock handling code</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>rpurdie</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>2</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47199</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47199">multiprocessing: micro-optimize Connection.send_bytes() method</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>malin</td> 
+        <td>&nbsp;</td> 
+        <td>resource usage</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47190</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47190">Integrating tkinter and asyncio event loops</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>skip.montanaro</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>2</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47188</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47188">ncurses: *** buffer overflow detected ***: terminated with -D_FORTIFY_SOURCE=3</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>Martin Liška</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>44660</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue44660">email.feedparser: support RFC 6532 section 3.5</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>f18a14c09s</td> 
+        <td>&nbsp;</td> 
+        <td>behavior</td> 
+        <td>9</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47131</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47131">Speedup test_unparse</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>jkloth</td> 
+        <td>&nbsp;</td> 
+        <td>performance</td> 
+        <td>2</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>12387</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue12387">IDLE save keyboard shortcut problem</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>Jacob.VB</td> 
+        <td>terry.reedy</td> 
+        <td>behavior</td> 
+        <td>14</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47135</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47135">Allow decimal.localcontext to accept keyword arguments to set context attributes</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>steven.daprano</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>6</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47191</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47191">inspect - getasyncgeneratorstate, getasyncgeneratorlocals</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>animatea.programming</td> 
+        <td>&nbsp;</td> 
+        <td>enhancement</td> 
+        <td>2</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47174</td> 
+        <td class="date">yesterday</td> 
+        <td> <a href="issue47174">Define behavior of descriptor-typed fields on dataclasses</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>debonte</td> 
+        <td>&nbsp;</td> 
+        <td>enhancement</td> 
+        <td>1</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>39090</td> 
+        <td class="date">2 days ago</td> 
+        <td> <a href="issue39090">Document various options for getting the absolute path from pathlib.Path objects</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>brett.cannon</td> 
+        <td>docs@python</td> 
+        <td>enhancement</td> 
+        <td>14</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47009</td> 
+        <td class="date">2 days ago</td> 
+        <td> <a href="issue47009">Streamline list.append for the common case</a> </td> 
+        <td class="haspatch"> <img src="@@file/patch-icon.png" alt="has patch" title="has patch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>Dennis Sweeney</td> 
+        <td>&nbsp;</td> 
+        <td>performance</td> 
+        <td>5</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47189</td> 
+        <td class="date">2 days ago</td> 
+        <td> <a href="issue47189">What's new in Python 3.11: Faster CPython</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>kj</td> 
+        <td>docs@python</td> 
+        <td>&nbsp;</td> 
+        <td>0</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47161</td> 
+        <td class="date">2 days ago</td> 
+        <td> <a href="issue47161">pathlib method relative_to doesnt work with // in paths</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>John15321</td> 
+        <td>&nbsp;</td> 
+        <td>behavior</td> 
+        <td>8</td> 
+       </tr> 
+       <tr class="odd"> 
+        <td>47168</td> 
+        <td class="date">2 days ago</td> 
+        <td> <a href="issue47168">Improvements for stable ABI definition files</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> <img width="16" height="16" src="@@file/gh-icon.png" alt="has PR" title="has PR"> </td> 
+        <td>open</td> 
+        <td>petr.viktorin</td> 
+        <td>&nbsp;</td> 
+        <td>&nbsp;</td> 
+        <td>3</td> 
+       </tr> 
+       <tr class="even"> 
+        <td>47187</td> 
+        <td class="date">2 days ago</td> 
+        <td> <a href="issue47187">locale module example is wrong for some platforms</a> </td> 
+        <td class="haspatch"> </td> 
+        <td class="haspr"> </td> 
+        <td>open</td> 
+        <td>smarie</td> 
+        <td>docs@python</td> 
+        <td>&nbsp;</td> 
+        <td>1</td> 
+       </tr> 
+      </tbody>
+     </table> 
+     <div class="navigation"> <span> &nbsp; </span> <span> 1.. 50 out of 7127 </span> <span> <a href="issue?@startwith=50&amp;@pagesize=50&amp;@columns=id,activity,title,creator,assignee,status,type,message_count&amp;@sort=-activity&amp;@filter=status&amp;status=1,3">next &gt;&gt;</a> &nbsp; </span> 
+     </div> <a href="issue?@action=export_csv&amp;@columns=id,activity,title,creator,assignee,status,type,message_count&amp;@sort=-activity&amp;@filter=status&amp;@pagesize=50&amp;@startwith=0&amp;status=1,3">Download as CSV</a> 
+     <form method="get" class="index-controls" action="issue"> 
+      <table class="form"> 
+       <tbody>
+        <tr> 
+         <th> Sort on: </th> 
+         <td> <select name="@sort0"> <option value="">- nothing -</option> <option selected value="activity">act

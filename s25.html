@@ -1,0 +1,1062 @@
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="utf-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <title>Sign In</title> 
+  <link rel="dns-prefetch" href="//karma.mdpcdn.com"> 
+  <link rel="dns-prefetch" href="//imagesvc.meredithcorp.io"> 
+  <link rel="dns-prefetch" href="//cdn.segment.com"> 
+  <link rel="stylesheet" type="text/css" href="https://www.allrecipes.com/dist/style-df7167ab43e7e98dc2ee-hash.css"> 
+  <script type="text/javascript">var linkElement = document.querySelector("link[href='https://www.allrecipes.com/dist/style-df7167ab43e7e98dc2ee-hash.css']");linkElement.onload = function(){var evt = new Event('global:blocking-css-loaded');window.dispatchEvent(evt);};</script> 
+  <script type="text/javascript">
+          (function() {
+            var ots = document.createElement('script');
+            ots.async = false;
+            ots.src = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
+            ots.charset = 'utf-8';
+            ots.type = 'text/javascript';
+            ots.setAttribute('data-domain-script', '63a0b6bc-e912-4c8d-adfd-3b8a4b698c6c');
+            document.head.appendChild(ots);
+          })();
+        
+          /* Arguments passed to this function:
+          OneTrust ID (required): The OneTrust-assigned ID for this site.
+          Environment (optional): Test environment is assumed. Specify 'prod' for production. */
+          var mdp = mdp || {};
+          mdp.locinfo = (function () {
+            let locCode = 0;
+            const init = function () {
+              const otCountry = otStubData.userLocation.country;
+              const euNtns = ['BE','BG','CZ','DK','DE','EE','IE','GR','ES','FR','IT','CY','LV','LT','LU','HU','MT','NL','AT','PL','PT','RO','SI','SK','FI','SE','GB','HR','LI','NO','IS'];
+              if (euNtns.indexOf(otCountry) !== -1) {
+                locCode = 1;
+                document.body.classList.add('euUser');
+                setTimeout(() => {
+                  for (let element of document.getElementsByClassName('euDisabled')) {
+                    element.style.display='none';
+                  }
+                  for (let element of document.getElementsByClassName('euEnabled')) {
+                    element.style.display='block';
+                  }
+                }, 0);
+              } else if (otCountry === 'US') {
+                locCode = 2;
+                const ccpaLink = document.getElementsByClassName('ot-sdk-show-settings')[0];
+                ccpaLink.setAttribute('data-tracking-label', 'California Do Not Sell');
+              }
+              if (locCode === 0) {
+                const otParent = document.getElementsByClassName('ot-sdk-show-settings-parent');
+                if (otParent.length !== 0) {
+                  otParent[0].style.display = 'none';
+                }
+              }
+            };
+    
+            return {
+              init: init
+            };
+          }());
+    
+          function OptanonWrapper() {
+            mdp.locinfo.init();
+            const gpcTag = document.createElement('script');
+            gpcTag.src = 'https://ddrvjrfwnij7n.cloudfront.net/js/gpc/gpc.min.js';
+            document.head.append(gpcTag);
+          }
+        </script> 
+  <script id="universal-data-layer" type="text/javascript">
+      (function setDataLayer(global) {
+        /**
+     * The basic version of Universal Data Layer
+     *
+     * This version offers a simple get() and set()
+     * to add and retrieve key/value pairs.
+     *
+     * Scoping a collection of key/values under a namespace is supported
+     *
+     * @param {*} udl A JS/JSON object up to to levels deep
+     */
+    function UniversalDataLayer(udl) {
+      this._data = udl || {};
+      this._data.udlLevel = 'basic';
+      this.get = (key, ns) => {
+        // Return entire namespace, when 'key' is null
+        if (key === null && ns !== undefined) {
+          if (this._data[ns] === undefined) {
+            return null;
+          }
+          return this._data[ns];
+        }
+        // Return key of a namespace
+        if (ns !== undefined) {
+          if (this._data[ns] !== undefined && this._data[ns][key] !== undefined) {
+            return this._data[ns][key];
+          }
+          return null;
+        }
+        // Return a single key/value
+        if (this._data[key] !== undefined) {
+          return this._data[key];
+        }
+        // Default
+        return null;
+      };
+      this.set = (key, value, ns) => {
+        // We are setting a namespace value
+        if (ns !== undefined) {
+          // Create namespace if it does not exist
+          if (this._data[ns] === undefined) {
+            this._data[ns] = {};
+          }
+          // Set key on namespace
+          if (key !== undefined && key !== null) {
+            this._data[ns][key] = value;
+            if (value === undefined) {
+              delete this._data[ns][key];
+            }
+          } else {
+            // overwrite entire namespace with value
+            this._data[ns] = value;
+            if (value === undefined) {
+              delete this._data[ns];
+            }
+          }
+        } else {
+          // Simple key/value
+          this._data[key] = value;
+          if (value === undefined) {
+            delete this._data[key];
+          }
+        }
+      };
+      this.getAsync = (key) => new Promise((r) => {
+        if (this.get(key) !== undefined) {
+          r(this.get(key));
+        }
+        r(null);
+      });
+    
+      this.setAsync = (key, value) => new Promise((r) => {
+        this._data[key] = value;
+        r(this);
+      });
+    }
+    
+    
+        global.udl = new UniversalDataLayer({
+      "affiliate_link_count": 0,
+      "author": [],
+      "channel": "",
+      "category": "",
+      "cms_id": "",
+      "sub_category": "",
+      "primary_image": "",
+      "headline": "",
+      "post_or_index": "index",
+      "title": "",
+      "last_updated_date": "",
+      "nlp_sentiment_label": "",
+      "nlp_sentiment_score": "",
+      "nlp_sentiment_magnitude": "",
+      "nlp_entities": "",
+      "nlp_payload": "",
+      "nlp_categories": "",
+      "publish_date": "",
+      "shown_on_platform": "own",
+      "syndicated": "",
+      "taxonomy_id": [],
+      "uuid": "",
+      "content_graph_id": "",
+      "brand": "",
+      "path": "",
+      "url": "",
+      "content_type": "accounts/signin",
+      "created_date": "",
+      "auth": {
+        "auth0_config": {
+          "domain": "accounts.allrecipes.com",
+          "clientId": "3hY6qMxloHECvy2GQ4EiHswZRcW1MJO6",
+          "socialDomain": "accounts.allrecipes.com",
+          "socialClientId": "3hY6qMxloHECvy2GQ4EiHswZRcW1MJO6",
+          "database": "ar-idp",
+          "customDomain": true,
+          "brandDomain": "https://www.allrecipes.com"
+        },
+        "default_regsource": "3827",
+        "bypass_page_auth": false,
+        "legacy_token_required": true
+      }
+    });
+      })(window)
+    </script> 
+  <script type="text/javascript">
+      function getQueryParam(paramName) {
+        var query = window.location.search.substring(1);
+        var params = query.split('&');
+        for (var i = 0; i < params.length; i += 1) {
+          var pair = params[i].split('=');
+          if (pair[0] === paramName) {
+            return pair[1];
+          }
+        }
+        return false;
+      };
+      function removeURLParameter(url, param) {
+        var urlParts = url.split('?');
+        if (urlParts.length >= 2) {
+          var prefix = "".concat(encodeURIComponent(param), "=");
+          var params = urlParts[1].split(/[&;]/g);
+          for (var i = params.length - 1; i >= 0; i -= 1) {
+            if (params[i].lastIndexOf(prefix, 0) !== -1) {
+              params.splice(i, 1);
+            }
+          }
+          url = urlParts[0];
+          if (params.length > 0) {
+            url += "?".concat(params.join('&'));
+          }
+          return url;
+        }
+        return url;
+      };
+      function setCookie(cookieName, value, daysToExpire) {
+        var expires = '';
+        if (daysToExpire) {
+          var date = new Date();
+          date.setTime(date.getTime() + daysToExpire * 24 * 60 * 60 * 1000);
+          expires = "; expires=".concat(date.toGMTString());
+        }
+        if (expires !== '') {
+          document.cookie = "".concat(cookieName, "=").concat(value).concat(expires, "; path=/");
+        }
+        return true;
+      };
+      (function(){
+        var hid = getQueryParam('hid');
+        if (!hid) {
+          return;
+        }
+        setCookie('hid', hid, 90);
+    
+        const request = new XMLHttpRequest();
+        request.withCredentials = true;
+        const url = '/hermes/?keys=hid&max-age=90';
+        request.open('GET', url, true);
+        request.send();
+    
+        window.location.replace(removeURLParameter(window.location.href, 'hid'));
+      })();
+    
+      // Helper to allow reuse of the cookie getter function
+      window.mdp = window.mdp || {};
+      window.mdp.getCookieValue = function getCookieValue(name) {
+        var cookie = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return cookie ? decodeURIComponent(cookie.pop()) : '';
+      }
+    </script>
+  <script defer src="https://www.allrecipes.com/dist/main-25117b92a998d24be3ef-hash.js" type="text/javascript"></script>
+  <script type="text/javascript">!function(){var analytics=window.analytics=window.analytics||[];if(!analytics.initialize)if(analytics.invoked)window.console&&console.error&&console.error("Segment snippet included twice.");else{analytics.invoked=!0;analytics.methods=["trackSubmit","trackClick","trackLink","trackForm","pageview","identify","reset","group","track","ready","alias","debug","page","once","off","on","addSourceMiddleware","addIntegrationMiddleware","setAnonymousId","addDestinationMiddleware"];analytics.factory=function(e){return function(){var t=Array.prototype.slice.call(arguments);t.unshift(e);analytics.push(t);return analytics}};for(var e=0;e<analytics.methods.length;e++){var key=analytics.methods[e];analytics[key]=analytics.factory(key)}analytics.load=function(key,e){var t=document.createElement("script");t.type="text/javascript";t.async=!0;t.src="https://cdn.segment.com/analytics.js/v1/" + key + "/analytics.min.js";var n=document.getElementsByTagName("script")[0];n.parentNode.insertBefore(t,n);analytics._loadOptions=e};analytics._writeKey="YOUR_WRITE_KEY";analytics.SNIPPET_VERSION="4.15.2";const auth0PageTypes = ['accounts/signin-email-auth0', 'accounts/signup-email-auth0', 'accounts/quick-signup', 'accounts/signup', 'accounts/signin'];if (auth0PageTypes.indexOf(window.udl.get('content_type')) > -1) {analytics.load('RnmsxUrjIjM7W62olfjKgJrcsVlxe68V', {integrations: {'Google Tag Manager': false}});} else {analytics.load('RnmsxUrjIjM7W62olfjKgJrcsVlxe68V');}}}();window.ELEMENT_CLIENT_CONFIG = {brand_public_folder:null};
+    </script>
+  <script id="auth0config" data-client-id="3hY6qMxloHECvy2GQ4EiHswZRcW1MJO6" data-domain="accounts.allrecipes.com" data-social-client-id="3hY6qMxloHECvy2GQ4EiHswZRcW1MJO6" data-social-domain="accounts.allrecipes.com" data-regsource="3827" data-nonce="randomStrings" data-state="qwerty" data-brand-domain="https://www.allrecipes.com" type="text/javascript"></script> 
+  <link rel="manifest" href="/manifest.json"> 
+  <meta name="keywords" content="People, Fashion, Lifestyle, Entertainment, Cooking"> 
+  <meta name="news_keywords" content="People, Fashion, Lifestyle, Entertainment, Cooking"> 
+  <meta name="description" content="News from around the web."> 
+  <link rel="canonical" href="https://www.allrecipes.com/account/signin"> 
+  <link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon"> 
+  <link rel="icon" href="https://www.allrecipes.com/img/favicons/favicon-32.png" sizes="32x32"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-57.png"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-57.png" sizes="57x57"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-72.png" sizes="72x72"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-76.png" sizes="76x76"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-114.png" sizes="114x114"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-120.png" sizes="120x120"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-144.png" sizes="144x144"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-152.png" sizes="152x152"> 
+  <link rel="apple-touch-icon" href="https://www.allrecipes.com/img/favicons/favicon-180.png" sizes="180x180"> 
+  <link rel="icon" sizes="192x192" href="/img/favicons/favicon-192.png"> 
+  <meta property="og:title" content="Sign In | Allrecipes"> 
+  <meta property="og:type" content="article"> 
+  <meta property="og:site_name" content="Allrecipes"> 
+  <meta property="og:url" content="https://www.allrecipes.com/account/signin"> 
+  <meta property="og:description" content="News from around the web. "> 
+  <meta name="pinterest:url" content="https://www.allrecipes.com/account/signin"> 
+  <meta name="twitter:card" content="summary_large_image"> 
+  <meta name="twitter:url" content="https://www.allrecipes.com/account/signin"> 
+  <meta name="twitter:title" content="https://www.allrecipes.com"> 
+  <meta name="twitter:description" content="News from around the web."> 
+  <meta name="pinterest:media" content="https://www.allrecipes.com/img/misc/og-default.png"> 
+  <meta name="twitter:image" content="https://www.allrecipes.com/img/misc/og-default.png"> 
+  <meta property="og:image" content="https://www.allrecipes.com/img/misc/og-default.png"> 
+  <meta property="fb:app_id" content="66102450266"> 
+  <meta property="fb:pages" content="71158748377"> 
+  <script type="application/ld+json">[
+      {
+        "@context": "http://schema.org",
+        "@type": "Organization",
+        "name": "Allrecipes",
+        "url": "https://www.allrecipes.com",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://www.allrecipes.com/img/logo.png",
+          "width": 209,
+          "height": 60
+        },
+        "sameAs": [
+          "https://www.facebook.com/allrecipes",
+          "https://twitter.com/Allrecipes",
+          "https://www.pinterest.com/allrecipes/",
+          "https://www.instagram.com/allrecipes/"
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "SiteNavigationElement",
+        "name": [
+          [
+            "Breakfast and Brunch Recipes",
+            "Lunch Recipes",
+            "Dinner Recipes",
+            "Appetizer & Snack Recipes",
+            "Bread Recipes",
+            "Dessert Recipes",
+            "Drink Recipes",
+            "Main Dishes",
+            "Salad Recipes",
+            "Side Dish Recipes",
+            "Soup, Stew & Chili Recipes",
+            "Cooking Style",
+            "Diet & Healthy Recipes",
+            "Holidays & Entertaining",
+            "World Cuisine",
+            "Kitchen Tips",
+            "Allrecipes Magazine Recipes",
+            "Food Wishes with Chef John",
+            "Homemade Podcast",
+            "Trusted Brands",
+            "Food News and Trends",
+            "About Us"
+          ]
+        ],
+        "url": [
+          [
+            "https://www.allrecipes.com/recipes/78/breakfast-and-brunch/",
+            "https://www.allrecipes.com/recipes/17561/lunch/",
+            "https://www.allrecipes.com/recipes/17562/dinner/",
+            "https://www.allrecipes.com/recipes/76/appetizers-and-snacks/",
+            "https://www.allrecipes.com/recipes/156/bread/",
+            "https://www.allrecipes.com/recipes/79/desserts/",
+            "https://www.allrecipes.com/recipes/77/drinks/",
+            "https://www.allrecipes.com/recipes/80/main-dish/",
+            "https://www.allrecipes.com/recipes/96/salad/",
+            "https://www.allrecipes.com/recipes/81/side-dish/",
+            "https://www.allrecipes.com/recipes/94/soups-stews-and-chili/",
+            "https://www.allrecipes.com/recipes/1642/everyday-cooking/",
+            "https://www.allrecipes.com/recipes/84/healthy-recipes/",
+            "https://www.allrecipes.com/recipes/85/holidays-and-events/",
+            "https://www.allrecipes.com/recipes/86/world-cuisine/",
+            "https://www.allrecipes.com/kitchen-tips/",
+            "https://www.allrecipes.com/recipes/17235/everyday-cooking/allrecipes-magazine-recipes/",
+            "https://www.allrecipes.com/recipes/16791/everyday-cooking/special-collections/web-show-recipes/food-wishes/",
+            "https://www.allrecipes.com/homemade-podcast/",
+            "https://www.allrecipes.com/recipes/82/trusted-brands-recipes-and-tips/",
+            "https://www.allrecipes.com/food-news-trends/",
+            "https://www.allrecipes.com/longform/about-allrecipes/"
+          ]
+        ]
+      }
+    ]</script> 
+ </head> 
+ <body class="layout--thin" data-meta-domain="https://www.allrecipes.com" data-caas-sitename="alrcom"> 
+  <div class="thinNavigation"> 
+   <div class="thinNavigation__wrapper"> 
+    <div class="thinNavigation__logo"> <a class="full-logo" href="https://www.allrecipes.com" data-action="primary-nav-logo" data-tracking-label="brand logo"> 
+      <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 127 32">
+       <path fill="#F7AF31" d="M126.7 6.912c0-3.885-2.176-6.88-4.674-6.88-2.491 0-4.674 3.002-4.674 6.88 0 3.358 1.631 5.43 3.68 5.935-.015.812-.157 8.473-.93 16.89 0 0 .678.285 1.97.285 1.294 0 2.2-.284 2.2-.284-.749-7.44-1.072-14.62-1.15-16.568 0-.015-.237.071-.568-.023-.276-.071-.426-.181-.41-.181h.047c.268 0 .552-.056.733-.095.008 0 .016 0 .024-.008l.165-.04c2.01-.551 3.587-2.608 3.587-5.91z" /><path fill="#F15025" d="M4.627 19.058c-2.538.654-4.588 1.766-4.588 4.706 0 2.845 1.931 3.885 4.052 3.885 1.639 0 3.428-.607 4.72-2.167v1.82h4.32V17.23c0-3.839-1.986-5.226-5.92-5.226-2.104 0-3.987.41-5.713.946l-.3 3.76c1.679-.49 3.184-.86 4.76-.86 1.892 0 2.854.528 2.854 2.018v.158l-4.185 1.032zm1.418 5.517c-.843 0-1.529-.41-1.529-1.426 0-1.23 1.01-1.94 3.16-2.538l1.128-.331v3.097c-.851.741-1.9 1.198-2.759 1.198zm9.348-17.363v20.09h4.327V6.723zm6.747 0v20.09h4.335V6.723zm6.755 5.43v14.653h4.335v-8.907c1.568-1 3.46-1.277 5.083-1.198l.229-5.147c-2.822 0-4.256 1.151-5.312 4.982v-4.887l-4.335.504zm24.22 3.855l-.276-.678c-.859-2.136-2.837-3.839-6.092-3.823-3.8 0-7.693 2.31-7.693 7.771 0 4.753 2.893 7.874 7.945 7.874 2.767 0 4.753-.85 5.872-1.592l.284-4.295c-1.734 1.316-4.06 1.781-5.652 1.781-1.568 0-2.671-.465-3.373-1.23l8.103-3.775c.859-.386 1.245-1.166.882-2.033zm-9.97 2.892c0-2.782 1.726-3.98 3.673-3.98 1.387 0 2.073.646 2.506 1.474l-6.171 2.877c0-.119-.008-.245-.008-.37zm19.2-3.539c1.166 0 2.325.386 3.16.82v-4.106c-1.269-.395-2.766-.56-3.94-.56-4.919 0-7.48 3.074-7.48 7.819 0 4.737 2.561 7.818 7.487 7.818a12.7 12.7 0 004.288-.788v-4.059c-1.08.497-2.317.899-3.507.899-2.27 0-3.925-1.23-3.925-3.886 0-2.64 1.655-3.957 3.917-3.957zm5.305 11.452h4.334V12.154l-4.335.488zm2.151-21.446c-1.734 0-2.806 1.048-2.806 2.507 0 1.481 1.064 2.53 2.806 2.53 1.734 0 2.75-1.049 2.75-2.53.009-1.459-1.016-2.507-2.75-2.507zm4.603 6.786v19.342h4.335v-4.682a7.876 7.876 0 002.34.347c4.32 0 7.599-2.892 7.599-8.457 0-4.989-2.286-7.188-5.415-7.188-2.05 0-3.484.93-4.524 1.97v-1.828l-4.335.496zm6.581 2.917c2.444 0 3.169 1.939 3.153 4.082.008 2.893-1.253 4.58-3.941 4.58a6.966 6.966 0 01-1.458-.15v-7.835c.623-.394 1.348-.677 2.246-.677zm22.849.938l-.275-.678c-.86-2.136-2.838-3.839-6.093-3.823-3.799 0-7.693 2.31-7.693 7.771 0 4.753 2.893 7.874 7.945 7.874 2.767 0 4.753-.85 5.872-1.592l.284-4.295c-1.734 1.316-4.06 1.781-5.651 1.781-1.569 0-2.672-.465-3.374-1.23l8.103-3.775c.859-.386 1.245-1.166.882-2.033zm-9.97 2.892c0-2.782 1.726-3.98 3.673-3.98 1.387 0 2.073.646 2.506 1.474l-6.171 2.877c0-.119-.008-.245-.008-.37zm15.362-2.735c0-.938 1.284-1.174 2.522-1.174 1.214 0 2.68.197 4.437.977l-.118-3.61c-1.096-.488-2.562-.843-4.437-.843-4.8 0-6.369 2.31-6.369 4.776 0 6.006 7.425 3.579 7.425 6.014 0 .993-1.08 1.222-2.136 1.222a10.58 10.58 0 01-5.313-1.419l-.252 3.815c1.49.756 3.46 1.23 5.557 1.23 4.61 0 6.376-2.263 6.376-5.187.016-5.809-7.692-3.539-7.692-5.8z" />
+      </svg> </a> 
+    </div> 
+    <div class="thinNavigation__menuContainer euDisabled"> 
+     <div class="accountPage__signin"> <span class="accountPage__signinText"> Don't have an account? </span> <a class="accountPage__link" href="https://www.allrecipes.com/account/signup?returnURL=https%3A%2F%2Fwww.allrecipes.com%2Fmy%2Fshopping-lists%2F&amp;regSource=3906&amp;context_action=View+Shopping+List&amp;custom_dek=Sign+up+to+view+your+account%27s+shopping+list."> Sign Up </a> 
+     </div> 
+    </div> 
+   </div> 
+  </div> 
+  <div id="page-segment-values">
+   <div class="keyvals" data-content_author_name="" data-content_cms_id="" data-content_featured_image="" data-content_modified_date="" data-content_published_date="" data-content_shown_on_platform="own" data-content_type="accounts/signin" data-path="" data-referrer="" data-content_is_post="index" data-affiliate_link_count="0" data-karma_id="" data-karma_type="accounts/signin" data-video_id="" data-video_version="v4" data-content_headline="" data-title="" data-internalcampaign="" data-emaillaunchid="" data-content_cms_category="" data-content_cms_tags="" data-meredith_brand="allrecipes.com" data-meredith_application="front end" data-day_of_week="Sun" data-content_syndicated="false" data-content_syndicated_brand="" data-content_syndicated_url="" data-content_nlp_sentiment_label="" data-content_nlp_sentiment_score="" data-content_nlp_sentiment_magnitude="" data-content_nlp_entities="" data-content_nlp_categories=""> 
+   </div> 
+  </div> 
+  <div id="site-components" data-brand-sync="auth" data-brand-async="favorite" data-core-sync="lazy-image,atg,user-auth,registration-login,eu-disable-links,newsletter-unsubscribe" data-core-async="video,feed,gallery-test,add-recipe,breadcrumbs,product-detail,one-tap,docked-sharebar,gallery-view-all,gallery-everything-in,dropdown,autofill-content-container,expander,outbrain,font-size-slider,newsletter-signup-modal,search-results-form,pinterest-pin,topic-sub-nav,embed-facebook,embed-instagram,embed-twitter,embed-pinterest,build-a-meal,ecommerce-hub,content-loader,before-after,burst-text,bucket,progress-bar,amazon-price,image-zoom,glossary-header,recirculation,share-new,circular-countdown,fancy-chart,navigation-test,filmstrip-slide,footer-test,topics-carousel,circular-carousel,category-page-videos,auto-advance,category-page-list-load-more,recipe-ratings,ugc-reviews,ugc-upload,recipe-reviews,recipe-reviews-sort,recipe-ingredients,recipe-instructions,recipe-nutrition,print-preview,faceted-search-filters,image-link,saga,saga-ribbon,slider,search-results,alert-banner,entity-summary,sticky-action-bar,faceted-search-widget,ugc-comments,project-ratings,ugc-photo-upload,button-pdf,buying-information,call-to-action,category-page-promo-entity,node-interactive-content,profile-management-page,tout-cards,tab-new,entity-full,quick-registration,poll-template,embedded-auth,manage-push-notifications,sweepstakes-entry-page,selectable,sweepstakes-description,sweepstakes-confirmation,feedback,entity-table-of-contents,line-clamp,search-by-ingredient,video-transcript,audio,embed-tiktok,user-profile-management,gallery-full-screen,gallery-right-rail-video,assistive-text,sitewide-alerts,table-of-contents,listicle,shop-go,init-auth,user-profile-registration,favorite-collections,updates-modal,embed-google-read-aloud-player"></div> 
+  <script src="https://cdn.auth0.com/js/auth0/9.11.2/auth0.min.js"></script> 
+  <script>
+  // Auth0 Configs
+  let auth0config = {
+    clientId: '3hY6qMxloHECvy2GQ4EiHswZRcW1MJO6',
+    domain: 'accounts.allrecipes.com',
+    regsource: '3827',
+    domain: 'accounts.allrecipes.com',
+    socialClientId: '3hY6qMxloHECvy2GQ4EiHswZRcW1MJO6',
+    socialDomain: 'accounts.allrecipes.com',
+    brandDomain: 'https://www.allrecipes.com',
+    database: 'ar-idp',
+    customDomain: 'true' === 'true' ? true : false,
+  };
+
+  try {
+    const config = JSON.parse(
+      decodeURIComponent(escape(window.atob('@@config@@')))
+    );
+
+    const bodyEl = document.querySelector('body');
+    if (config
+      && config.extraParams.data.brand_config
+      && bodyEl
+      && bodyEl.classList.contains('layout--universal')) {
+      const brandConfig = config.extraParams.data.brand_config;
+      brandConfig.clientId = brandConfig.client_id;
+      brandConfig.brandDomain = brandConfig.brand_domain;
+      brandConfig.socialClientId = brandConfig.social_client_id;
+      brandConfig.socialDomain = brandConfig.social_domain;
+
+      auth0config = brandConfig;
+    }
+  } catch(e) {};
+</script> 
+  <script>
+  const errorList = {
+    Error: {
+      description: 'Your password or email do not match. <a href="https://www.allrecipes.com/account/forgot-password" class="accountPage__link">Please try again or reset your password</a>',
+      target: 'password',
+    },
+    enter_email: {
+      description: 'Please enter your email',
+      target: 'email'
+    },
+    all_password: {
+      description: 'Please provide a password with 8 characters including 1 uppercase, 1 lowercase, and 1 number',
+      target: 'password',
+    },
+    enter_password: {
+      description: 'Please enter your password',
+      target: 'password',
+    },
+    password_format: {
+      description: 'Please provide your email address in the format yourname@example.com',
+      target: 'password',
+    },
+    password_strength_error: {
+      description: 'The chosen password is too weak',
+      target: 'password',
+    },
+    PasswordStrengthError: {
+      description: 'Password not strong enough',
+      target: 'password',
+    },
+    password_dictionary_error: {
+      description: 'The chosen password is too common',
+      target: 'password',
+    },
+    invalid_password: {
+      description: 'Password not valid',
+      target: 'password',
+    },
+    Conflict: {
+      description: 'Account with this email already exists.',
+      target: 'email',
+    },
+    username_exists: {
+      description: 'Account with this username already exists',
+      target: 'email',
+    },
+    invalid_signup: {
+      description: 'The email you are attempting to signup with is invalid',
+      target: 'email',
+    },
+    user_exists: {
+      description: 'Account with this email already exists.',
+      target: 'email',
+    },
+    password_no_user_info_error: {
+      description: 'The chosen password is based on user information',
+      target: 'password',
+    },
+    unauthorized: {
+      description: 'You cannot signup/signin for this application. User blocked.',
+      target: 'email',
+    },
+    access_denied: {
+      description: 'Wrong email or password',
+      target: 'email',
+    },
+    mfa_invalid_code: {
+      description: 'The multi-factor authentication (MFA) code provided by the user is invalid/expired.',
+      target: 'password',
+    },
+    mfa_registration_required: {
+      description: 'The administrator has required multi-factor authentication, but the user has not enrolled.',
+      target: 'password',
+    },
+    invalid_user_password: {
+      description: 'Your password or email do not match.  <a href="https://www.allrecipes.com/account/forgot-password" class="accountPage__link">Please try again or reset your password</a>',
+      target: 'password',
+    },
+    mfa_required: {
+      description: 'The user must provide the multi-factor authentication code to authenticate',
+      target: 'password',
+    },
+    password_leaked: {
+      description: 'The password has been leaked and a different one needs to be used',
+      target: 'password',
+    },
+    PasswordHistoryError: {
+      description: 'The password provided for sign up/update has already been used.',
+      target: 'password',
+    },
+    too_many_attempts: {
+      description: 'The account is blocked due to too many attempts to sign in, reset password',
+      target: 'email',
+    },
+    'Bad Request': {
+      description: 'Is this a valid email? (Bad Request Response)',
+      target: 'email',
+    },
+    spam_email_detected: {
+      description: 'Invalid email address',
+      target: 'email',
+    },
+    generic_error: {
+      description: 'Something went wrong. Please look over your info and try again',
+      target: 'email',
+    },
+  }
+
+  function findCookie(cookies, key) {
+    return cookies.split(';').filter(item => item.trim().startsWith(key))[0];
+  }
+
+  function authenticatedUserHid() {
+    const parentCookies = window.parent.document.cookie;
+    const mdpaccount = typeof findCookie(parentCookies, 'mdpaccount=') !== 'undefined' ? findCookie(parentCookies, 'mdpaccount=') : null;
+    const hashid = mdpaccount ? JSON.parse(mdpaccount.replace('mdpaccount=', '')).hashId.trim() : null;
+    const hid = typeof findCookie(parentCookies, 'hid=') !== 'undefined' ? findCookie(parentCookies, 'hid=').replace('hid=', '').trim() : null;
+
+    return hid || hashid;
+  }
+
+  //  Hide email field if user is already authenticated
+  function hideAuthenticatedEmail() {
+    if(authenticatedUserHid()){
+      const emailContainer = document.querySelector('.userAccountForm__emailGroup');
+      emailContainer.style.display = 'none';
+      emailContainer.setAttribute('data-authenticated', 'true');
+    }
+  }
+
+  // Show/Hide password toggling Proof of concept
+  function showHidePassword(showPasswordElementId, passwordElementId) {
+    const passwordButton = document.getElementById(showPasswordElementId);
+    if (passwordButton) {
+      passwordButton.addEventListener('click', function (e) {
+        e.preventDefault();
+        const passwordInput = document.getElementById(passwordElementId);
+        if (passwordInput.type === 'password') {
+          passwordInput.type = 'text';
+          passwordButton.innerHTML = 'HIDE';
+        } else {
+          passwordInput.type = 'password';
+          passwordButton.innerHTML = 'SHOW';
+        }
+      });
+    }
+  }
+  // Clear validation events
+  function clearError(target, func, submitBtnId) {
+    removeInputError(target, func);
+    document.getElementById(submitBtnId).removeAttribute('disabled');
+  }
+
+  // Process error
+  function processError(target, resp, func, submitBtnId) {
+    addInputError(target, resp, func, submitBtnId);
+    document.getElementById(submitBtnId).setAttribute('disabled', 'disabled');
+  }
+
+  // process validation for username
+  function spamEmail(email) {
+    let errorMsg = '';
+    let status = '';
+
+    status = 'error';
+    errorMsg = errorList.spam_email_detected.description;
+
+    return { status, errorMsg };
+  }
+
+  // when a user enters a spam email, tell them to enter a good one
+  function badEmailSubmitted(e, emailElementId, submitBtnId) {
+    const emailTarget = document.getElementById(emailElementId);
+    const spamEmailCheck = spamEmail(emailTarget.value);
+    processError(emailTarget, spamEmailCheck, curriedWatchEmailInput(submitBtnId), submitBtnId);
+  }
+
+  // used in onSubmit sign-in function
+  function validateInputs(emailElementId, passwordElementId, submitBtnId, passwordNotEmpty) {
+    const emailTarget = document.getElementById(emailElementId);
+    const emailValidation = validateEmail(emailTarget.value);
+    if (document.querySelector('.userAccountForm__emailGroup') && document.querySelector('.userAccountForm__emailGroup').getAttribute('data-authenticated')) {
+      emailValidation.status = 'ready'
+    }
+    let validEmail = false;
+    let validPassword = false;
+    if (emailValidation.status != 'ready') {
+      processError(emailTarget, emailValidation, curriedWatchEmailInput(submitBtnId), submitBtnId);
+    } else {
+      validEmail = true;
+    }
+    if (passwordElementId !== undefined) {
+      const passwordTarget = document.getElementById(passwordElementId);
+      const passwordValidation = validatePassword(passwordTarget.value, passwordNotEmpty);
+      if (passwordValidation.status != 'ready') {
+        processError(passwordTarget, passwordValidation, curriedWatchPasswordInput(submitBtnId), submitBtnId);
+      } else {
+        validPassword = true;
+      }
+    } else {
+      // Where no password field is to be checked pass as true.
+      validPassword = true;
+    }
+    return validEmail && validPassword;
+  }
+
+  // Pass in input element to "check off" email validation
+  function usernameCheck(target) {
+    const resp = validateEmail(target.value);
+    if (resp.status == 'ready') {
+      addClassToTarget(target, 'checkOn');
+    } else {
+      removeClassFromTarget(target, 'checkOn');
+    }
+  }
+
+  const curriedEmailWatchers = {};
+  // KeyUp callback during error state
+  function curriedWatchEmailInput(submitBtnId) {
+    if (curriedEmailWatchers[submitBtnId] === undefined) {
+      curriedEmailWatchers[submitBtnId] = (e) => {
+        const resp = validateEmail(e.target.value);
+        if (resp.status == 'ready') {
+          clearError(e.target, curriedWatchEmailInput(submitBtnId), submitBtnId)
+        }
+      }
+    }
+    return curriedEmailWatchers[submitBtnId];
+  }
+
+  // when user leaves an input box validate current value
+  function validateEmailAfterBlur(e, submitBtnId) {
+    clearError(e.target, curriedWatchEmailInput(submitBtnId), submitBtnId);
+    const resp = validateEmail(e.target.value);
+    if (resp.status == 'ready') {
+      clearError(e.target, curriedWatchEmailInput(submitBtnId), submitBtnId);
+    } else {
+      processError(e.target, resp, curriedWatchEmailInput(submitBtnId), submitBtnId);
+    }
+  }
+
+  // Pass in input element to "check off" password validation
+  function passwordCheck(target) {
+    const resp = validatePassword(target.value);
+    setPasswordRuleChecks(resp.matches);
+  }
+
+  // KeyUp callback during error state for Password
+  const curriedPasswordWatchers = {};
+  function curriedWatchPasswordInput(submitBtnId, passwordNotEmpty) {
+    if (curriedPasswordWatchers[submitBtnId] === undefined) {
+      curriedPasswordWatchers[submitBtnId] = (e) => {
+        const resp = validatePassword(e.target.value, passwordNotEmpty);
+        if (resp.status == 'ready') {
+          clearError(e.target, curriedWatchPasswordInput(submitBtnId), submitBtnId)
+        }
+      }
+    }
+    return curriedPasswordWatchers[submitBtnId];
+  }
+
+  // when user leaves an input box validate current value
+  function validatePasswordAfterBlur(e, submitBtnId, emptyOnly) {
+    clearError(e.target, curriedWatchPasswordInput(submitBtnId, emptyOnly), submitBtnId);
+    const resp = validatePassword(e.target.value, emptyOnly);
+    if (resp.status == 'ready') {
+      clearError(e.target, curriedWatchPasswordInput(submitBtnId, emptyOnly), submitBtnId);
+    } else {
+      processError(e.target, resp, curriedWatchPasswordInput(submitBtnId, emptyOnly), submitBtnId);
+    }
+  }
+
+  // processes the validation results matches for password rule display checks
+  function setPasswordRuleChecks(matches) {
+    const targets = document.querySelectorAll('.userAccountForm__rules');
+    for (let i = 0; i < targets.length; i++) {
+      (matches[i] == 'valid') ? addClassToTarget(targets[i], 'checkOn') : removeClassFromTarget(targets[i], 'checkOn');
+    }
+  }
+
+  // disable submit and display input error
+  function addInputError(target, resp, func) {
+    document.getElementById(target.id).addEventListener('keyup', func);
+    displayInputError(target, resp.errorMsg);
+  }
+
+  // Remove the KeyUp listener so we don't have multiple listeners
+  function removeKeyListener(target, func) {
+    document.getElementById(target.id).removeEventListener('keyup', func);
+  }
+
+  // enable submit and remove input error
+  function removeInputError(target, func) {
+    document.getElementById(target.id).removeEventListener('keyup', func);
+    hideInputError(target);
+  }
+
+  // remove error dropdown message for quick signup when clicked
+  function removeClose() {
+    const errorMessageQuickSignup = document.getElementById("userSignupFormEmail-error");
+    errorMessageQuickSignup.classList.remove('userAccountForm__error--active');
+  }
+
+  // display an input message on and form input value
+  function displayInputError(target, message) {
+    addClassToTarget(target, 'alertOn');
+    const errorBox = document.getElementById(`${target.id}-error`);
+    const messageContainer = errorBox.querySelector('.userAccountForm__errorMessage');
+    messageContainer.innerHTML = message;
+    messageContainer.setAttribute("aria-live", "assertive")
+    errorBox.classList.add('userAccountForm__error--active');
+  }
+
+  // remove an input message on and form input value
+  function hideInputError(target) {
+    removeClassFromTarget(target, 'alertOn');
+    const errorBox = document.getElementById(`${target.id}-error`);
+    errorBox.classList.remove('userAccountForm__error--active');
+  }
+
+  // process validation for username
+  function validateEmail(email) {
+    // Used regex from:
+    // https://github.com/MeredithCorp/identity.aws.identity-service/blob/integration/meredith-util/src/constants.js#L2
+    // Note: rmeoved the escape characters from the original string
+    const re = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/
+    const regex = new RegExp(re);
+    const matchEmail = (email) => (regex.test(email)) ? "valid" : "invalid";
+    let errorMsg = '';
+    let status = '';
+    if (email.length == 0) {
+      status = 'empty';
+      errorMsg = errorList.enter_email.description;
+    } else if (matchEmail(email) == "invalid") {
+      status = 'watching';
+      errorMsg = errorList.password_format.description;
+    } else {
+      status = 'ready';
+    }
+    return { status, errorMsg };
+  }
+
+  // process validation for password
+  function validatePassword(password, emptyOnly) {
+    let matches = matchPasswordRules(password);
+    if (emptyOnly) {
+      matches = 'valid';
+    }
+    let errorMsg = '';
+    let status = '';
+    if (password.length == 0) {
+      status = 'empty';
+      errorMsg = errorList.enter_password.description;
+    } else if (matches.indexOf('invalid') > -1) {
+      status = 'watching';
+      errorMsg = errorList.all_password.description;
+    } else {
+      status = 'ready';
+    }
+    return { status, matches, errorMsg };
+  }
+
+  // match each password rule
+  function matchPasswordRules(password) {
+    const matches = [];
+    const rules = [
+      new RegExp('^(?=.{8,}).*$'),   // Has 8 characters.
+      new RegExp('^(?=.*[A-Z]).*$'), // Has 1 uppercase character.
+      new RegExp('^(?=.*[a-z]).*$'), // Has 1 lowercase character.
+      new RegExp('^(?=.*[0-9]).*$'), // Has 1 number character.
+    ];
+    for (let i = 0; i < rules.length; i++) {
+      matches[i] = (rules[i].test(password)) ? 'valid' : 'invalid';
+    }
+    return matches;
+  }
+
+  // add a class to an input target
+  function addClassToTarget(target, classname) {
+    const classArr = target.getAttribute('class').split(' ');
+    classArr.push(classname);
+    const newClassArr = classArr.filter((i, p) => classArr.indexOf(i) == p);
+    target.setAttribute('class', newClassArr.join(' '));
+  }
+
+  // remove a class from an input target
+  function removeClassFromTarget(target, classname) {
+    const classArr = target.getAttribute('class').split(' ');
+    const newClassArr = classArr.filter((i, p) => ((i != classname) && (classArr.indexOf(i) == p)));
+    target.setAttribute('class', newClassArr.join(' '));
+  }
+
+  function getCurrentDomain(href) {
+    const urlParser = document.createElement('a');
+    let url = href;
+    if (href === undefined) {
+      url = window.location.hostname;
+    }
+    urlParser.href = url;
+    let domain = urlParser.hostname;
+    if (domain.substr(0, domain.lastIndexOf('.')).lastIndexOf('.') > -1) {
+     domain = domain.substr(domain.substr(0, domain.lastIndexOf('.')).lastIndexOf('.') + 1)
+    }
+    return domain;
+  }
+
+  function setCookie(key, value, expiry, domain) {
+    const expires = new Date();
+    const host = getCurrentDomain(domain);
+    expires.setTime(expires.getTime() + (expiry * 24 * 60 * 60 * 1000));
+    document.cookie = key + '=' + value + ';path=/;domain=' + host + ';' + 'expires=' + expires.toUTCString();
+  }
+
+  function eraseCookie(key) {
+    var keyValue = this.getCookie(key);
+    this.setCookie(key, keyValue, -1, auth0config.brandDomain);
+  }
+
+  function getCookie(key) {
+    var keyValue = document.cookie.match('(^|;) ?' + key + '=([^;]*)(;|$)');
+    return keyValue ? keyValue[2] : null;
+  }
+
+  function readCookie(name) {
+    const cookie = getCookie(name);
+    try {
+      const cookieJson = JSON.parse(cookie);
+      return cookieJson;
+    } catch (e) {
+
+    }
+    return {};
+  }
+
+  function getUrlParameter(name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+  };
+
+ /*
+  * @param hashId - The value for hash ID cookie.
+  * @param domain - Brand domain where cookie is being set.
+  * @desc - Sets the hash ID using the setCookie function and calls the Hermes API to set the cookie .
+ */
+  function setHidCookie(hashId, domain) {
+    setCookie('hid', hashId, 365, domain);
+    const hid = getCookie('hid');
+
+    // Set hid to server on Hermes for 365 days
+    const request = new XMLHttpRequest();
+    request.withCredentials = true;
+    const url = '/hermes/?keys=hid&max-age=365';
+    request.open('GET', url, true);
+    request.send();
+  }
+
+  function deleteLegacyCookies() {
+    // Send request to delete legacy cookies
+    const request = new XMLHttpRequest();
+    request.withCredentials = true;
+    const url = '/user-proxy/deletelegacycookies';
+    request.open('POST', url, true);
+    request.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    request.send('selfHandledResponse=true');
+  }
+</script> 
+  <div class="accountPageBackground"></div> 
+  <script>
+      const cookieData = {
+        type: 'log',
+        regsource: '',
+        modal: false,
+      };
+    
+      if (getUrlParameter('modal') === 'true') {
+        cookieData.modal = true;
+      }
+    
+      if (getUrlParameter('modal') !== 'true') {
+        window.addEventListener('load', () => {
+          // Fire Page Event once everything is ready.
+          window.analytics.page(data('signin'));
+        });
+      }
+    
+      const returnUrl = getUrlParameter('returnURL') || getUrlParameter('returnUrl');
+      if (returnUrl !== '') {
+        cookieData.returnUrl = returnUrl;
+      }
+      const action = getUrlParameter('action');
+      if (action !== '') {
+        cookieData.action = action;
+      }
+      const debug = getUrlParameter('debug');
+      if (debug !== '') {
+        cookieData.debug = true;
+      }
+      setCookie('mdplogreg', JSON.stringify(cookieData), 365, auth0config.brandDomain);
+    
+       // If non-auth0 session, delete all legacy cookies
+      if (getCookie('mdpaccount') === null  && window.udl.get('legacy_token_required', 'auth')) {
+        deleteLegacyCookies();
+      }
+    
+      window.parent.postMessage({
+        pageType: 'Sign In',
+      }, auth0config.brandDomain);
+    
+      const webAuthEmail = new auth0.WebAuth({
+        domain: auth0config.domain,
+        clientID: auth0config.clientId,
+        redirectUri: debug !== '' ? `${auth0config.brandDomain}/account/session-info` : `${auth0config.brandDomain}/account/signinemailcallback`,
+        responseType: 'code token',
+      });
+    
+      const webAuthSocial = new auth0.WebAuth({
+        domain: auth0config.socialDomain,
+        clientID: auth0config.socialClientId,
+        redirectUri: debug !== '' ? `${auth0config.brandDomain}/account/session-info` : `${auth0config.brandDomain}/account/signinemailcallback`,
+        responseType: 'code token',
+      });
+    
+      // Starts an email registration flow
+      const signinEmail = () => {
+        const bodyEl = document.querySelector('body');
+        const domain = bodyEl.getAttribute('data-meta-domain') || '';
+        const sitename = bodyEl.getAttribute('data-caas-sitename') || '';
+    
+        // Resize modal
+        if (window.self !== window.top) {
+          bodyEl.classList.add('framed');
+    
+          window.parent.postMessage({
+            iFrameSize: 500,
+          }, auth0config.brandDomain);
+        }
+        cookieData.type = 'email';
+    
+        // Pass our query params to Auth0 so we can append them to the links.
+        let initialParamsObj = {};
+        try {
+          const urlSearchParams = new URLSearchParams(window.location.search);
+          initialParamsObj = Object.fromEntries(urlSearchParams.entries());
+        } catch (e) {}
+    
+        setCookie('mdplogreg', JSON.stringify(cookieData), 365);
+        // Fire Segment Tracking
+        trackLogRegButtonClick('Login Click', 'Email');
+        // Build URL to redirect to
+        window.location.href = webAuthEmail.client.buildAuthorizeUrl({
+          clientID: auth0config.clientId,
+          responseType: 'token id_token',
+          redirectUri: debug !== '' ? `${auth0config.brandDomain}/account/session-info` : `${auth0config.brandDomain}/account/signinemailcallback`,
+          state: 'qwerty',
+          nonce: 'randomStrings',
+          scope: 'openid email profile',
+          login_hint: 'signin',
+          regsource: initialParamsObj.regsource || initialParamsObj.regSource || auth0config.regsource,
+          data: {
+            brand_config: auth0config,
+            meta_domain: domain,
+            regsource: auth0config.regsource,
+            sitename,
+            pagetype: 'signup',
+            initial_params_obj: initialParamsObj,
+          },
+        });
+      }
+      // Starts a social connection flow
+      const signinSocial = (socialConnection) => {
+        cookieData.type = 'social';
+        setCookie('mdplogreg', JSON.stringify(cookieData), 365);
+    
+        const socialValues = {
+          'google-oauth2': 'Google',
+          'facebook': 'Facebook',
+          'apple': 'Apple',
+        };
+        const socialValue = (socialConnection) => socialValues[socialConnection] || '';
+    
+        // Fire Segment Tracking
+        trackLogRegButtonClick('Login Click', socialValue);
+    
+        // Trigger login with social
+        const webAuthParams = {
+          connection: socialConnection,
+          clientID: auth0config.socialClientId,
+          responseType: 'token id_token', // code or token
+          redirectUri: debug !== '' ? `${auth0config.brandDomain}/account/session-info` : `${auth0config.brandDomain}/account/signinsocialcallback`,
+          state: 'qwerty',
+          nonce: 'randomStrings',
+          scope: 'openid email profile',
+          data: {
+            regsource: auth0config.regsource,
+            pageType: 'signup',
+          },
+        };
+    
+        if (window.self !== window.top) {
+          webAuthSocial.popup.authorize(webAuthParams, (err, authResult) => {
+            if (err || authResult) {
+              const event = new CustomEvent(
+                'user-authenticated',
+                {
+                  detail: {
+                    action: cookieData ? cookieData.action : '',
+                    type: authResult ? 'signin' : 'error',
+                    response: authResult ? '' : err,
+                    context: window,
+                  }
+                }
+              );
+    
+              window.parent.dispatchEvent(event);
+            }
+          });
+        } else {
+          webAuthSocial.authorize(webAuthParams);
+        }
+      }
+    </script> 
+  <div class="accountPage"> 
+   <div class="accountPage__accountBlock"> 
+    <h2 class="accountPage__heading"> Sign In to View Shopping List </h2> 
+    <div class="accountPage__options"> 
+     <div class="loginRegistration__facebook"> <a href="#" onclick="signinSocial('facebook')" class="loginRegistration__facebookLink loginRegistration__button"> <span class="icon icon-facebook2 default-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+         <path d="M16.282 8.468H13.12V6.395c0-.778.517-.96.88-.96h2.23V2.012L13.157 2C9.748 2 8.972 4.554 8.972 6.187v2.28H7v3.527h1.972v9.979h4.148v-9.98h2.799l.363-3.525z" />
+        </svg> </span> <span class="loginRegistration__facebookText loginRegistration__buttonText"> Sign In with Facebook </span> </a> 
+     </div> 
+     <div class="loginRegistration__google"> <a href="#" onclick="signinSocial('google-oauth2')" class="loginRegistration__googleLink loginRegistration__button"> <span class="icon icon-google2 default-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+         <path d="M12 10.57V14h5.672c-.228 1.47-1.714 4.313-5.671 4.313-3.415 0-6.2-2.828-6.2-6.314s2.785-6.314 6.2-6.314c1.942 0 3.243.828 3.985 1.543l2.716-2.615C16.959 2.985 14.7 2 12 2 6.472 2 2 6.47 2 12s4.472 10 10 10c5.773 0 9.6-4.058 9.6-9.771 0-.659-.07-1.159-.156-1.658H12z" />
+        </svg> </span> <span class="loginRegistration__googleText loginRegistration__buttonText"> Sign In with Google </span> </a> 
+     </div> 
+     <div class="loginRegistration__apple"> <a hre
