@@ -1,113 +1,117 @@
 import java.io.*;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
 import java.net.URL;
 
+import com.mongodb.BasicDBObject;
 import groovy.lang.GString;
 import org.bson.Document;
 import com.mongodb.client.*;
 import com.mongodb.client.MongoClient;
-//import com.mongodb.MongoClientSettings;
+
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-//import com.mongodb.client.result.InsertOneResult;
-//import com.mongodb.client.model.UpdateOptions;
 
 import org.jsoup.Jsoup;
-//import org.jsoup.nodes.Document;
+import com.mongodb.client.model.Projections;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-
-//import javafx.util.Pair;
-
+import javax.print.Doc;
 
 public class HelloWorld {
 
-    private static org.jsoup.nodes.Document doc;
+  public static void main(String[] args) throws IOException {
 
-    public static void main(String[] args) throws IOException {
-        int docNum = 1;
-        String uri = "mongodb://localhost:27017";
-        HashSet<String> urls = new HashSet<>();
-        File myObj = new File("D:\\CMP #2\\Second Semester\\Advanced Programming Techniques\\IntelliJ\\seed.txt");
-        MongoClient mongo = MongoClients.create(uri);
-        MongoDatabase db = mongo.getDatabase("myDB");
-        MongoCollection<Document> col = db.getCollection("Crawler");
-//        Document sampleDoc = new Document("_id", "1").append("name", "John Smith");
-//        col.insertOne(sampleDoc);
-        Scanner myReader = new Scanner(myObj);
-        for (int i = 0; i < 5; i++) //read from seeds.txt
-        {
-            String title;//= myReader.nextLine();
+    String uri = "mongodb://localhost:27017";
+    HashSet<String> urls = new HashSet<>();
+    File myObj =
+        new File(
+            "D:\\CMP #2\\Second Semester\\Advanced Programming Techniques\\IntelliJ\\SearchEngine\\seed.txt");
+    MongoClient mongo = MongoClients.create(uri);
+    MongoDatabase db = mongo.getDatabase("SearchEngine");
+    MongoCollection<Document> fetchedURLS = db.getCollection("FetchedURLs");
+    MongoCollection<Document> URLSWithHTML = db.getCollection("URLSWithHTML");
 
-            title = myReader.nextLine();
-            URL currentURL = new URL(title);
-            String protol = currentURL.getProtocol();
-            String host = currentURL.getHost();
-            org.jsoup.nodes.Document robots ;
-            String robotsURL = (new URL(currentURL.getProtocol()+ "://"+currentURL.getHost()+"/robots.txt")).toString();
-//            try{robots = Jsoup.connect(robotsURL).get();}
-//            catch (Exception e){
-//                continue;
-//            }
-//            try {
-//                InputStream stream = (new URL(robotsURL)).openStream();
-//                byte bytes[]=new byte[1000];
-//                int numRead = stream.read(bytes);
-//            }
-//            catch (IOException e){
-//                continue;
-//            }
-            InputStream in = new URL(robotsURL).openStream();
-            Scanner aaa = new Scanner(in).useDelimiter("\\A");
-            String result = aaa.hasNext()? aaa.next() : "";
-
-            System.out.println("currentURL is "+ currentURL);
-            System.out.println("robots is "+ robotsURL);
-            System.out.println(result);
-            org.jsoup.nodes.Document doc;
-            try {
-
-                doc = Jsoup.connect(title).get();
-            }
-            catch (Exception e) {
-                continue;
-            }
-            // String documentTitle = "NewFile";
-            //col.find();
-            //BufferedWriter writer ;//= new BufferedWriter(new FileWriter("D:\\CMP #2\\Second Semester\\Advanced Programming Techniques\\IntelliJ\\s" + docNum + ".html"));
-            //docNum++;
-            //writer.write(doc.toString());
-
-            Document s = new Document("_id", title).append("html", doc.toString()).append("state", "checked");
-            //state = n --> not downloaded yet
-            col.insertOne(s);
-
-            Elements el = doc.select("a[href]");
-            //appends url to seeds.txt
-            FileWriter myWriter = new FileWriter("D:\\CMP #2\\Second Semester\\Advanced Programming Techniques\\IntelliJ\\seed.txt", true);
-
-            BufferedWriter bufferedWriter = new BufferedWriter(myWriter);
-            //  bufferedWriter.newLine();
-
-            for (Element lis : el) {
-
-                if (!urls.contains(lis.attr("href"))) {
-
-                    urls.add(lis.attr("href"));
-
-                    // if(!(lis.attr("href").charAt(0)=='/' || lis.attr("href").charAt(0)=='#'  )) {
-                    if (lis.attr("href").contains("https")) {
-
-                        bufferedWriter.newLine();
-                        System.out.println(lis.attr("abs:href"));
-                        bufferedWriter.write(lis.attr("abs:href"));
-                    }
-                }
-            }
-            bufferedWriter.close();
-        }
+    //loop collection --> fill hashset
+    for (int i=0; i<fetchedURLS.countDocuments(); i++){
+      BasicDBObject dbObject = new BasicDBObject();
+      dbObject.put("_id",i);
+      FindIterable<Document> d =  fetchedURLS.find(dbObject);
+     for(Document doc : d)
+     {
+       urls.add((String) doc.get("_url"));
+     }
     }
-}
+    //for (int i=0; i<URLSWithHTML.countDocuments(); i++){
+      System.out.println(urls);
+   // }
 
+    Scanner myReader = new Scanner(myObj);
+    int id=0;
+    int fetchedURLID=0;
+    for (int i = 0; i < 5; i++) // read from seeds.txt
+    {
+
+      String title;
+      title = myReader.nextLine();
+      URL currentURL = new URL(title);
+
+      String robotsURL =
+          (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt")).toString();
+      InputStream in = new URL(robotsURL).openStream();
+      Scanner robots7aga = new Scanner(in).useDelimiter("\\A");
+      String result = robots7aga.hasNext() ? robots7aga.next() : "";
+      String[] array = result.split("\n"); // array of robots.txt as strings
+      Vector<String> disallows = new Vector<String>(0);
+
+      for (int x = 0; x < array.length; x++) {
+        if (array[x].contains("User-agent: *")) {
+          x++;
+
+          while (x < array.length && array[x].contains("Disallow")) {
+            array[x] = array[x].replace("Disallow: ", "");
+            disallows.add(array[x]);
+
+            x++;
+          }
+        }
+      }
+
+      org.jsoup.nodes.Document doc;
+      try {
+
+        doc = Jsoup.connect(title).get();
+      } catch (Exception e) {
+        continue;
+      }
+
+      Document s = new Document("_id", id++).append("_url",title).append("html", doc.toString());
+      // state = n --> not downloaded yet
+      URLSWithHTML.insertOne(s);
+
+      Elements el = doc.select("a[href]");
+
+      for (Element lis : el) {
+        Boolean tmam = true;
+        if (!urls.contains(lis.attr("href"))) {
+          for (int y = 0; y < disallows.size(); y++) {
+            if (lis.attr("href").contains(disallows.get(y))) {
+              tmam = false;
+            }
+          }
+          if (!tmam) continue;
+
+          urls.add(lis.attr("href"));
+
+          if (lis.attr("href").contains("https")) {
+
+            Document link = new Document("_id", fetchedURLID++).append("_url",lis.attr("href"));
+            fetchedURLS.insertOne(link);
+
+
+          }
+        }
+      }
+    }
+  }
+}
