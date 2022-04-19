@@ -1,27 +1,20 @@
 import java.io.*;
 import java.util.*;
 import java.net.URL;
-
 import com.mongodb.client.model.FindOneAndUpdateOptions;
 import com.mongodb.client.model.ReturnDocument;
 import org.bson.Document;
 import com.mongodb.client.*;
 import com.mongodb.client.MongoClient;
-
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-
 import org.jsoup.Jsoup;
-
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import javax.print.Doc;
-
 public class HelloWorld {
 
   public static void main(String[] args) throws IOException {
-    /////////////////////// ADD CHECK FOR STATUS 1 FUNCTION////////////////////////
+
     ///////////////////////// NORMALIZATION////////////////////////////////////////
     String uri = "mongodb://localhost:27017";
     HashSet<String> urls = new HashSet<>();
@@ -174,7 +167,7 @@ public class HelloWorld {
             disallows.add(array[x]);
 
             x++;
-            
+
           }
         }
       }
