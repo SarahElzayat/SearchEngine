@@ -11,7 +11,7 @@ import com.mongodb.client.MongoDatabase;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-public class HelloWorld {
+public class Crawler {
 
   public static void main(String[] args) throws IOException {
 
