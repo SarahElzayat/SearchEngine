@@ -174,6 +174,7 @@ public class HelloWorld {
             disallows.add(array[x]);
 
             x++;
+            
           }
         }
       }
