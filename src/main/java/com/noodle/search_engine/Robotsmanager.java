@@ -12,7 +12,7 @@ public class Robotsmanager {
     Vector<String> disallows;
     URL currentURL;
     Robotsmanager (){
-        Vector<String> disallows = new Vector<String>(0);
+         disallows = new Vector<String>(0);
     }
 
     public void getRobotsfile(String url) throws IOException {

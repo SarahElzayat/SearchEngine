@@ -18,19 +18,23 @@ public class Crawler {
   DBManager dbMongo ;
   Robotsmanager robotsTxt;
   HashSet<String> urlsBGD = new HashSet<>();
-  long URLSWithHTMLID = dbMongo.gethtmlurlsCount();
-  long fetchedURLSID = dbMongo.getfetchedcount();
+  long URLSWithHTMLID ;
+  long fetchedURLSID ;
   String title;
-  Vector<String> disallows;
+ // Vector<String> disallows;
   //int crawledPages;
   int currentID;
 
-  Crawler(DBManager db) throws IOException {
+  Crawler(DBManager db,Robotsmanager rb) throws IOException {
       dbMongo=db;
+      robotsTxt=rb;
+
     }
   public void initializeSeeds() throws IOException {
-    File myObj = new File("D:\\CMP #2\\Second Semester\\Advanced Programming Techniques\\IntelliJ\\SearchEngine\\seed.txt");
+    File myObj = new File("F:\\Second Year\\Second Semester\\Advanced Programming\\Project\\seed.txt");
     Scanner myReader = new Scanner(myObj);
+    URLSWithHTMLID= dbMongo.gethtmlurlsCount();
+    fetchedURLSID = dbMongo.getfetchedcount();
     dbMongo.retrieveElements(urlsBGD);
     while(myReader.hasNextLine()) {
       title = myReader.nextLine();
@@ -59,7 +63,7 @@ public class Crawler {
   }
 
   public void getRobots() throws IOException {
-    disallows = new Vector<String>(0);
+  //  disallows = new Vector<String>(0);
     robotsTxt.getRobotsfile(title);
   }
   public void crawl(String url,int check) throws IOException {
@@ -78,6 +82,7 @@ public class Crawler {
     for(Element lis:el){
       this.addinFetched(lis,check);
     }
+    if(check==1)
     dbMongo.updateDoc(new Document("_state", 1));
   }
 
@@ -97,6 +102,10 @@ public class Crawler {
   }
 
   public static void main(String[] args) throws IOException {
+    DBManager db=new DBManager();
+    Crawler crawl=new Crawler(db,new Robotsmanager());
+    crawl.initializeSeeds();
+    crawl.fetchlinksfromDB();
     ///////////////////////// NORMALIZATION////////////////////////////////////////
 
     //String uri = "mongodb://localhost:27017"; ////////////////////////////////
