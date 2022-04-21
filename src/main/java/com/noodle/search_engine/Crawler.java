@@ -1,4 +1,7 @@
+package com.noodle.search_engine;
+
 import java.io.*;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.net.URL;
 import com.mongodb.client.model.FindOneAndUpdateOptions;
@@ -12,38 +15,120 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 public class Crawler {
+  DBManager dbMongo ;
+  Robotsmanager robotsTxt;
+  HashSet<String> urlsBGD = new HashSet<>();
+  long URLSWithHTMLID = dbMongo.gethtmlurlsCount();
+  long fetchedURLSID = dbMongo.getfetchedcount();
+  String title;
+  Vector<String> disallows;
+  //int crawledPages;
+  int currentID;
+
+  Crawler(DBManager db) throws IOException {
+      dbMongo=db;
+    }
+  public void initializeSeeds() throws IOException {
+    File myObj = new File("D:\\CMP #2\\Second Semester\\Advanced Programming Techniques\\IntelliJ\\SearchEngine\\seed.txt");
+    Scanner myReader = new Scanner(myObj);
+    dbMongo.retrieveElements(urlsBGD);
+    while(myReader.hasNextLine()) {
+      title = myReader.nextLine();
+      if (urlsBGD.contains(title)) continue;
+      //fetch the link here
+      this.crawl(title,0);
+    }
+
+  }
+
+  public void fetchlinksfromDB() throws IOException {
+    dbMongo.retrieveLinkwithstate1();
+    while (URLSWithHTMLID < 5000) {
+      Document returnedDoc=new Document();
+      dbMongo.returnDocwithstate(0,new Document("_state", 1),returnedDoc);
+      currentID = Integer.parseInt(returnedDoc.get("_id").toString());
+      title=returnedDoc.get("_url").toString();
+      if(urlsBGD.contains(title)){
+        dbMongo.returnDocwithstate(currentID,new Document("_state", 1),returnedDoc);
+        continue;
+      }
+      this.crawl(title,1);
+
+
+    }
+  }
+
+  public void getRobots() throws IOException {
+    disallows = new Vector<String>(0);
+    robotsTxt.getRobotsfile(title);
+  }
+  public void crawl(String url,int check) throws IOException {
+    this.getRobots();
+    org.jsoup.nodes.Document doc;
+    doc = Jsoup.connect(url).get(); //fetch the link html source
+    if (!doc.toString().contains("<!doctype html>")){
+      if(check==1){
+        dbMongo.updateDoc(new Document("_state", 1));
+      }
+      return;
+    }
+    dbMongo.insertIntodbHtmls(URLSWithHTMLID++,url,doc.toString());
+    urlsBGD.add(url);
+    Elements el = doc.select("a[href]");
+    for(Element lis:el){
+      this.addinFetched(lis,check);
+    }
+    dbMongo.updateDoc(new Document("_state", 1));
+  }
+
+  public void addinFetched(Element url,int check){
+    String firstLink=url.attr("href");
+    if(!robotsTxt.checkifAllowed(firstLink)){
+      if(check==1){
+        dbMongo.updateDoc(new Document("_state", 1));
+      }
+      return;
+    }
+    if(firstLink.contains("https")){
+      dbMongo.insertinFetchedurls(fetchedURLSID++,firstLink,0);
+
+    }
+
+  }
 
   public static void main(String[] args) throws IOException {
-
     ///////////////////////// NORMALIZATION////////////////////////////////////////
-    String uri = "mongodb://localhost:27017";
-    HashSet<String> urls = new HashSet<>();
-    HashSet<String> urlsBGD = new HashSet<>();
-    File myObj =
-        new File(
-            "D:\\CMP #2\\Second Semester\\Advanced Programming Techniques\\IntelliJ\\SearchEngine\\seed.txt");
-    MongoClient mongo = MongoClients.create(uri);
-    MongoDatabase db = mongo.getDatabase("SearchEngine");
-    MongoCollection<Document> fetchedURLS = db.getCollection("FetchedURLs");
-    MongoCollection<Document> URLSWithHTML = db.getCollection("URLSWithHTML");
-    long URLSWithHTMLID = URLSWithHTML.countDocuments();
 
-    for (int i = 0; i < URLSWithHTML.countDocuments(); i++) {
+    //String uri = "mongodb://localhost:27017"; ////////////////////////////////
+  //  HashSet<String> urls = new HashSet<>();
+   // HashSet<String> urlsBGD = new HashSet<>();
+   // File myObj =
+       // new File(
+         //   "D:\\CMP #2\\Second Semester\\Advanced Programming Techniques\\IntelliJ\\SearchEngine\\seed.txt");
+   // MongoClient mongo = MongoClients.create(uri);//////////////////////////////////
+    //MongoDatabase db = mongo.getDatabase("SearchEngine");//////////////////////////////////////////
+    //MongoCollection<Document> fetchedURLS = db.getCollection("FetchedURLs");////////////////////////////////////
+    //MongoCollection<Document> URLSWithHTML = db.getCollection("URLSWithHTML");//////////////////////////////////
+    //long URLSWithHTMLID = dbMongo.gethtmlurlsCount();//URLSWithHTML.countDocuments();
+    ////////////////////////hi
+
+    /*for (int i = 0; i < URLSWithHTML.countDocuments(); i++) {
       FindIterable<Document> ddd = URLSWithHTML.find();
       for (Document ff : ddd) {
         urlsBGD.add((String) ff.get("_url"));
       }
     }
-    System.out.println(urlsBGD);
-    long fetchedURLSID = fetchedURLS.countDocuments();
-    Scanner myReader = new Scanner(myObj);
+    System.out.println(urlsBGD);*/
+   // long fetchedURLSID = dbMongo.getfetchedcount();//fetchedURLS.countDocuments();
+   // Scanner myReader = new Scanner(myObj);
 
-    for (int i = 0; i < 6; i++) // read from seeds.txt
-    {
+   // for (int i = 0; i < 6; i++) // read from seeds.txt
+    //{
 
-      String title;
-      title = myReader.nextLine();
-      if (urlsBGD.contains(title)) continue;
+      //String title;
+      //title = myReader.nextLine();
+     // if (urlsBGD.contains(title)) continue;
+/*
       URL currentURL = new URL(title);
 
       String robotsURL =
@@ -67,26 +152,27 @@ public class Crawler {
           }
         }
       }
+*/
 
-      org.jsoup.nodes.Document doc;
+      /*org.jsoup.nodes.Document doc;
       try {
         doc = Jsoup.connect(title).get();
       } catch (Exception e) {
         continue;
-      }
-      if (!doc.toString().contains("<!doctype html>")) continue;
+      }*/
+     // if (!doc.toString().contains("<!doctype html>")) continue;
 
-      Document s =
+     /* Document s =
           new Document("_id", URLSWithHTMLID++)
               .append("_url", title)
               .append("html", doc.toString());
       // state = n --> not downloaded yet
-      URLSWithHTML.insertOne(s);
-      urlsBGD.add(title);
+      URLSWithHTML.insertOne(s);*/
+      /*urlsBGD.add(title);*/
 
-      Elements el = doc.select("a[href]");
+      //Elements el = doc.select("a[href]");
 
-      for (Element lis : el) {
+      /*for (Element lis : el) {
         Boolean tmam = true;
         //        if (!urls.contains(lis.attr("href"))) {
         for (int y = 0; y < disallows.size(); y++) {
@@ -109,10 +195,10 @@ public class Crawler {
         }
         //        }
       }
-    }
+    }*/
 
     // ####################################################//
-    while(true){
+  /*  while(true){
     Document find0 = new Document("_state", 1);
 
     Document increase = new Document("$inc", new Document("_state", -1));
@@ -124,10 +210,10 @@ public class Crawler {
     if(coco==null)
       break;
 
-    }
-    for (int i = 0; i < 100; i++) // read from seeds.txt
-    {
-
+    }*/
+    //for (int i = 0; i < 100; i++) // read from seeds.txt
+    //{
+/*
       Document find0 = new Document("_state", 0);
 
       Document increase = new Document("$inc", new Document("_state", 1));
@@ -170,9 +256,9 @@ public class Crawler {
 
           }
         }
-      }
+      }*/
 
-      org.jsoup.nodes.Document doc;
+    /*  org.jsoup.nodes.Document doc;
       try {
         doc = Jsoup.connect(title).get();
       } catch (Exception e) {
@@ -191,12 +277,12 @@ public class Crawler {
       // state = n --> not downloaded yet
       URLSWithHTML.insertOne(s);
 
-      urlsBGD.add(title);
+      urlsBGD.add(title);*/
 
-      Elements el = doc.select("a[href]");
+     // Elements el = doc.select("a[href]");
 
-      for (Element lis : el) {
-        Boolean tmam = true;
+      //for (Element lis : el) {
+       /* Boolean tmam = true;
 
         for (int y = 0; y < disallows.size(); y++) {
           if (lis.attr("href").contains(disallows.get(y))
@@ -208,9 +294,9 @@ public class Crawler {
           fetchedURLS.findOneAndUpdate(find1, increase, options);
           System.out.println("NOT TMAM");
           continue;
-        }
+        }*/
 
-        if (lis.attr("href").contains("https")) {
+        /*if (lis.attr("href").contains("https")) {
           Document link =
               new Document("_id", fetchedURLSID++)
                   .append("_url", lis.attr("href"))
@@ -218,9 +304,9 @@ public class Crawler {
           fetchedURLS.insertOne(link);
         }
 
-      }
-      fetchedURLS.findOneAndUpdate(find1, increase, options);
+      }*/
+  /*    fetchedURLS.findOneAndUpdate(find1, increase, options);
       System.out.println("Finished coco");
-    }
+    }*/
   }
 }
