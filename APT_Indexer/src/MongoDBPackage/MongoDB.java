@@ -26,7 +26,6 @@ public class MongoDB {
     }
 
 
-    @Deprecated(since="9")
     protected void finalize() throws Throwable {
         super.finalize();
         mongoClient.close();

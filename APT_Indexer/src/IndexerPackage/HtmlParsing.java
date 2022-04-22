@@ -20,7 +20,7 @@ public class HtmlParsing {
     static Elements Parse_Tags(String tag)
     {
         try {
-            Document doc= Jsoup.parse(new File("D:\\APT_Indexer\\src\\URL1.txt"),"UTF-8");
+            Document doc= Jsoup.parse(new File("D:\\2nd-term\\OS\\Project\\SearchEngine\\APT_Indexer\\src\\URL1.txt"),"UTF-8");
             Elements paragraphs = doc.select(tag);
 
             return paragraphs;
