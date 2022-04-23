@@ -1,3 +1,4 @@
+
 package com.noodle.search_engine;
 
 import java.util.HashMap;
@@ -11,7 +12,7 @@ import java.util.Vector;
 
 public class RobotsManager {
 
-//  Vector<String> disallows;
+  //  Vector<String> disallows;
   URL currentURL;
   static HashMap<String,Vector<String>> hostsWithFetchedRobotsTxt = new HashMap<String,Vector<String>>(5000);
 
@@ -25,8 +26,8 @@ public class RobotsManager {
       return;
 
     String robotsURL =
-        (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt"))
-            .toString();
+            (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt"))
+                    .toString();
     InputStream in = new URL(robotsURL).openStream();
     Scanner robots7aga = new Scanner(in).useDelimiter("\\A");
     String result = robots7aga.hasNext() ? robots7aga.next() : "";
@@ -43,12 +44,15 @@ public class RobotsManager {
         }
       }
     }
+   // System.out.println("iin getrobotsfile "+currentURL.getHost());
     hostsWithFetchedRobotsTxt.put(currentURL.getHost().toString(),disallows);
   }
 
-  public Boolean checkifAllowed(URL urlll) {
-      Vector<String> disallows = hostsWithFetchedRobotsTxt.get(urlll.getHost());
-      String url = urlll.toString();
+  public Boolean checkifAllowed(String url,URL urlll) {
+   // System.out.println("iin checkifallowed "+urlll.getHost());
+    Vector<String> disallows = hostsWithFetchedRobotsTxt.get(urlll.getHost());
+    //System.out.println(disallows.size());
+    //String url = urlll.toString();
     for (int y = 0; y < disallows.size(); y++) {
 
       String regex = disallows.get(y).replaceAll("\\*", ".*");

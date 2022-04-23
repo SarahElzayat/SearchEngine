@@ -1,3 +1,4 @@
+
 package com.noodle.search_engine;
 
 import java.io.*;
@@ -13,113 +14,121 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Crawler {
-  DBManager dbMongo;
-  RobotsManager robotsTxt;
-  HashSet<String> urlsBGD = new HashSet<>();
+    DBManager dbMongo;
+    RobotsManager robotsTxt;
+    HashSet<String> urlsBGD = new HashSet<>();
 
-  long URLSWithHTMLID;
-  long fetchedURLSID;
-  String title;
-  // Vector<String> disallows;
-  // int crawledPages;
-  int currentID;
+    long URLSWithHTMLID;
+    long fetchedURLSID;
+    String title;
+    // Vector<String> disallows;
+    // int crawledPages;
+    int currentID;
 
-  Crawler(DBManager db, RobotsManager rb) throws IOException {
-    dbMongo = db;
-    robotsTxt = rb;
-  }
-
-  public void initializeSeeds() throws IOException {
-    File myObj =
-        new File("F:\\Second Year\\Second Semester\\Advanced Programming\\Project\\seed.txt");
-    Scanner myReader = new Scanner(myObj);
-    URLSWithHTMLID = dbMongo.gethtmlurlsCount();
-    fetchedURLSID = dbMongo.getfetchedcount();
-    dbMongo.retrieveElements(urlsBGD);
-    while (myReader.hasNextLine()) {
-      title = myReader.nextLine();
-      if (urlsBGD.contains(title)) continue;
-      // fetch the link here
-      this.crawl(title, 0);
+    Crawler(DBManager db, RobotsManager rb) throws IOException {
+        dbMongo = db;
+        robotsTxt = rb;
     }
-  }
 
-  public void fetchlinksfromDB() throws IOException {
-    dbMongo.retrieveLinkwithstate1();
-    while (URLSWithHTMLID < 5000) {
-      Document returnedDoc = new Document();
-      dbMongo.returnDocwithstate(0, new Document("_state", 1), returnedDoc);
-      currentID = Integer.parseInt(returnedDoc.get("_id").toString());
-      title = returnedDoc.get("_url").toString();
-      if (urlsBGD.contains(title)) {
-        dbMongo.returnDocwithstate(currentID, new Document("_state", 1), returnedDoc);
-        continue;
-      }
-      this.crawl(title, 1);
+    public void initializeSeeds() throws IOException, URISyntaxException {
+        File myObj =
+                new File("F:\\Second Year\\Second Semester\\Advanced Programming\\Project\\seed.txt");
+        Scanner myReader = new Scanner(myObj);
+        URLSWithHTMLID = dbMongo.gethtmlurlsCount();
+        fetchedURLSID = dbMongo.getfetchedcount();
+        dbMongo.retrieveElements(urlsBGD);
+        while (myReader.hasNextLine()) {
+            title = myReader.nextLine();
+            if (urlsBGD.contains(title)) continue;
+            // fetch the link here
+            this.crawl(title, 0);
+        }
+      //  System.out.println("done initialize seed");
     }
-  }
 
-  //  public void getRobots() throws IOException {
-  //  //  disallows = new Vector<String>(0);
-  //    robotsTxt.getRobotsfile(title);
-  //  }
+    public void fetchlinksfromDB() throws IOException, URISyntaxException {
+       // System.out.println("fetching from db");
 
-  public void crawl(String url, int check) throws IOException {
-    robotsTxt.getRobotsfile(title);
-    org.jsoup.nodes.Document doc;
-    doc = Jsoup.connect(url).get(); // fetch the link html source
-    if (!doc.toString().contains("<!doctype html>")) {
-      if (check == 1) {
-        dbMongo.updateDoc(new Document("_state", 1));
-      }
-      return;
+        dbMongo.retrieveLinkwithstate1();
+       // System.out.println("returned from state 1");
+
+        while (URLSWithHTMLID < 5000) {
+            Document returnedDoc = new Document();
+            returnedDoc=dbMongo.returnDocwithstate(0, new Document("_state", 1),1);
+           // System.out.println(returnedDoc.toString());
+            currentID = Integer.parseInt(returnedDoc.get("_id").toString());
+           // System.out.println(currentID);
+            title = returnedDoc.get("_url").toString();
+            //System.out.println(title);
+            if (urlsBGD.contains(title)) {
+                //System.out.println("helloooooo");
+                dbMongo.updateDoc(new Document("_state", 1),currentID);
+                //System.out.println(returnedDoc);
+                continue;
+            }
+            this.crawl(title, 1);
+        }
     }
-    dbMongo.insertIntodbHtmls(URLSWithHTMLID++, url, doc.toString());
-    urlsBGD.add(url);
-    Elements el = doc.select("a[href]");
-    for (Element lis : el) {
-      this.addinFetched(lis, check);
-    }
-    if (check == 1) dbMongo.updateDoc(new Document("_state", 1));
-  }
 
-  public void addinFetched(Element url, int check) throws  MalformedURLException {
-    String firstLink = url.attr("href");
-    URL temp = new URL(firstLink);
-    if (!robotsTxt.checkifAllowed(temp)) {
-      if (check == 1) {
-        dbMongo.updateDoc(new Document("_state", 1));
-      }
-      return;
+    public void crawl(String url, int check) throws IOException, URISyntaxException {
+        robotsTxt.getRobotsfile(url);
+        org.jsoup.nodes.Document doc;
+        doc = Jsoup.connect(url).get(); // fetch the link html source
+        if (!doc.toString().contains("<!doctype html>")) {
+            if (check == 1) {
+                dbMongo.updateDoc(new Document("_state", 1),currentID);
+            }
+            return;
+        }
+        dbMongo.insertIntodbHtmls(URLSWithHTMLID++, url, doc.toString());
+        urlsBGD.add(url);
+        Elements el = doc.select("a[href]");
+        for (Element lis : el) {
+            this.addinFetched(lis, check,url);
+        }
+        if (check == 1) dbMongo.updateDoc(new Document("_state", 1),currentID);
     }
-    if (firstLink.contains("https")) {
-      dbMongo.insertinFetchedurls(fetchedURLSID++, firstLink, 0);
+    //fetched from currently used url
+    public void addinFetched(Element url, int check,String url1) throws MalformedURLException, URISyntaxException {
+        String firstLink = url.attr("href");
+        if (firstLink.contains("https")) {
+     //   System.out.println(firstLink);
+       // URI temp1 = new URI(firstLink);
+        URL temp=new URL(url1);
+        if (!robotsTxt.checkifAllowed(firstLink,temp)) {
+            if (check == 1) {
+                dbMongo.updateDoc(new Document("_state", 1),currentID);
+            }
+            return;
+        }
+
+            dbMongo.insertinFetchedurls(fetchedURLSID++, firstLink, 0);
+        }
     }
-  }
 
-  public static void main(String[] args) throws IOException {
-    DBManager db = new DBManager();
-    Crawler crawl = new Crawler(db, new RobotsManager());
-    crawl.initializeSeeds();
-    crawl.fetchlinksfromDB();
-    ///////////////////////// NORMALIZATION////////////////////////////////////////
+    public static void main(String[] args) throws IOException, URISyntaxException {
+        DBManager db = new DBManager();
+        Crawler crawl = new Crawler(db, new RobotsManager());
+        crawl.initializeSeeds();
+        crawl.fetchlinksfromDB();
+        ///////////////////////// NORMALIZATION////////////////////////////////////////
 
-    // String uri = "mongodb://localhost:27017"; ////////////////////////////////
-    //  HashSet<String> urls = new HashSet<>();
-    // HashSet<String> urlsBGD = new HashSet<>();
-    // File myObj =
-    // new File(
-    //   "D:\\CMP #2\\Second Semester\\Advanced Programming
-    // Techniques\\IntelliJ\\SearchEngine\\seed.txt");
-    // MongoClient mongo = MongoClients.create(uri);//////////////////////////////////
-    // MongoDatabase db =
-    // mongo.getDatabase("SearchEngine");//////////////////////////////////////////
-    // MongoCollection<Document> fetchedURLS =
-    // db.getCollection("FetchedURLs");////////////////////////////////////
-    // MongoCollection<Document> URLSWithHTML =
-    // db.getCollection("URLSWithHTML");//////////////////////////////////
-    // long URLSWithHTMLID = dbMongo.gethtmlurlsCount();//URLSWithHTML.countDocuments();
-    //////////////////////// hi
+        // String uri = "mongodb://localhost:27017"; ////////////////////////////////
+        //  HashSet<String> urls = new HashSet<>();
+        // HashSet<String> urlsBGD = new HashSet<>();
+        // File myObj =
+        // new File(
+        //   "D:\\CMP #2\\Second Semester\\Advanced Programming
+        // Techniques\\IntelliJ\\SearchEngine\\seed.txt");
+        // MongoClient mongo = MongoClients.create(uri);//////////////////////////////////
+        // MongoDatabase db =
+        // mongo.getDatabase("SearchEngine");//////////////////////////////////////////
+        // MongoCollection<Document> fetchedURLS =
+        // db.getCollection("FetchedURLs");////////////////////////////////////
+        // MongoCollection<Document> URLSWithHTML =
+        // db.getCollection("URLSWithHTML");//////////////////////////////////
+        // long URLSWithHTMLID = dbMongo.gethtmlurlsCount();//URLSWithHTML.countDocuments();
+        //////////////////////// hi
 
     /*for (int i = 0; i < URLSWithHTML.countDocuments(); i++) {
       FindIterable<Document> ddd = URLSWithHTML.find();
@@ -128,18 +137,17 @@ public class Crawler {
       }
     }
     System.out.println(urlsBGD);*/
-    // long fetchedURLSID = dbMongo.getfetchedcount();//fetchedURLS.countDocuments();
-    // Scanner myReader = new Scanner(myObj);
+        // long fetchedURLSID = dbMongo.getfetchedcount();//fetchedURLS.countDocuments();
+        // Scanner myReader = new Scanner(myObj);
 
-    // for (int i = 0; i < 6; i++) // read from seeds.txt
-    // {
+        // for (int i = 0; i < 6; i++) // read from seeds.txt
+        // {
 
-    // String title;
-    // title = myReader.nextLine();
-    // if (urlsBGD.contains(title)) continue;
+        // String title;
+        // title = myReader.nextLine();
+        // if (urlsBGD.contains(title)) continue;
     /*
           URL currentURL = new URL(title);
-
           String robotsURL =
               (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt"))
                   .toString();
@@ -148,15 +156,12 @@ public class Crawler {
           String result = robots7aga.hasNext() ? robots7aga.next() : "";
           String[] array = result.split("\n"); // array of robots.txt as strings
           Vector<String> disallows = new Vector<String>(0);
-
           for (int x = 0; x < array.length; x++) {
             if (array[x].contains("User-agent: *")) {
               x++;
-
               while (x < array.length && array[x].contains("Disallow")) {
                 array[x] = array[x].replace("Disallow: ", "");
                 disallows.add(array[x]);
-
                 x++;
               }
             }
@@ -169,7 +174,7 @@ public class Crawler {
     } catch (Exception e) {
       continue;
     }*/
-    // if (!doc.toString().contains("<!doctype html>")) continue;
+        // if (!doc.toString().contains("<!doctype html>")) continue;
 
     /* Document s =
         new Document("_id", URLSWithHTMLID++)
@@ -177,9 +182,9 @@ public class Crawler {
             .append("html", doc.toString());
     // state = n --> not downloaded yet
     URLSWithHTML.insertOne(s);*/
-    /*urlsBGD.add(title);*/
+        /*urlsBGD.add(title);*/
 
-    // Elements el = doc.select("a[href]");
+        // Elements el = doc.select("a[href]");
 
     /*for (Element lis : el) {
         Boolean tmam = true;
@@ -191,11 +196,8 @@ public class Crawler {
           }
         }
         if (!tmam) continue;
-
         //          urls.add(lis.attr("href"));
-
         if (lis.attr("href").contains("https")) {
-
           Document link =
               new Document("_id", fetchedURLSID++)
                   .append("_url", lis.attr("href"))
@@ -206,27 +208,22 @@ public class Crawler {
       }
     }*/
 
-    // ####################################################//
+        // ####################################################//
     /*  while(true){
         Document find0 = new Document("_state", 1);
-
         Document increase = new Document("$inc", new Document("_state", -1));
-
         FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
     //    options.upsert(true);
         options.returnDocument(ReturnDocument.AFTER);
         Document coco=(Document) fetchedURLS.findOneAndUpdate(find0,increase,options);
         if(coco==null)
           break;
-
         }*/
-    // for (int i = 0; i < 100; i++) // read from seeds.txt
-    // {
+        // for (int i = 0; i < 100; i++) // read from seeds.txt
+        // {
     /*
     Document find0 = new Document("_state", 0);
-
     Document increase = new Document("$inc", new Document("_state", 1));
-
     FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
     options.upsert(true);
     options.returnDocument(ReturnDocument.AFTER);
@@ -243,7 +240,6 @@ public class Crawler {
       continue;
     }
     URL currentURL = new URL(title);
-
     String robotsURL =
         (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt"))
             .toString();
@@ -252,17 +248,13 @@ public class Crawler {
     String result = robots7aga.hasNext() ? robots7aga.next() : "";
     String[] array = result.split("\n"); // array of robots.txt as strings
     Vector<String> disallows = new Vector<String>(0);
-
     for (int x = 0; x < array.length; x++) {
       if (array[x].contains("User-agent: *")) {
         x++;
-
         while (x < array.length && array[x].contains("Disallow")) {
           array[x] = array[x].replace("Disallow: ", "");
           disallows.add(array[x]);
-
           x++;
-
         }
       }
     }*/
@@ -278,21 +270,18 @@ public class Crawler {
       System.out.println("COCO ISN'T HTML");
       continue;
     }
-
     Document s =
         new Document("_id", URLSWithHTMLID++)
             .append("_url", title)
             .append("html", doc.toString());
     // state = n --> not downloaded yet
     URLSWithHTML.insertOne(s);
-
     urlsBGD.add(title);*/
 
-    // Elements el = doc.select("a[href]");
+        // Elements el = doc.select("a[href]");
 
-    // for (Element lis : el) {
+        // for (Element lis : el) {
     /* Boolean tmam = true;
-
     for (int y = 0; y < disallows.size(); y++) {
       if (lis.attr("href").contains(disallows.get(y))
           && lis.attr("href").contains(currentURL.getHost())) {
@@ -312,10 +301,9 @@ public class Crawler {
                 .append("_state", 0); // 0 added, 1 being processed, 2 done
         fetchedURLS.insertOne(link);
       }
-
     }*/
     /*    fetchedURLS.findOneAndUpdate(find1, increase, options);
       System.out.println("Finished coco");
     }*/
-  }
+    }
 }

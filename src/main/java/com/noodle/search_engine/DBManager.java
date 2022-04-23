@@ -53,26 +53,41 @@ public class DBManager {
         fetchedURLS.insertOne(link);
     }
 
-    public void returnDocwithstate(int state,Document doc,Document returned){
-        Document find0 = new Document("_state", state);
+    public Document returnDocwithstate(int state,Document doc,int check){
 
+        Document find0;
+        if(check==1)
+        find0= new Document("_state", state);
+        else{
+            find0= new Document("_id", state);
+        }
+        //System.out.println(state);
         Document increase = new Document("$inc", doc);
+       // System.out.println(doc.toString());
         FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
         options.returnDocument(ReturnDocument.AFTER);
-        returnedlink = (Document) fetchedURLS.findOneAndUpdate(find0, increase, options);
-        returned=returnedlink;
+        Document returned = new Document();
+        returned = (Document) fetchedURLS.findOneAndUpdate(find0, increase, options);
+        //System.out.println(returned);
+        /*if(returned==null)
+            return true;
+       // returned=returnedlink;
+        return false;*/
+        return returned;
+       // System.out.println(returned.toString());
+
 
     }
 
-    public void updateDoc(Document doc){
-        returnDocwithstate(Integer.parseInt(returnedlink.get("_id").toString()),doc,new Document());
+    public void updateDoc(Document doc,int id){
+        System.out.println("in update"+id);
+        returnDocwithstate(id,doc,2);
     }
 
     public void retrieveLinkwithstate1(){
+      //  Document coco=new Document();
         while(true){
-            Document coco=new Document();
-            returnDocwithstate(1,new Document("_state", -1),coco);
-            if(coco==null)
+           if(returnDocwithstate(1,new Document("_state", -1),1)==null)
                 break;
         }
     }
