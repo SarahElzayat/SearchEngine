@@ -21,7 +21,7 @@ public class DBManager {
         MongoClient mongo = MongoClients.create(uri);
         MongoDatabase db = mongo.getDatabase("SearchEngine");
         fetchedURLS = db.getCollection("FetchedURLs");
-        URLSWithHTML = db.getCollection("URLSWithHTML");
+        //URLSWithHTML = db.getCollection("URLSWithHTML");
     }
     public void retrieveElements(HashSet<String> urls){
         for (int i = 0; i < URLSWithHTML.countDocuments(); i++) {
