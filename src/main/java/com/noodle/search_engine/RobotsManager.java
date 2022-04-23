@@ -44,12 +44,12 @@ public class RobotsManager {
         }
       }
     }
-   // System.out.println("iin getrobotsfile "+currentURL.getHost());
+    // System.out.println("iin getrobotsfile "+currentURL.getHost());
     hostsWithFetchedRobotsTxt.put(currentURL.getHost().toString(),disallows);
   }
 
   public Boolean checkifAllowed(String url,URL urlll) {
-   // System.out.println("iin checkifallowed "+urlll.getHost());
+    // System.out.println("iin checkifallowed "+urlll.getHost());
     Vector<String> disallows = hostsWithFetchedRobotsTxt.get(urlll.getHost());
     //System.out.println(disallows.size());
     //String url = urlll.toString();

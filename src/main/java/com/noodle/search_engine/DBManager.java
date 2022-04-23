@@ -21,7 +21,7 @@ public class DBManager {
         MongoClient mongo = MongoClients.create(uri);
         MongoDatabase db = mongo.getDatabase("SearchEngine");
         fetchedURLS = db.getCollection("FetchedURLs");
-        //URLSWithHTML = db.getCollection("URLSWithHTML");
+        URLSWithHTML = db.getCollection("URLSWithHTML");
     }
     public void retrieveElements(HashSet<String> urls){
         for (int i = 0; i < URLSWithHTML.countDocuments(); i++) {
@@ -31,9 +31,9 @@ public class DBManager {
             }
         }
     }
-     public long getfetchedcount(){
+    public long getfetchedcount(){
         return fetchedURLS.countDocuments();
-     }
+    }
     public long gethtmlurlsCount(){
         return URLSWithHTML.countDocuments();
     }
@@ -57,13 +57,13 @@ public class DBManager {
 
         Document find0;
         if(check==1)
-        find0= new Document("_state", state);
+            find0= new Document("_state", state);
         else{
             find0= new Document("_id", state);
         }
         //System.out.println(state);
         Document increase = new Document("$inc", doc);
-       // System.out.println(doc.toString());
+        // System.out.println(doc.toString());
         FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
         options.returnDocument(ReturnDocument.AFTER);
         Document returned = new Document();
@@ -74,20 +74,20 @@ public class DBManager {
        // returned=returnedlink;
         return false;*/
         return returned;
-       // System.out.println(returned.toString());
+        // System.out.println(returned.toString());
 
 
     }
 
     public void updateDoc(Document doc,int id){
-        System.out.println("in update"+id);
+       // System.out.println("in update"+id);
         returnDocwithstate(id,doc,2);
     }
 
     public void retrieveLinkwithstate1(){
-      //  Document coco=new Document();
+        //  Document coco=new Document();
         while(true){
-           if(returnDocwithstate(1,new Document("_state", -1),1)==null)
+            if(returnDocwithstate(1,new Document("_state", -1),1)==null)
                 break;
         }
     }

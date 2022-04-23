@@ -43,21 +43,21 @@ public class Crawler {
             // fetch the link here
             this.crawl(title, 0);
         }
-      //  System.out.println("done initialize seed");
+        //  System.out.println("done initialize seed");
     }
 
     public void fetchlinksfromDB() throws IOException, URISyntaxException {
-       // System.out.println("fetching from db");
+        // System.out.println("fetching from db");
 
         dbMongo.retrieveLinkwithstate1();
-       // System.out.println("returned from state 1");
+        // System.out.println("returned from state 1");
 
         while (URLSWithHTMLID < 5000) {
             Document returnedDoc = new Document();
             returnedDoc=dbMongo.returnDocwithstate(0, new Document("_state", 1),1);
-           // System.out.println(returnedDoc.toString());
+            // System.out.println(returnedDoc.toString());
             currentID = Integer.parseInt(returnedDoc.get("_id").toString());
-           // System.out.println(currentID);
+            // System.out.println(currentID);
             title = returnedDoc.get("_url").toString();
             //System.out.println(title);
             if (urlsBGD.contains(title)) {
@@ -92,15 +92,15 @@ public class Crawler {
     public void addinFetched(Element url, int check,String url1) throws MalformedURLException, URISyntaxException {
         String firstLink = url.attr("href");
         if (firstLink.contains("https")) {
-     //   System.out.println(firstLink);
-       // URI temp1 = new URI(firstLink);
-        URL temp=new URL(url1);
-        if (!robotsTxt.checkifAllowed(firstLink,temp)) {
-            if (check == 1) {
-                dbMongo.updateDoc(new Document("_state", 1),currentID);
+            //   System.out.println(firstLink);
+            // URI temp1 = new URI(firstLink);
+            URL temp=new URL(url1);
+            if (!robotsTxt.checkifAllowed(firstLink,temp)) {
+                if (check == 1) {
+                    dbMongo.updateDoc(new Document("_state", 1),currentID);
+                }
+                return;
             }
-            return;
-        }
 
             dbMongo.insertinFetchedurls(fetchedURLSID++, firstLink, 0);
         }
