@@ -88,7 +88,7 @@
       url = normalize(url);
   //    System.out.println("Link: "+url.toString());
       String encryptedHTML = encryptThisString(doc.toString());
-      if (chechIfHTMLAlreadyExists(encryptedHTML)) {
+      if (checkIfHTMLAlreadyExists(encryptedHTML)) {
         dbMongo.insertIntoDBHtmls(URLSWithHTMLID++, url, doc.toString());
         urlsBGD.add(url);
         Elements el = doc.select("a[href]");
@@ -130,7 +130,7 @@
       return s;
     }
 
-    public boolean chechIfHTMLAlreadyExists(String encryptedHTML) {
+    public boolean checkIfHTMLAlreadyExists(String encryptedHTML) {
 
       if (hashedHTMLS.contains(encryptedHTML)) return false;
       hashedHTMLS.add(encryptedHTML);
