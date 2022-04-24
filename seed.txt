@@ -1,6 +1,2 @@
 https://www.geeksforgeeks.org/
-https://www.nytimes.com/
-https://www.imdb.com/
-https://news.google.com/
-https://www.bbc.com/
-https://www.nbcnews.com/
+https://geeksforgeeks.org/

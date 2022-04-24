@@ -31,13 +31,13 @@ public class DBManager {
             }
         }
     }
-    public long getfetchedcount(){
+    public long getFetchedCount(){
         return fetchedURLS.countDocuments();
     }
-    public long gethtmlurlsCount(){
+    public long getHTMLURLsCount(){
         return URLSWithHTML.countDocuments();
     }
-    public void insertIntodbHtmls(long id,String url,String html ){
+    public void insertIntoDBHtmls(long id, String url, String html ){
         Document s =
                 new Document("_id", id)
                         .append("_url", url)
@@ -45,7 +45,7 @@ public class DBManager {
         // state = n --> not downloaded yet
         URLSWithHTML.insertOne(s);
     }
-    public void insertinFetchedurls(long id,String url,int state ){
+    public void insertInFetchedurls(long id, String url, int state ){
         Document link =
                 new Document("_id", id)
                         .append("_url", url)
