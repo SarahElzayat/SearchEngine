@@ -1,4 +1,7 @@
-C++
-C#
 c++
 c#
+o(log n)
+o(n)
+o(n * log n)
+o(n2)
+o(n!)

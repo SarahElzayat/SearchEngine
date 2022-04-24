@@ -36,7 +36,9 @@ import com.mongodb.client.model.Updates;//update
 
 
 public class Indexer {
-    private String[] tags={"h1","h2","h3","h4","h5","h6","p","abbr","article","div","header","label","q","title","thead","th","textarea","sub","caption","td","li","option","dt"};
+    //private String[] tags={"h1","h2","h3","h4","h5","h6","p","abbr","article","div","header","label","q","title","thead","th","textarea","sub","caption","td","li","option","dt"};
+private String[] tags={"title","h1","h2","h3","h4","h5","h6","p"};
+
     private static HashSet<String> stopWords ;
     private static HashSet<String> ImportantWords;
 

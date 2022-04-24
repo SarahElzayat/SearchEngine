@@ -5,6 +5,6 @@ public class main {
     {
 
        Indexer d=new Indexer();
-       d.Index("https://www.geeksforgeeks.org/the-c-standard-template-library-stl/");
+       d.Index("https://en.wikipedia.org/wiki/STL_(file_format)");
     }
 }
