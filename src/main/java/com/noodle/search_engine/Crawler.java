@@ -32,7 +32,7 @@ public class Crawler {
 
     public void initializeSeeds() throws IOException, URISyntaxException {
         File myObj =
-                new File("F:\\Second Year\\Second Semester\\Advanced Programming\\Project\\seed.txt");
+                new File("./seed.txt");
         Scanner myReader = new Scanner(myObj);
         URLSWithHTMLID = dbMongo.gethtmlurlsCount();
         fetchedURLSID = dbMongo.getfetchedcount();
