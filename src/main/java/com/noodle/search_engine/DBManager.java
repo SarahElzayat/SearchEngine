@@ -15,7 +15,7 @@ import java.util.HashSet;
 public class DBManager {
     MongoCollection<Document> fetchedURLS;
     MongoCollection<Document> URLSWithHTML;
-    Document returnedlink;
+
     DBManager(){
         String uri = "mongodb://localhost:27017";
         MongoClient mongo = MongoClients.create(uri);
@@ -24,12 +24,32 @@ public class DBManager {
         URLSWithHTML = db.getCollection("URLSWithHTML");
     }
     public void retrieveElements(HashSet<String> urls){
-        for (int i = 0; i < URLSWithHTML.countDocuments(); i++) {
+
             FindIterable<Document> ddd = URLSWithHTML.find();
             for (Document ff : ddd) {
                 urls.add((String) ff.get("_url"));
             }
-        }
+
+    }
+    public void retrieveSeeds(HashSet<String> urls){
+        int max;
+        int i=0;
+        if(fetchedURLS.countDocuments()>6)
+            max=6;
+        else
+            max = (int)fetchedURLS.countDocuments();
+
+            FindIterable<Document> ddd = fetchedURLS.find();
+            for (Document ff : ddd) {
+                urls.add((String) ff.get("_url"));
+                i++;
+
+            if(i>max)
+                break;
+            }
+
+
+
     }
     public long getFetchedCount(){
         return fetchedURLS.countDocuments();
@@ -37,13 +57,19 @@ public class DBManager {
     public long getHTMLURLsCount(){
         return URLSWithHTML.countDocuments();
     }
-    public void insertIntoDBHtmls(long id, String url, String html ){
+    public void insertIntoDBHtmls(long id, String url, String html,String hash){
+
         Document s =
                 new Document("_id", id)
                         .append("_url", url)
                         .append("html", html);
         // state = n --> not downloaded yet
+        if(id<6){
+            s.append("_encryption",hash);
+        }
         URLSWithHTML.insertOne(s);
+
+
     }
     public void insertInFetchedurls(long id, String url, int state ){
         Document link =
@@ -68,27 +94,28 @@ public class DBManager {
         options.returnDocument(ReturnDocument.AFTER);
         Document returned = new Document();
         returned = (Document) fetchedURLS.findOneAndUpdate(find0, increase, options);
-        //System.out.println(returned);
-        /*if(returned==null)
-            return true;
-       // returned=returnedlink;
-        return false;*/
+
         return returned;
-        // System.out.println(returned.toString());
 
 
     }
 
     public void updateDoc(Document doc,int id){
-       // System.out.println("in update"+id);
         returnDocwithstate(id,doc,2);
     }
 
-    public void retrieveLinkwithstate1(){
-        //  Document coco=new Document();
+    public void retrieveLinkWithState1(){
         while(true){
             if(returnDocwithstate(1,new Document("_state", -1),1)==null)
                 break;
         }
+    }
+
+    public void updateSeed(String html,int id,String enc){
+
+
+        Document update = new Document();
+        update.append("$set", new Document().append("html", html).append("_encryption", enc));
+       URLSWithHTML.updateOne(new Document().append("_id", id), update);
     }
 }

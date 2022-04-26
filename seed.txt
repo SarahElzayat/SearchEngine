@@ -1,2 +1,6 @@
+https://news.google.com/
+https://www.timeanddate.com/worldclock/
 https://www.geeksforgeeks.org/
-https://geeksforgeeks.org/
+https://www.nytimes.com/
+https://www.imdb.com/
+https://www.bbc.com/
