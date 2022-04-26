@@ -5,6 +5,6 @@ public class main {
     {
 
        Indexer d=new Indexer();
-       d.Index("https://en.wikipedia.org/wiki/STL_(file_format)");
+       d.Index("https://www.tutorialspoint.com/cplusplus/cpp_stl_tutorial.htm");
     }
 }
