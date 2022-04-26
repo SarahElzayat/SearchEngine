@@ -5,6 +5,6 @@ public class main {
     {
 
        queryprocessing d=new queryprocessing();
-        d.queryprocess("stl");
+        d.queryprocess("c++ stl");
     }
 }

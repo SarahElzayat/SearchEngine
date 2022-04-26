@@ -18,7 +18,7 @@ import MongoDBPackage.MongoDB;
 
 
 //Stemmer
-import opennlp.tools.stemmer.PorterStemmer;
+//import opennlp.tools.stemmer.PorterStemmer;
 
 //get from DB
 import org.bson.Document;
@@ -42,7 +42,7 @@ private String[] tags={"title","h1","h2","h3","h4","h5","h6","p"};
     private static HashSet<String> stopWords ;
     private static HashSet<String> ImportantWords;
 
-    private PorterStemmer porterStemmer = new PorterStemmer();//stemmer
+    //private PorterStemmer porterStemmer = new PorterStemmer();//stemmer
 
     private MongoDB database;
 
