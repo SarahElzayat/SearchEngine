@@ -2,6 +2,7 @@ package com.noodle.search_engine;
 
 import com.mongodb.client.FindIterable;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -19,12 +20,12 @@ import java.util.Scanner;
 public class Crawler extends Thread {
   DBManager dbMongo;
   RobotsManager robotsTxt;
-  HashSet<String> urlsBGD = new HashSet<>(5000);
-  HashSet<String> hashedHTMLS = new HashSet<>(5000);
+ static HashSet<String> urlsBGD = new HashSet<>(5000);
+  static HashSet<String> hashedHTMLS = new HashSet<>(5000);
   Object obj = new Object();
 
   static long URLSWithHTMLID;
-  static long fetchedURLSID;
+//  static long fetchedURLSID;
 
   Crawler(DBManager db, RobotsManager rb) throws IOException {
     dbMongo = db;
@@ -33,17 +34,19 @@ public class Crawler extends Thread {
 
   public void run() {
 
-    int currentID;
+    ObjectId currentID;
     System.out.println("AAAAAAA " + URLSWithHTMLID);
     while (URLSWithHTMLID < 5000) {
       Document returnedDoc = new Document();
-      returnedDoc = dbMongo.returnDocwithstate(0, new Document("_state", 1), 1);
-      currentID = Integer.parseInt(returnedDoc.get("_id").toString());
+      synchronized (obj) {
+        returnedDoc = dbMongo.returnDocwithstate(0, new Document("_state", 1), 1);
+      }
+      currentID = (ObjectId) returnedDoc.get("_id");//.toString();//Integer.parseInt(returnedDoc.get("_id").toString());
       System.out.println("Current ID: @run" + currentID);
       if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
         System.out.println("@run URL exists");
         dbMongo.updateDoc(
-            new Document("_state", 1), Integer.parseInt(returnedDoc.get("_id").toString()));
+            new Document("_state", 1), currentID);
         continue;
       }
       try {
@@ -54,7 +57,7 @@ public class Crawler extends Thread {
       }
       org.jsoup.nodes.Document doc = null;
       try {
-        doc = Jsoup.connect(returnedDoc.get("_url").toString()).get(); // fetch the link html source
+        doc = Jsoup.connect(returnedDoc.get("_url").toString()).ignoreHttpErrors(true).timeout(5000).get(); // fetch the link html source
         if (!doc.toString().toLowerCase().contains("<!doctype html>")) {
           System.out.println("@Run doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
@@ -71,16 +74,15 @@ public class Crawler extends Thread {
 
           if (URLSWithHTMLID < 6) {
             System.out.println("URLSWithHTMLID < 6");
-            dbMongo.insertIntoDBHtmls(
-                URLSWithHTMLID, returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
+            dbMongo.insertIntoDBHtmls( returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
           } else {
             System.out.println("URLSWithHTMLID >>>> 6");
 
-            dbMongo.insertIntoDBHtmls(
-                URLSWithHTMLID, returnedDoc.get("_url").toString(), doc.toString(), "");
+            dbMongo.insertIntoDBHtmls( returnedDoc.get("_url").toString(), doc.toString(), "");
           }
-          System.out.println("URLS HTML ID: AFTER Insertion" + URLSWithHTMLID);
+          System.out.println("THREAD: "+currentThread().getName()+" URLS HTML ID: AFTER Insertion" + URLSWithHTMLID);
           System.out.println("URL: " + returnedDoc.get("_url").toString());
+
 
           synchronized (obj) {
             //            URLSWithHTMLID++;
@@ -89,14 +91,28 @@ public class Crawler extends Thread {
 
           Elements el = doc.select("a[href]");
           for (Element lis : el) {
-            this.addinFetched(lis, returnedDoc.get("_url").toString(), currentID);
+            //this.addinFetched(lis, returnedDoc.get("_url").toString(), currentID);
+            String firstLink = lis.attr("href");
+            if (firstLink.contains("https")) {
+              URL temp = new URL(returnedDoc.get("_url").toString());
+              if (!robotsTxt.checkifAllowed(firstLink, temp)) {
+                continue;
+              }
+//              synchronized (obj) {
+//                fetchedURLSID++;
+//              }
+              dbMongo.insertInFetchedurls(firstLink,0);//fetchedURLSID, firstLink, 0);
+
+            }
           }
           dbMongo.updateDoc(new Document("_state", 1), currentID);
         } else {
           dbMongo.updateDoc(new Document("_state", 1), currentID);
         }
       } catch (IOException e) {
+
         e.printStackTrace();
+        continue;
       }
     }
   }
@@ -106,32 +122,34 @@ public class Crawler extends Thread {
     File myObj = new File("./seed.txt");
     Scanner myReader = new Scanner(myObj);
     URLSWithHTMLID = dbMongo.getHTMLURLsCount();
-    fetchedURLSID = dbMongo.getFetchedCount();
+//    fetchedURLSID = dbMongo.getFetchedCount();
     dbMongo.retrieveSeeds(urlsBGD);
     while (myReader.hasNextLine()) {
       String title = myReader.nextLine();
       if (urlsBGD.contains(title)) continue;
       // fetch the link here
-      System.out.println("URL added to db @initSeeds: " + fetchedURLSID + " " + title);
-      dbMongo.insertInFetchedurls(fetchedURLSID++, title, 0);
+//      System.out.println("URL added to db @initSeeds: " + fetchedURLSID + " " + title);
+      dbMongo.insertInFetchedurls(title,0);//(fetchedURLSID++, title, 0);
     }
     dbMongo.retrieveElements(urlsBGD);
     dbMongo.retrieveLinkWithState1();
   }
 
-  public void addinFetched(Element url, String url1, int currentID) throws MalformedURLException {
-    String firstLink = url.attr("href");
-    if (firstLink.contains("https")) {
-      URL temp = new URL(url1);
-      if (!robotsTxt.checkifAllowed(firstLink, temp)) {
-        return;
-      }
-
-      synchronized (obj) {
-        dbMongo.insertInFetchedurls(fetchedURLSID++, firstLink, 0);
-      }
-    }
-  }
+//  public void addinFetched(Element url, String url1, int currentID) throws MalformedURLException {
+//    String firstLink = url.attr("href");
+//    if (firstLink.contains("https")) {
+//      URL temp = new URL(url1);
+//      if (!robotsTxt.checkifAllowed(firstLink, temp)) {
+//        return;
+//      }
+//
+//      synchronized (obj) {
+//        fetchedURLSID++;
+//      }
+//      dbMongo.insertInFetchedurls(fetchedURLSID, firstLink, 0);
+//
+//    }
+//  }
 
   public static String encryptThisString(String input) {
     try {
@@ -194,7 +212,7 @@ public class Crawler extends Thread {
       threads[i] = new Crawler(new DBManager(), new RobotsManager());
       threads[i].setName(Integer.toString(i));
       threads[i].start();
-      threads[i].sleep(3000);
+//      threads[i].sleep(3000);
     }
     try {
       for (int i = 0; i < numberOfThreads; i++) {
