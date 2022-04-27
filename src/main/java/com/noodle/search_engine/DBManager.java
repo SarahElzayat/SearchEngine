@@ -8,6 +8,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import java.util.HashSet;
 
@@ -37,18 +38,26 @@ public class DBManager {
     public long getHTMLURLsCount(){
         return URLSWithHTML.countDocuments();
     }
+
     public void insertIntoDBHtmls(long id, String url, String html ){
+
+    public void insertIntoDBHtmls(String url, String html,String hash){//(long id, String url, String html,String hash){
+
+
         Document s =
-                new Document("_id", id)
-                        .append("_url", url)
+                new Document//("_id", id)
+                        //.append
+                        ("_url", url)
                         .append("html", html);
         // state = n --> not downloaded yet
+
         URLSWithHTML.insertOne(s);
     }
-    public void insertInFetchedurls(long id, String url, int state ){
+    public void insertInFetchedurls (String url, int state ){//(long id, String url, int state ){
         Document link =
-                new Document("_id", id)
-                        .append("_url", url)
+                new Document//("_id", id)
+                        //.append
+                        ("_url", url)
                         .append("_state", state); // 0 added, 1 being processed, 2 done
         fetchedURLS.insertOne(link);
     }
@@ -79,9 +88,23 @@ public class DBManager {
 
     }
 
+
     public void updateDoc(Document doc,int id){
        // System.out.println("in update"+id);
         returnDocwithstate(id,doc,2);
+
+    public void updateDoc(Document doc, ObjectId id){
+//        returnDocwithstate(id,doc,2);
+        Document find0;
+        find0= new Document("_id", id);
+        //System.out.println(state);
+        Document increase = new Document("$inc", doc);
+        // System.out.println(doc.toString());
+        FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
+        options.returnDocument(ReturnDocument.AFTER);
+        Document returned = new Document();
+        returned = (Document) fetchedURLS.findOneAndUpdate(find0, increase, options);
+
     }
 
     public void retrieveLinkwithstate1(){

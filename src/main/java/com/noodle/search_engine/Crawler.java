@@ -1,5 +1,6 @@
   package com.noodle.search_engine;
 
+
   import io.mola.galimatias.GalimatiasParseException;
   import io.mola.galimatias.canonicalize.CombinedCanonicalizer;
   import org.bson.Document;
@@ -17,55 +18,50 @@
   import java.util.HashSet;
   import java.util.Scanner;
 
-  public class Crawler {
-    DBManager dbMongo;
-    RobotsManager robotsTxt;
-    HashSet<String> urlsBGD = new HashSet<>(5000);
-    HashSet<String> hashedHTMLS = new HashSet<>(5000);
 
-    long URLSWithHTMLID;
-    long fetchedURLSID;
-    String title;
-    // Vector<String> disallows;
-    // int crawledPages;
-    int currentID;
+public class Crawler extends Thread {
+  DBManager dbMongo;
+  RobotsManager robotsTxt;
+ static HashSet<String> urlsBGD = new HashSet<>(5000);
+  static HashSet<String> hashedHTMLS = new HashSet<>(5000);
+  Object obj = new Object();
 
-    Crawler(DBManager db, RobotsManager rb) throws IOException {
-      dbMongo = db;
-      robotsTxt = rb;
-    }
+  static long URLSWithHTMLID;
+//  static long fetchedURLSID;
 
-    public void initializeSeeds() throws IOException, URISyntaxException {
-      File myObj = new File("./seed.txt");
-      Scanner myReader = new Scanner(myObj);
-      URLSWithHTMLID = dbMongo.getHTMLURLsCount();
-      fetchedURLSID = dbMongo.getFetchedCount();
-      dbMongo.retrieveElements(urlsBGD);
-      while (myReader.hasNextLine()) {
-        title = myReader.nextLine();
-        if (urlsBGD.contains(title)) continue;
-        // fetch the link here
-        this.crawl(title, 0);
-      }
-      //  System.out.println("done initialize seed");
-    }
+  Crawler(DBManager db, RobotsManager rb) throws IOException {
+    dbMongo = db;
+    robotsTxt = rb;
+  }
 
-    public void fetchLinksfromDB() throws IOException, URISyntaxException {
-      // System.out.println("fetching from db");
+  public void run() {
 
-      dbMongo.retrieveLinkwithstate1();
-      // System.out.println("returned from state 1");
-
-      while (URLSWithHTMLID < 5000) {
-        Document returnedDoc = new Document();
+    ObjectId currentID;
+    System.out.println("AAAAAAA " + URLSWithHTMLID);
+    while (URLSWithHTMLID < 5000) {
+      Document returnedDoc = new Document();
+      synchronized (obj) {
         returnedDoc = dbMongo.returnDocwithstate(0, new Document("_state", 1), 1);
-        // System.out.println(returnedDoc.toString());
-        currentID = Integer.parseInt(returnedDoc.get("_id").toString());
-        // System.out.println(currentID);
-        title = returnedDoc.get("_url").toString();
-        // System.out.println(title);
-        if (urlsBGD.contains(title)) {
-          // System.out.println("helloooooo");
+      }
+      currentID = (ObjectId) returnedDoc.get("_id");//.toString();//Integer.parseInt(returnedDoc.get("_id").toString());
+      System.out.println("Current ID: @run" + currentID);
+      if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
+        System.out.println("@run URL exists");
+        dbMongo.updateDoc(
+            new Document("_state", 1), currentID);
+        continue;
+      }
+      try {
+        robotsTxt.getRobotsfile(returnedDoc.get("_url").toString());
+        System.out.println("@Run got robots.txt file");
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+      org.jsoup.nodes.Document doc = null;
+      try {
+        doc = Jsoup.connect(returnedDoc.get("_url").toString()).ignoreHttpErrors(true).timeout(5000).get(); // fetch the link html source
+        if (!doc.toString().toLowerCase().contains("<!doctype html>")) {
+          System.out.println("@Run doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           // System.out.println(returnedDoc);
           continue;
