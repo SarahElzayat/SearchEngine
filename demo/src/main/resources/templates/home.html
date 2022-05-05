@@ -50,20 +50,22 @@
 
     .form label {
         position: absolute;
-        top: 15px;
+        top: -13px;
         left: 25px;
         color: white;
+        background-color: #1e272e;
+        border-radius: 30px;
         text-transform: capitalize;
-        font-size: 20px;
-        transition: top .1s;
-        padding: 0 5px;
+        font-size: 22px;
+        /* transition: top .1s; */
+        padding: 0 8px;
     }
 
-    .form input:focus~label {
+    /* .form input:focus~label {
         top: -9px;
         background-color: #1e272e;
         border-radius: 20px;
-    }
+    } */
 
     #submit {
         position: relative;
@@ -107,6 +109,8 @@
         top: 105px;
         margin-left: 1rem;
     }
+
+
 </style>
 
 
@@ -135,8 +139,8 @@
         </form>
     </div>
     <div class="voice">
-        <button onclick="record()" style = "background-color: transparent; border:none;">
-            <i class='fa fa-microphone' aria-hidden="true"
+        <button id ="voiceButton"onclick="record()" style = "background-color: transparent; border:none;">
+            <i class='fa fa-microphone' aria-hidden="true" id="aaa"
                 style="font-size:40px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
         </button>
     </div>
