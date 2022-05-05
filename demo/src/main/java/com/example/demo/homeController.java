@@ -44,8 +44,6 @@ public class homeController {
             record.put("paragraph",doc.get("paragraph"));
             responseArray.add(record);
         }
-//        return query + " ++++ "+ responseArray.toJSONString();
-
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("results",responseArray);
         modelAndView.setViewName("results");

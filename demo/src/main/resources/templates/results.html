@@ -380,7 +380,7 @@
         function showResults(page) {
             currentPage = page;
             resultsEl.innerHTML = "";
-            results.slice((page - 1) * 20, page * 20).forEach((result) => {
+            results.slice((page - 1) * 10, page * 10).forEach((result) => {
                 const li = document.createElement("li");
                 const header = document.createElement("a");
                 header.className = "header";
@@ -403,7 +403,7 @@
             });
         }
         const paginationEl = document.getElementsByClassName("pagination")[0];
-        const pages = Math.ceil(results.length / 20.0);
+        const pages = Math.ceil(results.length / 10.0);
         [...Array(pages)].forEach((p, index) => {
             const el = document.createElement("a");
             el.innerText = index + 1;
