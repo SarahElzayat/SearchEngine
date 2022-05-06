@@ -98,11 +98,13 @@
     }
 
     .mag {
+        /* position: relative; */
         text-align: center;
         align-items: center;
         justify-content: center;
         font-family: 'Radio Canada', sans-serif;
         margin-bottom: 50px;
+
     }
     .voice{
         position: relative; 
@@ -110,7 +112,27 @@
         margin-left: 1rem;
     }
 
+    ul{
+        list-style: none;
+    }
+    .list{
+        font-size:20px;
+        width:100%;
+        background-color: #f1f2f6;
+        border-radius: 10px;
+        color: #191a1b;
 
+    }
+    .list-items{
+        padding: 10px 5px;
+        color: #191a1b;
+
+    }
+     .list-items:hover{
+        color: #191a1b;
+        border-radius: 10px;
+         background-color:#aba6f7d0;
+     }
 </style>
 
 
@@ -118,11 +140,11 @@
     <div>
 
         <div class="mag">
+            
             <i class="fa fa-search" aria-hidden="true"
-                style="font-size:150px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
+                style="  font-size:150px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
             <i class="fa fa-cogs" aria-hidden="true"
                 style="font-size:150px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
-
         </div>
 
         <form name="search" action="http://localhost:8080/search" class="form">
@@ -130,9 +152,10 @@
             <input type="text" placeholder=" " id="query" name="query">
             <label for=""> search </label>
             <br><br>
+            <ul class="list"></ul>
             <div class="box">
                 <button type="submit" name="submit" id="submit">Search</button>
-
+         
                 <br>
             </div>
 
@@ -146,7 +169,7 @@
     </div>
     </div>
 
-    <script>
+    <script th:inline="javascript">
         function changeFormAction() {
             var query = document.getElementById("query").value;
             var form = this;
@@ -161,6 +184,42 @@
                 document.getElementById('query').value = event.results[0][0].transcript;
             }
             recognition.start();
+        }
+        var suggestions = [[${suggestions}]];
+        // let suggestions = ["Sarah","Amanda","Rose","Jane","Samy","Amore"];
+        let sortedSuggestions = suggestions.sort();
+        console.log(sortedSuggestions);
+        let input = document.getElementById("query");
+        input.addEventListener("keyup",(e) =>{
+
+            removeElements();
+            for (let i of sortedSuggestions){
+                // console.log(i);
+                if(i.toLowerCase().startsWith(input.value.toLowerCase())
+                && input.value!=""){
+                    let listItem = document.createElement("li");
+                    listItem.classList.add("list-items");
+                    listItem.style.cursor ="pointer";
+                    listItem.setAttribute("onclick","displayNames('" + 
+                    i +"')");
+                    let word = "<b>"+ i.substr(0,input.value.length)+ "</b>";
+                    word += i.substr(input.value.length);
+                    // console.log(word);
+                    listItem.innerHTML = word;
+                    document.querySelector(".list").appendChild(listItem);
+                }
+            }
+        })
+        function displayNames(value){
+            input.value = value;
+            removeElements();
+
+        }
+        function removeElements(){
+            let items = document.querySelectorAll(".list-items");
+            items.forEach((item) => {
+                item.remove();
+            });
         }
     </script>
 

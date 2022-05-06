@@ -1,35 +1,45 @@
 package com.example.demo;
 
-
-import com.fasterxml.jackson.databind.util.JSONPObject;
+import com.mongodb.client.*;
 import org.bson.Document;
 import org.json.simple.JSONArray;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import com.mongodb.client.*;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
 import org.json.simple.JSONObject;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @RestController// Controller
 public class homeController {
 
-    @GetMapping("/")
+    @GetMapping(value = "/")
+    @ResponseBody
     public ModelAndView homePage() {
-        ModelAndView modelAndView = new ModelAndView("home");
+        ModelAndView modelAndView = new ModelAndView();
+        MongoCollection<Document> collection;
+        String uri = "mongodb://localhost:27017";
+        MongoClient mongo = MongoClients.create(uri);
+        MongoDatabase db = mongo.getDatabase("Suggestions");
+        collection = db.getCollection("Suggestions");
+
+        FindIterable<Document> d = collection.find();
+        String[] responseArray = new String[(int) collection.countDocuments()];
+        int i = 0;
+        for (Document doc : d) {
+            responseArray[i++] = doc.get("query").toString();
+        }
+        modelAndView.addObject("suggestions", responseArray);
+        modelAndView.setViewName("home");
         return modelAndView;
     }
 
     @GetMapping(value = "/search")
     @ResponseBody
-    public ModelAndView GetForm(@RequestParam(name = "query",required = false) String query) {
+    public ModelAndView GetForm(@RequestParam(name = "query", required = false) String query) {
         MongoCollection<Document> collection;
         String uri = "mongodb://localhost:27017";
         MongoClient mongo = MongoClients.create(uri);
@@ -37,15 +47,15 @@ public class homeController {
         collection = db.getCollection("AAAA");
         FindIterable<Document> d = collection.find();
         JSONArray responseArray = new JSONArray();
-        for(Document doc: d){
+        for (Document doc : d) {
             JSONObject record = new JSONObject();
-            record.put("url",doc.get("url"));
-            record.put("header",doc.get("header"));
-            record.put("paragraph",doc.get("paragraph"));
+            record.put("url", doc.get("url"));
+            record.put("header", doc.get("header"));
+            record.put("paragraph", doc.get("paragraph"));
             responseArray.add(record);
         }
         ModelAndView modelAndView = new ModelAndView();
-        modelAndView.addObject("results",responseArray);
+        modelAndView.addObject("results", responseArray);
         modelAndView.setViewName("results");
         System.out.println(query);
         return modelAndView;
