@@ -3,7 +3,8 @@ package com.example.demo;
 //Mongo DB
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.MongoClient;
+//import com.mongodb.MongoClient;
+import com.mongodb.client.*;
 import org.bson.Document;
 
 
@@ -17,12 +18,18 @@ public class MongoDB {
     //1.constructor;
     public MongoDB(String Database,String collection_Name)
     {
-       mongoClient = new MongoClient("localhost", 27017);
-       database = mongoClient.getDatabase(Database);
+//       mongoClient = new MongoClient("localhost", 27017);
+        String uri = "mongodb://localhost:27017";
+        MongoClient mongo = MongoClients.create(uri);
+        MongoDatabase database = mongo.getDatabase(Database);
+//       database = mongoClient.getDatabase(Database);
        if(database!=null)
        {
-           collection=database.getCollection(collection_Name);
+           collection = database.getCollection(collection_Name);
        }
+
+
+
     }
 
 
