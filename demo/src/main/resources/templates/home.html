@@ -50,6 +50,7 @@
 
     .form label {
         position: absolute;
+<<<<<<< HEAD
         top: 15px;
         left: 25px;
         color: white;
@@ -64,6 +65,24 @@
         background-color: #1e272e;
         border-radius: 20px;
     }
+=======
+        top: -13px;
+        left: 25px;
+        color: white;
+        background-color: #1e272e;
+        border-radius: 30px;
+        text-transform: capitalize;
+        font-size: 22px;
+        /* transition: top .1s; */
+        padding: 0 8px;
+    }
+
+    /* .form input:focus~label {
+        top: -9px;
+        background-color: #1e272e;
+        border-radius: 20px;
+    } */
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
 
     #submit {
         position: relative;
@@ -96,17 +115,50 @@
     }
 
     .mag {
+<<<<<<< HEAD
+=======
+        /* position: relative; */
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
         text-align: center;
         align-items: center;
         justify-content: center;
         font-family: 'Radio Canada', sans-serif;
         margin-bottom: 50px;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
     }
     .voice{
         position: relative; 
         top: 105px;
         margin-left: 1rem;
     }
+<<<<<<< HEAD
+=======
+
+    ul{
+        list-style: none;
+    }
+    .list{
+        font-size:20px;
+        width:100%;
+        background-color: #f1f2f6;
+        border-radius: 10px;
+        color: #191a1b;
+
+    }
+    .list-items{
+        padding: 10px 5px;
+        color: #191a1b;
+
+    }
+     .list-items:hover{
+        color: #191a1b;
+        border-radius: 10px;
+         background-color:#aba6f7d0;
+     }
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
 </style>
 
 
@@ -114,11 +166,19 @@
     <div>
 
         <div class="mag">
+<<<<<<< HEAD
             <i class="fa fa-search" aria-hidden="true"
                 style="font-size:150px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
             <i class="fa fa-cogs" aria-hidden="true"
                 style="font-size:150px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
 
+=======
+            
+            <i class="fa fa-search" aria-hidden="true"
+                style="  font-size:150px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
+            <i class="fa fa-cogs" aria-hidden="true"
+                style="font-size:150px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
         </div>
 
         <form name="search" action="http://localhost:8080/search" class="form">
@@ -126,23 +186,39 @@
             <input type="text" placeholder=" " id="query" name="query">
             <label for=""> search </label>
             <br><br>
+<<<<<<< HEAD
             <div class="box">
                 <button type="submit" name="submit" id="submit">Search</button>
 
+=======
+            <ul class="list"></ul>
+            <div class="box">
+                <button type="submit" name="submit" id="submit">Search</button>
+         
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
                 <br>
             </div>
 
         </form>
     </div>
     <div class="voice">
+<<<<<<< HEAD
         <button onclick="record()" style = "background-color: transparent; border:none;">
             <i class='fa fa-microphone' aria-hidden="true"
+=======
+        <button id ="voiceButton"onclick="record()" style = "background-color: transparent; border:none;">
+            <i class='fa fa-microphone' aria-hidden="true" id="aaa"
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
                 style="font-size:40px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
         </button>
     </div>
     </div>
 
+<<<<<<< HEAD
     <script>
+=======
+    <script th:inline="javascript">
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
         function changeFormAction() {
             var query = document.getElementById("query").value;
             var form = this;
@@ -158,6 +234,45 @@
             }
             recognition.start();
         }
+<<<<<<< HEAD
+=======
+        var suggestions = [[${suggestions}]];
+        // let suggestions = ["Sarah","Amanda","Rose","Jane","Samy","Amore"];
+        let sortedSuggestions = suggestions.sort();
+        console.log(sortedSuggestions);
+        let input = document.getElementById("query");
+        input.addEventListener("keyup",(e) =>{
+
+            removeElements();
+            for (let i of sortedSuggestions){
+                // console.log(i);
+                if(i.toLowerCase().startsWith(input.value.toLowerCase())
+                && input.value!=""){
+                    let listItem = document.createElement("li");
+                    listItem.classList.add("list-items");
+                    listItem.style.cursor ="pointer";
+                    listItem.setAttribute("onclick","displayNames('" + 
+                    i +"')");
+                    let word = "<b>"+ i.substr(0,input.value.length)+ "</b>";
+                    word += i.substr(input.value.length);
+                    // console.log(word);
+                    listItem.innerHTML = word;
+                    document.querySelector(".list").appendChild(listItem);
+                }
+            }
+        })
+        function displayNames(value){
+            input.value = value;
+            removeElements();
+
+        }
+        function removeElements(){
+            let items = document.querySelectorAll(".list-items");
+            items.forEach((item) => {
+                item.remove();
+            });
+        }
+>>>>>>> 2a47f7c (Merge remote-tracking branch 'origin/Sarah')
     </script>
 
 </body>
