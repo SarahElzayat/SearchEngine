@@ -17,16 +17,17 @@ import org.jsoup.select.Elements;
 take input parameter file name (source code)to be parsed
 * */
 public class HtmlParsing {
-    static Elements Parse_Tags(String tag)
+    Document doc;
+    HtmlParsing (String str_html) throws IOException
     {
-        try {
-            Document doc= Jsoup.parse(new File("D:\\2nd-term\\OS\\Project\\SearchEngine\\APT_Indexer\\src\\URL1.txt"),"UTF-8");
-            Elements paragraphs = doc.select(tag);
+       doc= Jsoup.parse(str_html,"UTF-8");
 
-            return paragraphs;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+    }
+    public Elements Parse_Tags(String tag)
+    {
+        // Document doc= Jsoup.parse(new File("D:\\2nd-term\\OS\\Project\\SearchEngine\\APT_Indexer\\src\\URL1.txt"),"UTF-8");
+        Elements paragraphs = doc.select(tag);
+
+        return paragraphs;
     }
 }
