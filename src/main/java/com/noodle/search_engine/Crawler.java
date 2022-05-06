@@ -1,21 +1,23 @@
-package com.noodle.search_engine;
+  package com.noodle.search_engine;
 
-import com.mongodb.client.FindIterable;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import java.io.File;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
-import java.util.Scanner;
+
+  import io.mola.galimatias.GalimatiasParseException;
+  import io.mola.galimatias.canonicalize.CombinedCanonicalizer;
+  import org.bson.Document;
+  import org.jsoup.Jsoup;
+  import org.jsoup.nodes.Element;
+  import org.jsoup.select.Elements;
+  import java.io.File;
+  import java.io.IOException;
+  import java.math.BigInteger;
+  import java.net.MalformedURLException;
+  import java.net.URISyntaxException;
+  import java.net.URL;
+  import java.security.MessageDigest;
+  import java.security.NoSuchAlgorithmException;
+  import java.util.HashSet;
+  import java.util.Scanner;
+
 
 public class Crawler extends Thread {
   DBManager dbMongo;
@@ -61,165 +63,306 @@ public class Crawler extends Thread {
         if (!doc.toString().toLowerCase().contains("<!doctype html>")) {
           System.out.println("@Run doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
+          // System.out.println(returnedDoc);
           continue;
         }
-        String encryptedHTML = encryptThisString(doc.toString());
-        if (!hashedHTMLS.contains(encryptedHTML)) {
-          System.out.println("@Run hashed doesn't contain encryption");
-          synchronized (obj) {
-            hashedHTMLS.add(encryptedHTML);
-            URLSWithHTMLID++;
-            System.out.println("URLS HTML ID: " + URLSWithHTMLID);
-          }
+        this.crawl(title, 1);
+      }
+    }
 
-          if (URLSWithHTMLID < 6) {
-            System.out.println("URLSWithHTMLID < 6");
-            dbMongo.insertIntoDBHtmls( returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
-          } else {
-            System.out.println("URLSWithHTMLID >>>> 6");
-
-            dbMongo.insertIntoDBHtmls( returnedDoc.get("_url").toString(), doc.toString(), "");
-          }
-          System.out.println("THREAD: "+currentThread().getName()+" URLS HTML ID: AFTER Insertion" + URLSWithHTMLID);
-          System.out.println("URL: " + returnedDoc.get("_url").toString());
-
-
-          synchronized (obj) {
-            //            URLSWithHTMLID++;
-            urlsBGD.add(returnedDoc.get("_url").toString());
-          }
-
-          Elements el = doc.select("a[href]");
-          for (Element lis : el) {
-            //this.addinFetched(lis, returnedDoc.get("_url").toString(), currentID);
-            String firstLink = lis.attr("href");
-            if (firstLink.contains("https")) {
-              URL temp = new URL(returnedDoc.get("_url").toString());
-              if (!robotsTxt.checkifAllowed(firstLink, temp)) {
-                continue;
-              }
-//              synchronized (obj) {
-//                fetchedURLSID++;
-//              }
-              dbMongo.insertInFetchedurls(firstLink,0);//fetchedURLSID, firstLink, 0);
-
-            }
-          }
-          dbMongo.updateDoc(new Document("_state", 1), currentID);
-        } else {
+    public void crawl(String url, int check) throws IOException {
+      robotsTxt.getRobotsfile(url);
+      org.jsoup.nodes.Document doc;
+      doc = Jsoup.connect(url).get(); // fetch the link html source
+      if (!doc.toString().contains("<!doctype html>")) {
+        if (check == 1) {
           dbMongo.updateDoc(new Document("_state", 1), currentID);
         }
-      } catch (IOException e) {
+        return;
+      }
+      //    System.out.println("Before normalization " + url);
+      url = normalize(url);
+  //    System.out.println("Link: "+url.toString());
+      String encryptedHTML = encryptThisString(doc.toString());
+      if (checkIfHTMLAlreadyExists(encryptedHTML)) {
+        dbMongo.insertIntoDBHtmls(URLSWithHTMLID++, url, doc.toString());
+        urlsBGD.add(url);
+        Elements el = doc.select("a[href]");
+        for (Element lis : el) {
+          this.addinFetched(lis, check, url);
+        }
+        if (check == 1) dbMongo.updateDoc(new Document("_state", 1), currentID);
+      }
+    }
+    // fetched from currently used url
+    public void addinFetched(Element url, int check, String url1) throws MalformedURLException {
+      String firstLink = url.attr("href");
+      if (firstLink.contains("https")) {
+        //   System.out.println(firstLink);
+        // URI temp1 = new URI(firstLink);
+        URL temp = new URL(url1);
+        if (!robotsTxt.checkifAllowed(firstLink, temp)) {
+          if (check == 1) {
+            dbMongo.updateDoc(new Document("_state", 1), currentID);
+          }
+          return;
+        }
 
-        e.printStackTrace();
+        dbMongo.insertInFetchedurls(fetchedURLSID++, firstLink, 0);
+      }
+    }
+
+    public String normalize(String s) {
+      io.mola.galimatias.URL url;
+      try {
+        url = io.mola.galimatias.URL.parse(s);
+        CombinedCanonicalizer CC = new CombinedCanonicalizer();
+        s = CC.canonicalize(url).toString();
+        // System.out.println(s);
+      } catch (GalimatiasParseException ex) {
+        // Do something with non-recoverable parsing error
+      }
+
+      return s;
+    }
+
+    public boolean checkIfHTMLAlreadyExists(String encryptedHTML) {
+
+      if (hashedHTMLS.contains(encryptedHTML)) return false;
+      hashedHTMLS.add(encryptedHTML);
+      return true;
+    }
+
+    public static String encryptThisString(String input) {
+      try {
+        // getInstance() method is called with algorithm SHA-1
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+
+        // digest() method is called
+        // to calculate message digest of the input string
+        // returned as array of byte
+        byte[] messageDigest = md.digest(input.getBytes());
+
+        // Convert byte array into signum representation
+        BigInteger no = new BigInteger(1, messageDigest);
+
+        // Convert message digest into hex value
+        String hashtext = no.toString(16);
+
+        // Add preceding 0s to make it 32 bit
+        while (hashtext.length() < 32) {
+          hashtext = "0" + hashtext;
+        }
+
+        // return the HashText
+  //      System.out.println("hashed "+hashtext);
+        return hashtext;
+      }
+
+      // For specifying wrong message digest algorithms
+      catch (NoSuchAlgorithmException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    public static void main(String[] args) throws IOException, URISyntaxException {
+      DBManager db = new DBManager();
+      Crawler crawl = new Crawler(db, new RobotsManager());
+      crawl.initializeSeeds();
+      crawl.fetchLinksfromDB();
+      ///////////////////////// NORMALIZATION////////////////////////////////////////
+
+      // String uri = "mongodb://localhost:27017"; ////////////////////////////////
+      //  HashSet<String> urls = new HashSet<>();
+      // HashSet<String> urlsBGD = new HashSet<>();
+      // File myObj =
+      // new File(
+      //   "D:\\CMP #2\\Second Semester\\Advanced Programming
+      // Techniques\\IntelliJ\\SearchEngine\\seed.txt");
+      // MongoClient mongo = MongoClients.create(uri);//////////////////////////////////
+      // MongoDatabase db =
+      // mongo.getDatabase("SearchEngine");//////////////////////////////////////////
+      // MongoCollection<Document> fetchedURLS =
+      // db.getCollection("FetchedURLs");////////////////////////////////////
+      // MongoCollection<Document> URLSWithHTML =
+      // db.getCollection("URLSWithHTML");//////////////////////////////////
+      // long URLSWithHTMLID = dbMongo.getHTMLURLsCount();//URLSWithHTML.countDocuments();
+      //////////////////////// hi
+
+      /*for (int i = 0; i < URLSWithHTML.countDocuments(); i++) {
+        FindIterable<Document> ddd = URLSWithHTML.find();
+        for (Document ff : ddd) {
+          urlsBGD.add((String) ff.get("_url"));
+        }
+      }
+      System.out.println(urlsBGD);*/
+      // long fetchedURLSID = dbMongo.getFetchedCount();//fetchedURLS.countDocuments();
+      // Scanner myReader = new Scanner(myObj);
+
+      // for (int i = 0; i < 6; i++) // read from seeds.txt
+      // {
+
+      // String title;
+      // title = myReader.nextLine();
+      // if (urlsBGD.contains(title)) continue;
+      /*
+            URL currentURL = new URL(title);
+            String robotsURL =
+                (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt"))
+                    .toString();
+            InputStream in = new URL(robotsURL).openStream();
+            Scanner robots7aga = new Scanner(in).useDelimiter("\\A");
+            String result = robots7aga.hasNext() ? robots7aga.next() : "";
+            String[] array = result.split("\n"); // array of robots.txt as strings
+            Vector<String> disallows = new Vector<String>(0);
+            for (int x = 0; x < array.length; x++) {
+              if (array[x].contains("User-agent: *")) {
+                x++;
+                while (x < array.length && array[x].contains("Disallow")) {
+                  array[x] = array[x].replace("Disallow: ", "");
+                  disallows.add(array[x]);
+                  x++;
+                }
+              }
+            }
+      */
+
+      /*org.jsoup.nodes.Document doc;
+      try {
+        doc = Jsoup.connect(title).get();
+      } catch (Exception e) {
+        continue;
+      }*/
+      // if (!doc.toString().contains("<!doctype html>")) continue;
+
+      /* Document s =
+          new Document("_id", URLSWithHTMLID++)
+              .append("_url", title)
+              .append("html", doc.toString());
+      // state = n --> not downloaded yet
+      URLSWithHTML.insertOne(s);*/
+      /*urlsBGD.add(title);*/
+
+      // Elements el = doc.select("a[href]");
+
+      /*for (Element lis : el) {
+          Boolean tmam = true;
+          //        if (!urls.contains(lis.attr("href"))) {
+          for (int y = 0; y < disallows.size(); y++) {
+            if (lis.attr("href").contains(disallows.get(y))
+                && lis.attr("href").contains(currentURL.getHost())) {
+              tmam = false;
+            }
+          }
+          if (!tmam) continue;
+          //          urls.add(lis.attr("href"));
+          if (lis.attr("href").contains("https")) {
+            Document link =
+                new Document("_id", fetchedURLSID++)
+                    .append("_url", lis.attr("href"))
+                    .append("_state", 0); // 0 added, 1 being processed, 2 done
+            fetchedURLS.insertOne(link);
+          }
+          //        }
+        }
+      }*/
+
+      // ####################################################//
+      /*  while(true){
+          Document find0 = new Document("_state", 1);
+          Document increase = new Document("$inc", new Document("_state", -1));
+          FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
+      //    options.upsert(true);
+          options.returnDocument(ReturnDocument.AFTER);
+          Document coco=(Document) fetchedURLS.findOneAndUpdate(find0,increase,options);
+          if(coco==null)
+            break;
+          }*/
+      // for (int i = 0; i < 100; i++) // read from seeds.txt
+      // {
+      /*
+      Document find0 = new Document("_state", 0);
+      Document increase = new Document("$inc", new Document("_state", 1));
+      FindOneAndUpdateOptions options = new FindOneAndUpdateOptions();
+      options.upsert(true);
+      options.returnDocument(ReturnDocument.AFTER);
+      Document coco = (Document) fetchedURLS.findOneAndUpdate(find0, increase, options);
+      int currentID = Integer.parseInt(coco.get("_id").toString());
+      Document find1 = new Document("_id", currentID);
+      String title;
+      title = coco.get("_url").toString();
+      System.out.println("URL coco " + title);
+      // return;
+      if (urlsBGD.contains(title)) {
+        fetchedURLS.findOneAndUpdate(find1, increase, options);
+        System.out.println("COCO ALREADY EXISTS");
         continue;
       }
-    }
-  }
+      URL currentURL = new URL(title);
+      String robotsURL =
+          (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt"))
+              .toString();
+      InputStream in = new URL(robotsURL).openStream();
+      Scanner robots7aga = new Scanner(in).useDelimiter("\\A");
+      String result = robots7aga.hasNext() ? robots7aga.next() : "";
+      String[] array = result.split("\n"); // array of robots.txt as strings
+      Vector<String> disallows = new Vector<String>(0);
+      for (int x = 0; x < array.length; x++) {
+        if (array[x].contains("User-agent: *")) {
+          x++;
+          while (x < array.length && array[x].contains("Disallow")) {
+            array[x] = array[x].replace("Disallow: ", "");
+            disallows.add(array[x]);
+            x++;
+          }
+        }
+      }*/
 
-  public void initializeSeeds() throws IOException {
-
-    File myObj = new File("./seed.txt");
-    Scanner myReader = new Scanner(myObj);
-    URLSWithHTMLID = dbMongo.getHTMLURLsCount();
-//    fetchedURLSID = dbMongo.getFetchedCount();
-    dbMongo.retrieveSeeds(urlsBGD);
-    while (myReader.hasNextLine()) {
-      String title = myReader.nextLine();
-      if (urlsBGD.contains(title)) continue;
-      // fetch the link here
-//      System.out.println("URL added to db @initSeeds: " + fetchedURLSID + " " + title);
-      dbMongo.insertInFetchedurls(title,0);//(fetchedURLSID++, title, 0);
-    }
-    dbMongo.retrieveElements(urlsBGD);
-    dbMongo.retrieveLinkWithState1();
-  }
-
-//  public void addinFetched(Element url, String url1, int currentID) throws MalformedURLException {
-//    String firstLink = url.attr("href");
-//    if (firstLink.contains("https")) {
-//      URL temp = new URL(url1);
-//      if (!robotsTxt.checkifAllowed(firstLink, temp)) {
-//        return;
-//      }
-//
-//      synchronized (obj) {
-//        fetchedURLSID++;
-//      }
-//      dbMongo.insertInFetchedurls(fetchedURLSID, firstLink, 0);
-//
-//    }
-//  }
-
-  public static String encryptThisString(String input) {
-    try {
-      // getInstance() method is called with algorithm SHA-1
-      MessageDigest md = MessageDigest.getInstance("SHA-1");
-
-      // digest() method is called
-      // to calculate message digest of the input string
-      // returned as array of byte
-      byte[] messageDigest = md.digest(input.getBytes());
-
-      // Convert byte array into signum representation
-      BigInteger no = new BigInteger(1, messageDigest);
-
-      // Convert message digest into hex value
-      String hashtext = no.toString(16);
-
-      // Add preceding 0s to make it 32 bit
-      while (hashtext.length() < 32) {
-        hashtext = "0" + hashtext;
+      /*  org.jsoup.nodes.Document doc;
+      try {
+        doc = Jsoup.connect(title).get();
+      } catch (Exception e) {
+        continue;
       }
-      // return the HashText
-
-      return hashtext;
-    }
-
-    // For specifying wrong message digest algorithms
-    catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public void recrawlSeeds() throws IOException {
-    FindIterable<Document> documents = dbMongo.URLSWithHTML.find().limit(6);
-    int tempID = 0;
-    for (Document doc : documents) {
-      String url = doc.get("_url").toString();
-      org.jsoup.nodes.Document temp;
-      temp = Jsoup.connect(url).get();
-      String encryptedHTML = encryptThisString(temp.toString());
-      String tempEncrypted = doc.get("_encryption").toString();
-      if (!encryptedHTML.equals(tempEncrypted)) {
-        dbMongo.updateSeed(temp.toString(), tempID++, encryptedHTML);
-
-        System.out.println("Updated document url " + url);
+      if (!doc.toString().contains("<!doctype html>")) {
+        fetchedURLS.findOneAndUpdate(find1, increase, options);
+        System.out.println("COCO ISN'T HTML");
+        continue;
       }
-    }
-  }
+      Document s =
+          new Document("_id", URLSWithHTMLID++)
+              .append("_url", title)
+              .append("html", doc.toString());
+      // state = n --> not downloaded yet
+      URLSWithHTML.insertOne(s);
+      urlsBGD.add(title);*/
 
-  public static void main(String[] args)
-      throws IOException, URISyntaxException, InterruptedException {
-    DBManager db = new DBManager();
-    Crawler crawl = new Crawler(db, new RobotsManager());
-    crawl.initializeSeeds();
-    Scanner sc = new Scanner(System.in);
-    int numberOfThreads;
-    numberOfThreads=sc.nextInt();
-    Crawler threads[] = new Crawler[numberOfThreads];
-    for (int i = 0; i < numberOfThreads; i++) {
-      threads[i] = new Crawler(new DBManager(), new RobotsManager());
-      threads[i].setName(Integer.toString(i));
-      threads[i].start();
-//      threads[i].sleep(3000);
-    }
-    try {
-      for (int i = 0; i < numberOfThreads; i++) {
-        threads[i].join();
+      // Elements el = doc.select("a[href]");
+
+      // for (Element lis : el) {
+      /* Boolean tmam = true;
+      for (int y = 0; y < disallows.size(); y++) {
+        if (lis.attr("href").contains(disallows.get(y))
+            && lis.attr("href").contains(currentURL.getHost())) {
+          tmam = false;
+        }
       }
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+      if (!tmam) {
+        fetchedURLS.findOneAndUpdate(find1, increase, options);
+        System.out.println("NOT TMAM");
+        continue;
+      }*/
+
+      /*if (lis.attr("href").contains("https")) {
+          Document link =
+              new Document("_id", fetchedURLSID++)
+                  .append("_url", lis.attr("href"))
+                  .append("_state", 0); // 0 added, 1 being processed, 2 done
+          fetchedURLS.insertOne(link);
+        }
+      }*/
+      /*    fetchedURLS.findOneAndUpdate(find1, increase, options);
+        System.out.println("Finished coco");
+      }*/
     }
   }
-}
