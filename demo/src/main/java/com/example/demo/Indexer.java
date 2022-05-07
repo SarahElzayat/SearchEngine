@@ -51,16 +51,16 @@ public class Indexer {
     {
         //load stopwords
         porterStemmer = new PorterStemmer();
-        stopWords=new HashSet<String>();
-        ImportantWords=new HashSet<String>();
-        getStopWords();
-        getImportantword();
+        stopWords= getStopWords();
+        ImportantWords= getImportantword();;
+
         //connect to DB
         database_Index=new MongoDB("Search_Engine","Indexer");
         database_Crawler=new MongoDB("Search_Engine","URLSWithHTML");
     }
 
     public void Index(String url,String source_str) throws IOException {
+        int no_Of_Words=0;
         HtmlParsing HTML_PAR=new HtmlParsing(source_str);
         for (String tag : tags) {
             Elements paragraphs =HTML_PAR.Parse_Tags(tag);//all tags
@@ -88,13 +88,13 @@ public class Indexer {
                                 continue;
                             }
 
-                            addWordtoDB(subwords[j], url, tag,position);
+                            no_Of_Words+=addWordtoDB(words[i], url, tag,position);
                             position++;
                         }
                     }
                     else
                     {
-                        addWordtoDB(words[i], url, tag,position);
+                        no_Of_Words+=addWordtoDB(words[i], url, tag,position);
                         position++;
                     }
                 }
@@ -106,12 +106,15 @@ public class Indexer {
 //        while (cursor.hasNext()) {
 //            System.out.println("collection is " +cursor.next() );}
 
-
+        Bson filter=eq("_url",url);
+        Bson update2 = Updates.set("NOOFWORDS",no_Of_Words);
+        database_Crawler.collection.updateMany(filter, update2);
     }
 
-    private void addWordtoDB(String word,String url,String tag,int position )
+    private int addWordtoDB(String word,String url,String tag,int position )
     {
         //steaming the word
+        int no_ofnewword=0;
         String stemword = porterStemmer.stem(word);//hello
         Bson fillter=and(eq("_id",stemword),eq("DOC.url",url));
         Bson update=Updates.addToSet("DOC.$."+word+"."+tag,position);
@@ -131,8 +134,10 @@ public class Indexer {
                 Document arrdoc=new Document("url",url).append(word,tagdoc);
                 doc=new Document("_id",stemword).append("DF",1).append("DOC", Arrays.asList(arrdoc));
                 database_Index.collection.insertOne(doc);
+                no_ofnewword=1;
             }
         }
+        return  no_ofnewword;
     }
    public void Index_crawlar() throws IOException {
         FindIterable<Document> itratdoc=database_Crawler.collection.find();

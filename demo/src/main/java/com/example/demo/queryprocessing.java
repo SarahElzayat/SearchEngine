@@ -25,7 +25,7 @@ public class queryprocessing {
         stopWords=Indexer.getStopWords();
         ImportantWords=Indexer.getImportantword();
     }
-    public  Vector<String> query_process(String QP_str,Vector<Vector<JSONObject>>resultorginal,Vector<Vector<JSONObject>> resultforms) throws JSONException {
+    public  Vector<String> query_process(String QP_str,Vector<Vector<JSONObject>>resultorginal,Vector<Vector<JSONObject>> resultforms,Vector<Integer>NoofDocumentsforword) throws JSONException {
 
         String[] words = (QP_str).toLowerCase().split("\\s");//splits the string based on whitespace
         Vector<String>finalword=new Vector<String>(1);
@@ -51,6 +51,17 @@ public class queryprocessing {
                         JSONObject obj = new JSONObject(DBresult.toJson());
                         JSONArray arr = obj.getJSONArray("DOC");
                         finalword.add(sw);
+                        Integer m=0;
+                        NoofDocumentsforword.add(i,m);
+                        for(int a=0;a<arr.length();a++)
+                        {
+
+                            if(arr.getJSONObject(a).has(words[i]))
+                            {
+                                Integer x=NoofDocumentsforword.get(i);
+                                NoofDocumentsforword.set(i,++x);
+                            }
+                        }
                         docarr.add(arr);
                     }
                 }

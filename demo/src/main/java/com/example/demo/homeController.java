@@ -67,11 +67,12 @@ public class homeController {
          query=query.trim();
         Vector<Vector<org.json.JSONObject>> resultorginal=new Vector<Vector<org.json.JSONObject>>(1);
         Vector<Vector<org.json.JSONObject>>  resultforms=new Vector<Vector<org.json.JSONObject>>(1);
+        Vector<Integer> NoofDocumentsforword=new Vector<Integer>(1);
          if(query.startsWith("\"") && query.endsWith("\"")){
             phraseSearch.Phraseprocess(query);
          }
          else{
-             queryProcessing.query_process(query,resultorginal, resultforms);
+             queryProcessing.query_process(query,resultorginal, resultforms, NoofDocumentsforword);
          }
 //         System.out.println(word.startsWith("\""));
 //        System.out.println(word.endsWith("\""));

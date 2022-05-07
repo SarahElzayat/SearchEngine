@@ -28,7 +28,8 @@ public class Phrase_sreach
         queryprocessing d = new queryprocessing();
         Vector<Vector<JSONObject>> resultorginal = new Vector<Vector<JSONObject>>(1);
         Vector<Vector<JSONObject>> resultforms = new Vector<Vector<JSONObject>>(1);
-        Vector<String> phrase_search_words = d.query_process(QP_str, resultorginal, resultforms);
+        Vector<Integer> NoofDocumentsforword=new Vector<Integer>(1);
+        Vector<String> phrase_search_words = d.query_process(QP_str, resultorginal, resultforms,NoofDocumentsforword);
         for (int i = 0; i < resultorginal.size(); i++) {//row
             JSONObject[] docarr = new JSONObject[resultorginal.get(i).size()];
             for (int j = 0; j < resultorginal.get(i).size(); j++) {
