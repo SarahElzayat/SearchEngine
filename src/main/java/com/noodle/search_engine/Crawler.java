@@ -9,23 +9,24 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
+
 
 public class Crawler extends Thread {
   DBManager dbMongo;
   RobotsManager robotsTxt;
- static HashSet<String> urlsBGD = new HashSet<>(5000);
-  static HashSet<String> hashedHTMLS = new HashSet<>(5000);
+  static HashSet<String> urlsBGD = new HashSet<>(5100);
+  static HashSet<String> hashedHTMLS = new HashSet<>(5100);
+//  static HashMap<String, Integer> finalVersionBgdGamedAwy = new HashMap<String, Integer>(5000);
+//  Iterator<Entry<String, Integer>> it;//= map.entrySet().iterator();
+
   Object obj = new Object();
 
   static long URLSWithHTMLID;
-//  static long fetchedURLSID;
 
   Crawler(DBManager db, RobotsManager rb) throws IOException {
     dbMongo = db;
@@ -41,12 +42,19 @@ public class Crawler extends Thread {
       synchronized (obj) {
         returnedDoc = dbMongo.returnDocwithstate(0, new Document("_state", 1), 1);
       }
-      currentID = (ObjectId) returnedDoc.get("_id");//.toString();//Integer.parseInt(returnedDoc.get("_id").toString());
+      currentID =
+          (ObjectId)
+              returnedDoc.get(
+                  "_id"); // .toString();//Integer.parseInt(returnedDoc.get("_id").toString());
       System.out.println("Current ID: @run" + currentID);
-      if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
+            if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
+//      if (finalVersionBgdGamedAwy.containsKey(returnedDoc.get("_url").toString())) {
+//        finalVersionBgdGamedAwy.put(
+//            returnedDoc.get("_url").toString(),
+//            finalVersionBgdGamedAwy.get(returnedDoc.get("_url").toString()) + 1);
+        dbMongo.updatePopularity(new Document("popularity", 1), returnedDoc.get("_url").toString());
         System.out.println("@run URL exists");
-        dbMongo.updateDoc(
-            new Document("_state", 1), currentID);
+        dbMongo.updateDoc(new Document("_state", 1), currentID);
         continue;
       }
       try {
@@ -57,8 +65,13 @@ public class Crawler extends Thread {
       }
       org.jsoup.nodes.Document doc = null;
       try {
-        doc = Jsoup.connect(returnedDoc.get("_url").toString()).ignoreHttpErrors(true).timeout(5000).get(); // fetch the link html source
-        if (!doc.toString().toLowerCase().contains("<!doctype html>")) {
+        doc =
+            Jsoup.connect(returnedDoc.get("_url").toString())
+                .ignoreHttpErrors(true)
+                .timeout(5000)
+                .get(); // fetch the link html source
+        if (!doc.toString().toLowerCase().contains("<!doctype html>")
+            || !(doc.toString().toLowerCase().contains("lang=\"en\""))) {
           System.out.println("@Run doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           continue;
@@ -74,35 +87,34 @@ public class Crawler extends Thread {
 
           if (URLSWithHTMLID < 6) {
             System.out.println("URLSWithHTMLID < 6");
-            dbMongo.insertIntoDBHtmls( returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
+            dbMongo.insertIntoDBHtmls(
+                returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
           } else {
             System.out.println("URLSWithHTMLID >>>> 6");
 
-            dbMongo.insertIntoDBHtmls( returnedDoc.get("_url").toString(), doc.toString(), "");
+            dbMongo.insertIntoDBHtmls(returnedDoc.get("_url").toString(), doc.toString(), "");
           }
-          System.out.println("THREAD: "+currentThread().getName()+" URLS HTML ID: AFTER Insertion" + URLSWithHTMLID);
+          System.out.println(
+              "THREAD: "
+                  + currentThread().getName()
+                  + " URLS HTML ID: AFTER Insertion"
+                  + URLSWithHTMLID);
           System.out.println("URL: " + returnedDoc.get("_url").toString());
 
-
           synchronized (obj) {
-            //            URLSWithHTMLID++;
-            urlsBGD.add(returnedDoc.get("_url").toString());
+             urlsBGD.add(returnedDoc.get("_url").toString());
           }
 
           Elements el = doc.select("a[href]");
           for (Element lis : el) {
-            //this.addinFetched(lis, returnedDoc.get("_url").toString(), currentID);
             String firstLink = lis.attr("href");
             if (firstLink.contains("https")) {
               URL temp = new URL(returnedDoc.get("_url").toString());
               if (!robotsTxt.checkifAllowed(firstLink, temp)) {
                 continue;
               }
-//              synchronized (obj) {
-//                fetchedURLSID++;
-//              }
-              dbMongo.insertInFetchedurls(firstLink,0);//fetchedURLSID, firstLink, 0);
 
+              dbMongo.insertInFetchedurls(firstLink, 0); // fetchedURLSID, firstLink, 0);
             }
           }
           dbMongo.updateDoc(new Document("_state", 1), currentID);
@@ -111,45 +123,31 @@ public class Crawler extends Thread {
         }
       } catch (IOException e) {
 
-        e.printStackTrace();
+//        e.printStackTrace();
         continue;
       }
     }
-  }
+ }
 
   public void initializeSeeds() throws IOException {
 
     File myObj = new File("./seed.txt");
     Scanner myReader = new Scanner(myObj);
     URLSWithHTMLID = dbMongo.getHTMLURLsCount();
-//    fetchedURLSID = dbMongo.getFetchedCount();
-    dbMongo.retrieveSeeds(urlsBGD);
+    //    fetchedURLSID = dbMongo.getFetchedCount();
+        dbMongo.retrieveSeeds(urlsBGD);
+//    dbMongo.retrieveSeeds(finalVersionBgdGamedAwy);
     while (myReader.hasNextLine()) {
       String title = myReader.nextLine();
-      if (urlsBGD.contains(title)) continue;
+            if (urlsBGD.contains(title)) continue;
+
       // fetch the link here
-//      System.out.println("URL added to db @initSeeds: " + fetchedURLSID + " " + title);
-      dbMongo.insertInFetchedurls(title,0);//(fetchedURLSID++, title, 0);
+      dbMongo.insertInFetchedurls(title, 0); // (fetchedURLSID++, title, 0);
     }
-    dbMongo.retrieveElements(urlsBGD);
+        dbMongo.retrieveElements(urlsBGD);
+//    dbMongo.retrieveElements(finalVersionBgdGamedAwy);
     dbMongo.retrieveLinkWithState1();
   }
-
-//  public void addinFetched(Element url, String url1, int currentID) throws MalformedURLException {
-//    String firstLink = url.attr("href");
-//    if (firstLink.contains("https")) {
-//      URL temp = new URL(url1);
-//      if (!robotsTxt.checkifAllowed(firstLink, temp)) {
-//        return;
-//      }
-//
-//      synchronized (obj) {
-//        fetchedURLSID++;
-//      }
-//      dbMongo.insertInFetchedurls(fetchedURLSID, firstLink, 0);
-//
-//    }
-//  }
 
   public static String encryptThisString(String input) {
     try {
@@ -204,15 +202,16 @@ public class Crawler extends Thread {
     DBManager db = new DBManager();
     Crawler crawl = new Crawler(db, new RobotsManager());
     crawl.initializeSeeds();
+    System.out.println("ENTER NUMBER OF THREADS");
     Scanner sc = new Scanner(System.in);
     int numberOfThreads;
-    numberOfThreads=sc.nextInt();
+    numberOfThreads = sc.nextInt();
     Crawler threads[] = new Crawler[numberOfThreads];
     for (int i = 0; i < numberOfThreads; i++) {
       threads[i] = new Crawler(new DBManager(), new RobotsManager());
       threads[i].setName(Integer.toString(i));
       threads[i].start();
-//      threads[i].sleep(3000);
+      threads[i].sleep(3000);
     }
     try {
       for (int i = 0; i < numberOfThreads; i++) {
