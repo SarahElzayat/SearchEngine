@@ -12,6 +12,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -37,7 +38,7 @@ import com.mongodb.client.model.Updates;//update
 
 public class Indexer {
     //private String[] tags={"h1","h2","h3","h4","h5","h6","p","abbr","article","div","header","label","q","title","thead","th","textarea","sub","caption","td","li","option","dt"};
-   static public String[] tags={"title","h1","h2","h3","h4","h5","h6","p"};
+    //static public String[] tags={"title","h1","h2","h3","h4","h5","h6","p"};
 
     private static HashSet<String> stopWords ;
     private static HashSet<String> ImportantWords;
@@ -55,46 +56,56 @@ public class Indexer {
         ImportantWords= getImportantword();;
 
         //connect to DB
-        database_Index=new MongoDB("Search_Engine","Indexer");
-        database_Crawler=new MongoDB("Search_Engine","URLSWithHTML");
+        database_Index=new MongoDB("SearchEngine","Indexer");
+        //database_Index=new MongoDB("SearchEngine","Index");
+         database_Crawler=new MongoDB("SearchEngine","URLSWithHTML");
+        //database_Crawler=new MongoDB("SearchEngine","try");
+
     }
 
     public void Index(String url,String source_str) throws IOException {
         int no_Of_Words=0;
-        HtmlParsing HTML_PAR=new HtmlParsing(source_str);
-        for (String tag : tags) {
-            Elements paragraphs =HTML_PAR.Parse_Tags(tag);//all tags
+
+        org.jsoup.nodes.Document doc= Jsoup.parse(source_str,"UTF-8");
+
+        Elements Tags = doc.select("title , h1 , h2 , h3 , h4 , h5 , h6 , p");
+
+        String[] tagsnames={"title","h1","h2","h3","h4","h5","h6","p"};
+        Elements [] tagsarray=new Elements[tagsnames.length];
+        for(int i=0;i<tagsarray.length;i++)
+        {
+            tagsarray[i]=Tags.select(tagsnames[i]);
+        }
+        for(int tagno=0;tagno<tagsarray.length;tagno++) {
             //each eleemtn
-            int position=1;
-            for (Element p : paragraphs) {
+            int position = 1;
+            for (Element p : tagsarray[tagno]) {
                 String[] words = (p.text()).toLowerCase().split("\\s");//splits the string based on whitespace
 
                 //each word in the par
-                for (int i=0;i<words.length; i++) {//all words
+                for (int i = 0; i < words.length; i++) {//all words
 
-                    if (!ImportantWords.contains(words[i]))
-                    {
+                    if (!ImportantWords.contains(words[i])) {
                         words[i] = words[i].replaceAll("[^a-zA-Z0-9]", " ");
                         String[] subwords = words[i].split("\\s");//splits the string based on whitespace
-                        for (int j=0;j<subwords.length; j++)
-                        {
-                            if(subwords[j]==null||subwords[j].trim().isEmpty())
-                            {
+                        for (int j = 0; j < subwords.length; j++) {
+                            if (subwords[j] == null || subwords[j].trim().isEmpty()) {
                                 continue;
                             }
-                            if (stopWords.contains(subwords[j]))
-                            {
+                            else if (stopWords.contains(subwords[j])) {
+                                no_Of_Words++;
                                 position++;
                                 continue;
                             }
+                            position++;//symbol
 
-                            no_Of_Words+=addWordtoDB(words[i], url, tag,position);
+                            addWordtoDB(words[i], url, tagsnames[tagno], position);
+                            no_Of_Words++;
                             position++;
                         }
-                    }
-                    else
-                    {
-                        no_Of_Words+=addWordtoDB(words[i], url, tag,position);
+                    } else {
+                        addWordtoDB(words[i], url, tagsnames[tagno], position);
+                        no_Of_Words++;
                         position++;
                     }
                 }
@@ -107,14 +118,14 @@ public class Indexer {
 //            System.out.println("collection is " +cursor.next() );}
 
         Bson filter=eq("_url",url);
-        Bson update2 = Updates.set("NOOFWORDS",no_Of_Words);
+        Bson update2 = Updates.set("NoOfWords",no_Of_Words);
         database_Crawler.collection.updateMany(filter, update2);
     }
 
-    private int addWordtoDB(String word,String url,String tag,int position )
+
+    private void addWordtoDB(String word,String url,String tag,int position )
     {
         //steaming the word
-        int no_ofnewword=0;
         String stemword = porterStemmer.stem(word);//hello
         Bson fillter=and(eq("_id",stemword),eq("DOC.url",url));
         Bson update=Updates.addToSet("DOC.$."+word+"."+tag,position);
@@ -134,18 +145,31 @@ public class Indexer {
                 Document arrdoc=new Document("url",url).append(word,tagdoc);
                 doc=new Document("_id",stemword).append("DF",1).append("DOC", Arrays.asList(arrdoc));
                 database_Index.collection.insertOne(doc);
-                no_ofnewword=1;
+
             }
         }
-        return  no_ofnewword;
     }
-   public void Index_crawlar() throws IOException {
+
+
+    public void Index_crawlar() throws IOException
+    {
+        int i=0;
         FindIterable<Document> itratdoc=database_Crawler.collection.find();
         for (Document d:itratdoc)
         {
-           Index(d.get("_url").toString(),d.get("html").toString());
+            Index(d.get("_url").toString(),d.get("html").toString());
+            i++;
+            System.out.println(i);
         }
     }
+
+    public static void main(String[] args) throws IOException {
+        Indexer indexer=new Indexer();
+        indexer.Index_crawlar();
+        return;
+    }
+
+
     public static HashSet<String>  getStopWords() {
         HashSet<String> stopw=new HashSet<String>();
         try {
@@ -162,6 +186,8 @@ public class Indexer {
         }
         return stopw;
     }
+
+
     public static HashSet<String> getImportantword() {
         HashSet<String> impword=new HashSet<String>();
         try {
