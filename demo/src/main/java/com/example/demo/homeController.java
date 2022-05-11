@@ -50,6 +50,7 @@ public class homeController {
     @GetMapping(value = "/search")
     @ResponseBody
     public ModelAndView GetForm(@RequestParam(name = "query", required = false) String query) throws JSONException {
+        System.out.println(query.trim());
 
         //****RANKER*****//
         // query -> Ranker [ call query processor [returns 3 2d vector of results]] --> some criteria (ex rank = pop * relevance) --> sorted results
@@ -85,7 +86,6 @@ public class homeController {
 //         }
 ////         System.out.println(word.startsWith("\""));
 //        System.out.println(word.endsWith("\""));
-        System.out.println(query);
         return modelAndView;
 
     }

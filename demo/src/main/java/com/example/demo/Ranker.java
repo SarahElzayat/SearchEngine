@@ -4,7 +4,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.util.JSON;
+//import com.mongodb.util.JSON;
 import org.bson.Document;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -33,7 +33,7 @@ public class Ranker {
         for (int i = 0; i < originalResults.size(); i++) {
             for (int j = 0; j < originalResults.get(i).size(); j++) {
                 JSONObject obj = originalResults.get(i).get(j);
-                String s = obj.getString("url");
+                String s = obj.getString("_url");
                 Document temp = new Document();
                 temp.append("url", s);
                 temp.append("header", s);
