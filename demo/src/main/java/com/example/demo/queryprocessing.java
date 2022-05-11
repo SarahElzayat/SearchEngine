@@ -94,7 +94,7 @@ public class queryprocessing {
             //each document
             for (int k = 0; k < docarr.get(j).length(); k++) {
                 //each url of it\
-                String url = docarr.get(j).getJSONObject(k).getString("url");
+                String url = docarr.get(j).getJSONObject(k).getString("_url");
                 //getting Frequency
                 Integer freq = Urls.get(url);
                 if (freq == null)
@@ -115,7 +115,7 @@ public class queryprocessing {
                 JSONArray wordDocs = docarr.get(i);
                 int j;
                 for (j = 0; j < wordDocs.length(); j++) {
-                    if (url.equals(wordDocs.getJSONObject(j).getString("url"))) {
+                    if (url.equals(wordDocs.getJSONObject(j).getString("_url"))) {
 
                         Integer freq = set.getValue();
                         if (freq < words.size())//non common
@@ -248,7 +248,7 @@ public class queryprocessing {
         System.out.println("\ntimeeee"+time);
 
         queryprocessing q=new queryprocessing();
-        String query="check would";
+        String query="first-class";
         query=query.trim();
 
         Vector<Vector<org.json.JSONObject>> resultorginal=new Vector<Vector<org.json.JSONObject>>(1);

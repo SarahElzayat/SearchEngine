@@ -57,9 +57,9 @@ public class Indexer {
 
         //connect to DB
         database_Index=new MongoDB("SearchEngine","Indexer");
-        //database_Index=new MongoDB("SearchEngine","Index");
+//        database_Index=new MongoDB("SearchEngine","Index");
          database_Crawler=new MongoDB("SearchEngine","URLSWithHTML");
-        //database_Crawler=new MongoDB("SearchEngine","try");
+//        database_Crawler=new MongoDB("SearchEngine","try");
 
     }
 
@@ -127,14 +127,14 @@ public class Indexer {
     {
         //steaming the word
         String stemword = porterStemmer.stem(word);//hello
-        Bson fillter=and(eq("_id",stemword),eq("DOC.url",url));
+        Bson fillter=and(eq("_id",stemword),eq("DOC._url",url));
         Bson update=Updates.addToSet("DOC.$."+word+"."+tag,position);
         UpdateResult Up_result= database_Index.collection.updateMany(fillter,update);
         if(Up_result.getMatchedCount()==0)//new url or word
         {
             // new_url
             Document tagdoc=new Document(tag,Arrays.asList(position));////////////////////////////////
-            Document doc=new Document("url",url).append(word,tagdoc);
+            Document doc=new Document("_url",url).append(word,tagdoc);
             fillter=eq("_id",stemword);
             update=Updates.combine(Updates.push("DOC",doc),Updates.inc("DF",1));
             Up_result= database_Index.collection.updateMany(fillter,update);
@@ -142,7 +142,7 @@ public class Indexer {
             if(Up_result.getMatchedCount()==0)//new  word
             {
                 tagdoc=new Document(tag,Arrays.asList(position));
-                Document arrdoc=new Document("url",url).append(word,tagdoc);
+                Document arrdoc=new Document("_url",url).append(word,tagdoc);
                 doc=new Document("_id",stemword).append("DF",1).append("DOC", Arrays.asList(arrdoc));
                 database_Index.collection.insertOne(doc);
 
