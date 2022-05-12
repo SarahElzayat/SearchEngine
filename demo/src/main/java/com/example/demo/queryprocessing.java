@@ -41,6 +41,7 @@ public class queryprocessing {
                 {
                     if (stopWords.contains(sw))
                     {
+//                        finalword.add(sw);
                         continue;
                     }
                     String stemw = porterStemmer.stem(sw);

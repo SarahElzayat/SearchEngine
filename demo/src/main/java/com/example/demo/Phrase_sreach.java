@@ -23,7 +23,7 @@ public class Phrase_sreach
         //connect to DB
         database=new MongoDB("SearchEngine","URLSWithHTML");
     }
-    public Vector<Vector<JSONObject>>  Phraseprocess(String QP_str) throws JSONException {
+    public Vector<Vector<JSONObject>>  Phraseprocess(String QP_str,Vector<String>snippet_for_all_urls) throws JSONException {
         StringBuilder To_remove_space=new StringBuilder(QP_str);
         To_remove_space.deleteCharAt(0);
         To_remove_space.deleteCharAt(QP_str.length()-2);
@@ -72,10 +72,20 @@ public class Phrase_sreach
                             tagarr.add(docarr[j].getJSONArray(x));
                         }
                         //========================================================================================
-                        if (compare_Json_array(tagarr))//if true then this url is valid
+                       int first_Index=compare_Json_array(tagarr);
+                        if (first_Index!=-1)//if true then this url is valid
                         {
                             //add  this row to the resutlst to be returned
                             Phraseurls.add(resultorginal.get(i));
+                            String url=resultorginal.get(i).get(0).getString("_url");
+
+                            Document DBresult = database.collection.find(new Document("_url", url)).first();
+                            JSONArray body=null;
+                            if (DBresult != null) {
+                                JSONObject obj = new JSONObject(DBresult.toJson());
+                               body = obj.getJSONArray("_body");
+                            }
+                            snippet_for_all_urls.add(snippet_url(body,first_Index));
                             break;
                         }
                         //else go and find another tag
@@ -92,31 +102,48 @@ public class Phrase_sreach
         }
         return Phraseurls;
     }
-    boolean compare_Json_array(Vector<JSONArray>tagarr) throws JSONException {int k=0;
+   int compare_Json_array(Vector<JSONArray>tagarr) throws JSONException {int k=0;
+//        int word_index=0;
+
         for (;k<tagarr.get(0).length();k++)
         {
+            int x= ((int) tagarr.get(0).get(k));
             int j=1;
             for (;j< tagarr.size();j++)
             {
                 int i=0;
                 for (;i<tagarr.get(j).length();i++)
                 {
-                    int x= ((int) tagarr.get(0).get(k));
                     int y= ((int) tagarr.get(j).get(i));
 
-                    if(x+1==y||x==y)
+                    if(x+1==y||x==y) {
+                        x=y;
+//                        word_index++;
                         break;
+                    }
                 }
                 if(i==tagarr.get(j).length())
+                {
+//                    word_index=0;
                     break;
+                }
             }
-            if(j!=tagarr.size()-1)
-                return true;
-
+            if(j==tagarr.size())
+            {
+                return  ((int) tagarr.get(0).get(k));
+            }
         }
-        return false;
+        return -1;
     }
-
+public String snippet_url(JSONArray body,int start_index) throws JSONException
+{
+    StringBuffer snippet=new StringBuffer();
+    for (int i=start_index-10;i<=start_index+10;i++)
+    {
+        snippet.append(body.getString(i)+" ");
+    }
+    return snippet.toString();
+}
     public static void main(String[] args) throws JSONException {
 
         long time=System.nanoTime();
@@ -124,7 +151,7 @@ public class Phrase_sreach
 
 //        queryprocessing q=new queryprocessing();
         Phrase_sreach ps=new Phrase_sreach();
-        String query="\"template classes\"";
+        String query="\"first-class\"";
         query=query.trim();
 
 //        Vector<Vector<org.json.JSONObject>> resultorginal=new Vector<Vector<org.json.JSONObject>>(1);
@@ -135,7 +162,9 @@ public class Phrase_sreach
         Vector<Vector<JSONObject>> result=new Vector<Vector<org.json.JSONObject>>(1);;
         if(query.startsWith("\"") && query.endsWith("\""))
         {
-            result= ps.Phraseprocess(query);
+            Vector<String>snippet_for_all_urls =new Vector<String>(1);
+            result= ps.Phraseprocess(query,snippet_for_all_urls);
+            System.out.println(snippet_for_all_urls);
         }
 //        else{
 //            q.query_process(query,resultorginal, resultforms, NonCommon,NoofDocumentsforword);
