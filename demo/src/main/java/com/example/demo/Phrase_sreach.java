@@ -138,10 +138,25 @@ public class Phrase_sreach
 public String snippet_url(JSONArray body,int start_index) throws JSONException
 {
     StringBuffer snippet=new StringBuffer();
-    for (int i=start_index-10;i<=start_index+10;i++)
+    int i=start_index;
+while (i>=0&&!body.getString(i).endsWith("."))
+{
+    snippet.append(body.getString(i)+" ");
+    i--;
+}
+snippet=snippet.reverse();
+
+i=start_index+1;
+if(body.getString(start_index).endsWith("."))
+    return snippet.toString();
+while (i<= body.length()-1&&!body.getString(i).endsWith("."))
     {
         snippet.append(body.getString(i)+" ");
+        i++;
     }
+if (i<= body.length()-1)
+snippet.append(body.getString(i)+" ");
+
     return snippet.toString();
 }
     public static void main(String[] args) throws JSONException {
