@@ -51,16 +51,16 @@ public class queryprocessing {
                         JSONObject obj = new JSONObject(DBresult.toJson());
                         JSONArray arr = obj.getJSONArray("DOC");
                         finalword.add(sw);
-                        Integer m=0;
-                        NoofDocumentsforword.add(i,m);
-                        for(int a=0;a<arr.length();a++)
-                        {
-                            if(arr.getJSONObject(a).has(words[i]))
-                            {
-                                Integer x=NoofDocumentsforword.get(i);
-                                NoofDocumentsforword.set(i,++x);
-                            }
-                        }
+//                        Integer m=0;
+//                        NoofDocumentsforword.add(i,m);
+//                        for(int a=0;a<arr.length();a++)
+//                        {
+//                            if(arr.getJSONObject(a).has(words[i]))
+//                            {
+//                                Integer x=NoofDocumentsforword.get(i);
+//                                NoofDocumentsforword.set(i,++x);
+//                            }
+//                        }
                         docarr.add(arr);
                     }
                 }
@@ -170,7 +170,7 @@ public class queryprocessing {
         System.out.println("\ntimeeee"+time);
 
         queryprocessing q=new queryprocessing();
-        String query="first-class";
+        String query="C++ classes";
         query=query.trim();
 
         Vector<Vector<org.json.JSONObject>> resultorginal=new Vector<Vector<org.json.JSONObject>>(1);

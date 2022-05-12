@@ -2,10 +2,7 @@
 package com.example.demo;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Scanner;
+import java.util.*;
 
 //Elements
 import com.mongodb.client.FindIterable;
@@ -47,14 +44,21 @@ public class Indexer {
 
     private MongoDB database_Index;
     private MongoDB database_Crawler;
-
+    public HashSet<String>tagsnames;
     Indexer()
     {
         //load stopwords
         porterStemmer = new PorterStemmer();
         stopWords= getStopWords();
         ImportantWords= getImportantword();;
-
+        tagsnames=new HashSet<String>();
+        tagsnames.add("h1");
+        tagsnames.add("h2");
+        tagsnames.add("h3");
+        tagsnames.add("h4");
+        tagsnames.add("h5");
+        tagsnames.add("h6");
+        tagsnames.add("p");
         //connect to DB
         database_Index=new MongoDB("SearchEngine","Indexer");
 //        database_Index=new MongoDB("SearchEngine","Index");
@@ -64,60 +68,64 @@ public class Indexer {
     }
 
     public void Index(String url,String source_str) throws IOException {
+        Bson filter=eq("_url",url);
         int no_Of_Words=0;
-
+        int position=0;
         org.jsoup.nodes.Document doc= Jsoup.parse(source_str,"UTF-8");
+        Elements bodyElements=doc.body().select("*");//select al tags in the body
 
-        Elements Tags = doc.select("title , h1 , h2 , h3 , h4 , h5 , h6 , p");
-
-        String[] tagsnames={"title","h1","h2","h3","h4","h5","h6","p"};
-        Elements [] tagsarray=new Elements[tagsnames.length];
-        for(int i=0;i<tagsarray.length;i++)
+//        Elements Tags = doc.select("title , h1 , h2 , h3 , h4 , h5 , h6 , p");
+        //loop over all elements
+        for(Element element:bodyElements)
         {
-            tagsarray[i]=Tags.select(tagsnames[i]);
-        }
-        for(int tagno=0;tagno<tagsarray.length;tagno++) {
-            //each eleemtn
-            int position = 1;
-            for (Element p : tagsarray[tagno]) {
-                String[] words = (p.text()).toLowerCase().split("\\s");//splits the string based on whitespace
+            //basam Hate
+            String[] word = (element.ownText().split("\\s"));//splits the string based on whitespace
 
-                //each word in the par
-                for (int i = 0; i < words.length; i++) {//all words
+            String tag=element.tagName();
+            List<String>words=Arrays.asList(word) ;
 
-                    if (!ImportantWords.contains(words[i])) {
-                        words[i] = words[i].replaceAll("[^a-zA-Z0-9]", " ");
-                        String[] subwords = words[i].split("\\s");//splits the string based on whitespace
-                        for (int j = 0; j < subwords.length; j++) {
-                            if (subwords[j] == null || subwords[j].trim().isEmpty()) {
-                                continue;
-                            }
-                            else if (stopWords.contains(subwords[j])) {
-                                no_Of_Words++;
-                                position++;
-                                continue;
-                            }
-                            position++;//symbol
+            if (!tagsnames.contains(tag))
+            continue;
+                Bson update2 = Updates.pushEach("_body",words);
+                database_Crawler.collection.updateMany(filter, update2);
+            //each word in the par
+            for (int i = 0; i < word.length; i++) {//all words
 
-                            addWordtoDB(words[i], url, tagsnames[tagno], position);
-                            no_Of_Words++;
-                            position++;
+                String search_word=word[i].toLowerCase();
+                search_word=search_word.trim();
+                if (!ImportantWords.contains(search_word))
+                {
+                    search_word =search_word.replaceAll("[^a-zA-Z0-9]", " ");
+                    String[] subwords = search_word.split("\\s");//splits the string based on whitespace
+                    for (int j = 0; j < subwords.length; j++) {
+                        search_word=subwords[j];
+                        if (search_word == null || search_word.trim().isEmpty()) {
+                            continue;
                         }
-                    } else {
-                        addWordtoDB(words[i], url, tagsnames[tagno], position);
+                        else if (stopWords.contains(search_word)) {
+                            no_Of_Words++;
+                            continue;
+                        }
+
+                        addWordtoDB(search_word, url, tag, position);
                         no_Of_Words++;
-                        position++;
                     }
+                    position++;
+                } else {
+                    addWordtoDB(search_word, url, tag, position);
+                    no_Of_Words++;
+                    position++;
                 }
             }
 
+
         }
+
 //        addWordtoDB("zeinab","WWW.Google.COM","p");
 //        MongoCursor<Document> cursor = database_Index.collection.find().iterator();
 //        while (cursor.hasNext()) {
 //            System.out.println("collection is " +cursor.next() );}
 
-        Bson filter=eq("_url",url);
         Bson update2 = Updates.set("NoOfWords",no_Of_Words);
         database_Crawler.collection.updateMany(filter, update2);
     }
