@@ -5,6 +5,7 @@ import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
 
 import javax.print.Doc;
 import java.util.HashMap;
@@ -41,7 +42,7 @@ public class Ranker {
             for (int j = 0; j < vec.get(i).size(); j++) {
                 JSONObject obj = vec.get(i).get(j);
                 s = obj.getString("_url");
-                JSONObject weights = obj.getJSONObject(searchWords.get(j)); //.getJSONArray("h1").length();
+                JSONObject weights = obj.getJSONObject(searchWords.get(j));
                 float headers = 0;
 
                 if (weights.has("h1"))
@@ -72,10 +73,8 @@ public class Ranker {
                 arr[j] += noOfDocumentsForWord.get(j) / 5000.0;
                 System.out.println("Multiplied by df "+arr[j]);
                 arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1;
+//                arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1; title
                 System.out.println("after pop " +arr[j]);
-
-
-                //tf * df * popularity per word
             }
             float rank = 0;
             for (int k = 0; k < arr.length; k++) {
@@ -84,7 +83,8 @@ public class Ranker {
             }
             Document temp = new Document();
             temp.append("url", s);
-            temp.append("header", s);
+            temp.append("header",Jsoup.parse(shosho.get(s).get("html").toString()).title()
+            );
             temp.append("paragraph", s);
             temp.append("rank", rank);
             rankerCollection.insertOne(temp);
@@ -94,12 +94,17 @@ public class Ranker {
     }
 
     public void getResults(String query) throws JSONException {
-
+//        if(query.startsWith("\"") && query.endsWith("\"")){
+//            //  phraseSearch.Phraseprocess(query);
+//        }
+//        else{
+//            q.query_process(query,resultorginal, resultforms, NonCommon,DF);
+//        }
 
         searchWords = queryProcessor.query_process(query, originalResults, stemmedResults, nonCommon, noOfDocumentsForWord);//DF
-//        noOfDocumentsForWord.add(1719);
         calculateRank(originalResults);
-//        System.out.println(noOfDocumentsForWord);
+//        calculateRank(stemmedResults);
+//        calculateRank(nonCommon);
     }
 
     public static void main(String[] args) throws JSONException {

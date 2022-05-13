@@ -6,6 +6,7 @@ package com.noodle.search_engine;
 import com.ibm.icu.impl.Assert;
 
 import java.net.HttpURLConnection;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.regex.*;
 import java.io.IOException;
@@ -42,8 +43,14 @@ public class RobotsManager {
     HttpURLConnection connection =  (HttpURLConnection)temp.openConnection();
     connection.setRequestMethod("GET");
     connection.connect();
-    int responseCode = connection.getResponseCode();
-    if(responseCode!=200) return;
+    int responseCode ;
+    try{
+    responseCode =connection.getResponseCode();
+      if(responseCode!=200) return;
+    }
+    catch (UnknownHostException e) {
+      connection.disconnect();
+    }
 //    System.out.println("At robots url //////////////////////////+////// "+temp.toString());
 
     InputStream in = new URL(temp.toString()).openStream();
