@@ -25,7 +25,7 @@ public class queryprocessing {
         stopWords=Indexer.getStopWords();
         ImportantWords=Indexer.getImportantword();
     }
-    public  Vector<String> query_process(String QP_str,Vector<Vector<JSONObject>>resultorginal,Vector<Vector<JSONObject>> resultforms,Vector<Vector<JSONObject>>NonCommon,Vector<Integer>NoofDocumentsforword) throws JSONException {
+    public  Vector<String> query_process(String QP_str,Vector<Vector<JSONObject>>resultorginal,Vector<Vector<JSONObject>> resultforms,Vector<Vector<JSONObject>>NonCommon,Vector<Integer>DF) throws JSONException {
 
         String[] words = (QP_str).toLowerCase().split("\\s");//splits the string based on whitespace
         Vector<String>finalword=new Vector<String>(1);
@@ -52,16 +52,7 @@ public class queryprocessing {
                         JSONObject obj = new JSONObject(DBresult.toJson());
                         JSONArray arr = obj.getJSONArray("DOC");
                         finalword.add(sw);
-//                        Integer m=0;
-//                        NoofDocumentsforword.add(i,m);
-//                        for(int a=0;a<arr.length();a++)
-//                        {
-//                            if(arr.getJSONObject(a).has(words[i]))
-//                            {
-//                                Integer x=NoofDocumentsforword.get(i);
-//                                NoofDocumentsforword.set(i,++x);
-//                            }
-//                        }
+                        DF.add(obj.getInt("DF"));
                         docarr.add(arr);
                     }
                 }
@@ -171,31 +162,34 @@ public class queryprocessing {
         System.out.println("\ntimeeee"+time);
 
         queryprocessing q=new queryprocessing();
-        String query="C++ classes";
+        String query="template classes";
         query=query.trim();
 
         Vector<Vector<org.json.JSONObject>> resultorginal=new Vector<Vector<org.json.JSONObject>>(1);
         Vector<Vector<org.json.JSONObject>>  resultforms=new Vector<Vector<org.json.JSONObject>>(1);
         Vector<Vector<JSONObject>>NonCommon=new Vector<Vector<org.json.JSONObject>>(1);
 
-        Vector<Integer> NoofDocumentsforword=new Vector<Integer>(1);
+        Vector<Integer> DF=new Vector<Integer>(1);
 
         if(query.startsWith("\"") && query.endsWith("\"")){
             //  phraseSearch.Phraseprocess(query);
         }
         else{
-            q.query_process(query,resultorginal, resultforms, NonCommon,NoofDocumentsforword);
+            q.query_process(query,resultorginal, resultforms, NonCommon,DF);
         }
          long time2 =System.nanoTime();
         System.out.println("\ntimeafter"+(time2-time));
 
 
         System.out.println(resultorginal.size());
-        for(int m=0;m<resultorginal.size();m++)
-            for(int k=0;k<(resultorginal.get(m)).size();k++) {
+        for(int m=0;m<resultorginal.size();m++) {
+            for (int k = 0; k < (resultorginal.get(m)).size(); k++) {
                 System.out.println("Orignal:" + resultorginal.get(m).get(k));
-                System.out.println(m);
+//                System.out.println(m);
             }
+        }
+//        for(int i=0;i<DF.size();i++)
+//            System.out.println(DF.get(i));
 
 
         for(int m=0;m<resultforms.size();m++)
