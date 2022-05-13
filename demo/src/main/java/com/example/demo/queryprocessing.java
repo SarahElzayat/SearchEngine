@@ -52,7 +52,7 @@ public class queryprocessing {
                         JSONObject obj = new JSONObject(DBresult.toJson());
                         JSONArray arr = obj.getJSONArray("DOC");
                         finalword.add(sw);
-                   DF.add(obj.getInt("DF"));
+                        DF.add(obj.getInt("DF"));
                         docarr.add(arr);
                     }
                 }
@@ -162,7 +162,7 @@ public class queryprocessing {
         System.out.println("\ntimeeee"+time);
 
         queryprocessing q=new queryprocessing();
-        String query="C++ classes";
+        String query="template classes";
         query=query.trim();
 
         Vector<Vector<org.json.JSONObject>> resultorginal=new Vector<Vector<org.json.JSONObject>>(1);
@@ -170,6 +170,7 @@ public class queryprocessing {
         Vector<Vector<JSONObject>>NonCommon=new Vector<Vector<org.json.JSONObject>>(1);
 
         Vector<Integer> DF=new Vector<Integer>(1);
+
         if(query.startsWith("\"") && query.endsWith("\"")){
             //  phraseSearch.Phraseprocess(query);
         }
@@ -181,11 +182,14 @@ public class queryprocessing {
 
 
         System.out.println(resultorginal.size());
-        for(int m=0;m<resultorginal.size();m++)
-            for(int k=0;k<(resultorginal.get(m)).size();k++) {
+        for(int m=0;m<resultorginal.size();m++) {
+            for (int k = 0; k < (resultorginal.get(m)).size(); k++) {
                 System.out.println("Orignal:" + resultorginal.get(m).get(k));
-                System.out.println(m);
+//                System.out.println(m);
             }
+        }
+//        for(int i=0;i<DF.size();i++)
+//            System.out.println(DF.get(i));
 
 
         for(int m=0;m<resultforms.size();m++)

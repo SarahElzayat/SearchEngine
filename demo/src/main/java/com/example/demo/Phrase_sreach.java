@@ -23,7 +23,7 @@ public class Phrase_sreach
         //connect to DB
         database=new MongoDB("SearchEngine","URLSWithHTML");
     }
-    public Vector<Vector<JSONObject>>  Phraseprocess(String QP_str,Vector<String>snippet_for_all_urls) throws JSONException {
+    public Vector<Vector<JSONObject>>  Phraseprocess(String QP_str,Vector<String>snippet_for_all_urls,Vector<Integer> DF) throws JSONException {
         StringBuilder To_remove_space=new StringBuilder(QP_str);
         To_remove_space.deleteCharAt(0);
         To_remove_space.deleteCharAt(QP_str.length()-2);
@@ -34,9 +34,8 @@ public class Phrase_sreach
         queryprocessing d = new queryprocessing();
         Vector<Vector<JSONObject>> resultorginal = new Vector<Vector<JSONObject>>(1);
         Vector<Vector<JSONObject>> resultforms = new Vector<Vector<JSONObject>>(1);
-        Vector<Integer> NoofDocumentsforword=new Vector<Integer>(1);
         Vector<Vector<JSONObject>>NonCommon=new Vector<Vector<org.json.JSONObject>>(1);
-        Vector<String> phrase_search_words = d.query_process(QP_str, resultorginal, resultforms,NonCommon,NoofDocumentsforword);
+        Vector<String> phrase_search_words = d.query_process(QP_str, resultorginal, resultforms,NonCommon,DF);
         //////////////////////////////
         for (int i = 0; i < resultorginal.size(); i++) {//row
             JSONObject[] docarr = new JSONObject[resultorginal.get(i).size()];
@@ -178,7 +177,8 @@ snippet.append(body.getString(i)+" ");
         if(query.startsWith("\"") && query.endsWith("\""))
         {
             Vector<String>snippet_for_all_urls =new Vector<String>(1);
-            result= ps.Phraseprocess(query,snippet_for_all_urls);
+            Vector<Integer> DF=new Vector<Integer>(1);
+            result= ps.Phraseprocess(query,snippet_for_all_urls,DF);
             System.out.println(snippet_for_all_urls);
         }
 //        else{

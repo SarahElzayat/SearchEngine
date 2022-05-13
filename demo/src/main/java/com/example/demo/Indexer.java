@@ -62,7 +62,7 @@ public class Indexer {
         //connect to DB
         database_Index=new MongoDB("SearchEngine","Indexer");
 //        database_Index=new MongoDB("SearchEngine","Index");
-         database_Crawler=new MongoDB("SearchEngine","URLSWithHTML");
+        database_Crawler=new MongoDB("SearchEngine","URLSWithHTML");
 //        database_Crawler=new MongoDB("SearchEngine","try");
 
     }
@@ -79,30 +79,38 @@ public class Indexer {
         for(Element element:bodyElements)
         {
             //basam Hate
-            String[] word = (element.ownText().split("\\s"));//splits the string based on whitespace
+            if(element.ownText().isEmpty())
+                continue;
+            String[] word = (element.ownText().split("\\s+"));//splits the string based on whitespace
 
             String tag=element.tagName();
             List<String>words=Arrays.asList(word) ;
+            boolean take=false;
+            if (!tagsnames.contains(tag)) {
 
-            if (!tagsnames.contains(tag))
-            continue;
-                Bson update2 = Updates.pushEach("_body",words);
-                database_Crawler.collection.updateMany(filter, update2);
+                if(tagsnames.contains(element.parent().tagName())) {
+                    tag=element.parent().tagName();
+                }
+                else continue;
+            }
+            Bson update2 = Updates.pushEach("_body",words);
+            database_Crawler.collection.updateMany(filter, update2);
             //each word in the par
             for (int i = 0; i < word.length; i++) {//all words
 
                 String search_word=word[i].toLowerCase();
                 search_word=search_word.trim();
-                if (!ImportantWords.contains(search_word))
+
+                    if (!ImportantWords.contains(search_word))
                 {
                     search_word =search_word.replaceAll("[^a-zA-Z0-9]", " ");
-                    String[] subwords = search_word.split("\\s");//splits the string based on whitespace
+                    String[] subwords = search_word.split("\\s+");//splits the string based on whitespace
                     for (int j = 0; j < subwords.length; j++) {
                         search_word=subwords[j];
-                        if (search_word == null || search_word.trim().isEmpty()) {
-                            continue;
-                        }
-                        else if (stopWords.contains(search_word)) {
+//                        if (search_word == null || search_word.trim().isEmpty()) {
+//                            continue;
+//                        }
+                        if (stopWords.contains(search_word)) {
                             no_Of_Words++;
                             continue;
                         }
@@ -117,8 +125,6 @@ public class Indexer {
                     position++;
                 }
             }
-
-
         }
 
 //        addWordtoDB("zeinab","WWW.Google.COM","p");
