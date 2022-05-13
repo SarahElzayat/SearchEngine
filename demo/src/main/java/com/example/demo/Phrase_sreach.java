@@ -134,30 +134,32 @@ public class Phrase_sreach
         }
         return -1;
     }
-public String snippet_url(JSONArray body,int start_index) throws JSONException
-{
-    StringBuffer snippet=new StringBuffer();
-    int i=start_index;
-while (i>=0&&!body.getString(i).endsWith("."))
-{
-    snippet.append(body.getString(i)+" ");
-    i--;
-}
-snippet=snippet.reverse();
-
-i=start_index+1;
-if(body.getString(start_index).endsWith("."))
-    return snippet.toString();
-while (i<= body.length()-1&&!body.getString(i).endsWith("."))
+    public String snippet_url(JSONArray body,int start_index) throws JSONException
     {
-        snippet.append(body.getString(i)+" ");
-        i++;
-    }
-if (i<= body.length()-1)
-snippet.append(body.getString(i)+" ");
+        StringBuffer snippet=new StringBuffer();
+        int i=start_index;
+        while (i>=0&&!body.getString(i).endsWith("."))
+        {
+            //snippet.insert(0,body.getString(i)+" ");
+            StringBuffer temp=new StringBuffer(body.getString(i));
+            temp.reverse();
+            snippet.append(temp+" ");
+            i--;
+        }
+        snippet.reverse();
+        i=start_index+1;
+        if(body.getString(start_index).endsWith("."))
+            return snippet.toString();
+        while (i<= body.length()-1&&!body.getString(i).endsWith("."))
+        {
+            snippet.append(body.getString(i)+" ");
+            i++;
+        }
+        if (i<= body.length()-1)
+            snippet.append(body.getString(i)+" ");
 
-    return snippet.toString();
-}
+        return snippet.toString();
+    }
     public static void main(String[] args) throws JSONException {
 
         long time=System.nanoTime();
