@@ -35,20 +35,16 @@ public class RobotsManager {
     String robotsURL =
             (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt"))
                     .toString();
-    //InputStream in = new URL(robotsURL).openStream();
 
     if (hostsWithFetchedRobotsTxt.containsKey(currentURL.getHost())) return;
 
-//    String robotsURL =
-//        (new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt"))
-//            .toString();
     URL temp = new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt");
     HttpURLConnection connection =  (HttpURLConnection)temp.openConnection();
     connection.setRequestMethod("GET");
     connection.connect();
     int responseCode = connection.getResponseCode();
     if(responseCode!=200) return;
-    System.out.println("At robots url //////////////////////////+////// "+temp.toString());
+//    System.out.println("At robots url //////////////////////////+////// "+temp.toString());
 
     InputStream in = new URL(temp.toString()).openStream();
     Scanner robots7aga = new Scanner(in).useDelimiter("\\A");

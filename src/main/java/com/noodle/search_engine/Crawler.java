@@ -14,6 +14,10 @@ import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+///////////////////////////////////////////
+///////////////////////TODO///////////////
+/////////////////////CHECK FOR HOST////////////
+/////////////////////NEGLECT SIGNIN/SIGNUP...//////
 
 
 public class Crawler extends Thread {
@@ -71,7 +75,8 @@ public class Crawler extends Thread {
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           continue;
         }
-        String encryptedHTML = encryptThisString(doc.toString());
+//        String encryptedHTML = encryptThisString(doc.toString());
+        String encryptedHTML = encryptThisString(doc);
         if (!hashedHTMLS.contains(encryptedHTML)) {
           System.out.println("@Run hashed doesn't contain encryption");
           synchronized (obj) {
@@ -101,16 +106,24 @@ public class Crawler extends Thread {
           }
 
           Elements el = doc.select("a[href]");
+          int counter =0;
+          String hashedLinks="";
           for (Element lis : el) {
+            if(counter >50)
+              break;
             String firstLink = lis.attr("href");
-            if (firstLink.contains("https")) {
+            if (firstLink.startsWith("https://")) {
+
               URL temp = new URL(returnedDoc.get("_url").toString());
+              hashedLinks+=temp.toString();
               if (!robotsTxt.checkifAllowed(firstLink, temp)) {
                 continue;
               }
 
               dbMongo.insertInFetchedurls(firstLink, 0);
             }
+            counter++;
+            System.out.println("THREAD" + currentThread().getName()+ "COUNTER: "+counter);
           }
           dbMongo.updateDoc(new Document("_state", 1), currentID);
         } else {
@@ -144,35 +157,43 @@ public class Crawler extends Thread {
     dbMongo.retrieveLinkWithState1();
   }
 
-  public static String encryptThisString(String input) {
-    try {
-      // getInstance() method is called with algorithm SHA-1
-      MessageDigest md = MessageDigest.getInstance("SHA-1");
+//  public static String encryptThisString(String input) {
+  public static String encryptThisString(org.jsoup.nodes.Document input) {
+//    try {
+//      // getInstance() method is called with algorithm SHA-1
+//      MessageDigest md = MessageDigest.getInstance("SHA-1");
+//
+//      // digest() method is called
+//      // to calculate message digest of the input string
+//      // returned as array of byte
+//      byte[] messageDigest = md.digest(input.getBytes());
+//
+//      // Convert byte array into signum representation
+//      BigInteger no = new BigInteger(1, messageDigest);
+//
+//      // Convert message digest into hex value
+//      String hashtext = no.toString(16);
+//
+//      // Add preceding 0s to make it 32 bit
+//      while (hashtext.length() < 32) {
+//        hashtext = "0" + hashtext;
+//      }
+//      // return the HashText
+//
+//      return hashtext;
+//    }
+//
+//    // For specifying wrong message digest algorithms
+//    catch (NoSuchAlgorithmException e) {
+//      throw new RuntimeException(e);
+//    }
 
-      // digest() method is called
-      // to calculate message digest of the input string
-      // returned as array of byte
-      byte[] messageDigest = md.digest(input.getBytes());
-
-      // Convert byte array into signum representation
-      BigInteger no = new BigInteger(1, messageDigest);
-
-      // Convert message digest into hex value
-      String hashtext = no.toString(16);
-
-      // Add preceding 0s to make it 32 bit
-      while (hashtext.length() < 32) {
-        hashtext = "0" + hashtext;
-      }
-      // return the HashText
-
-      return hashtext;
+    Elements el = input.select("a[href]");
+    String s = "";
+    for (Element lis : el) {
+      s+= lis.attr("href");
     }
-
-    // For specifying wrong message digest algorithms
-    catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
+    return s;
   }
 
   public void recrawlSeeds() throws IOException {
@@ -183,8 +204,10 @@ public class Crawler extends Thread {
       tempID = (ObjectId) doc.get("_id");
       org.jsoup.nodes.Document temp;
       temp = Jsoup.connect(url).get();
-      String encryptedHTML = encryptThisString(temp.toString());
-      String tempEncrypted = encryptThisString(doc.get("html").toString());
+//      String encryptedHTML = encryptThisString(temp.toString());
+      String encryptedHTML = encryptThisString(temp);
+      String tempEncrypted = encryptThisString(org.jsoup.nodes.Document.createShell(doc.get("html").toString()));
+//      String tempEncrypted = encryptThisString(doc.get("html").toString());
       if (!encryptedHTML.equals(tempEncrypted)) {
         dbMongo.updateSeed(temp.toString(), tempID);
 

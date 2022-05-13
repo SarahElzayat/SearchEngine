@@ -24,7 +24,8 @@ import java.util.Vector;
 @RestController// Controller
 public class homeController {
 
-//    Phrase_sreach phraseSearch=new Phrase_sreach();
+    //    Phrase_sreach phraseSearch=new Phrase_sreach();
+    Ranker r = new Ranker();
 
     @GetMapping(value = "/")
     @ResponseBody
@@ -35,13 +36,14 @@ public class homeController {
         MongoClient mongo = MongoClients.create(uri);
         MongoDatabase db = mongo.getDatabase("SearchEngine");
         collection = db.getCollection("Suggestions");
-
+        r.db.getCollection("Ranker").drop();
         FindIterable<Document> d = collection.find();
         String[] responseArray = new String[(int) collection.countDocuments()];
         int i = 0;
         for (Document doc : d) {
             responseArray[i++] = doc.get("query").toString();
         }
+//        FindIterable<Document> d = r.rankerCollection.find().sort(new Document("rank",-1));
         modelAndView.addObject("suggestions", responseArray);
         modelAndView.setViewName("home");
         return modelAndView;
@@ -54,15 +56,15 @@ public class homeController {
 
         //****RANKER*****//
         // query -> Ranker [ call query processor [returns 3 2d vector of results]] --> some criteria (ex rank = pop * relevance) --> sorted results
-        Ranker r = new Ranker();
+
         MongoCollection<Document> suggestions = r.db.getCollection("Suggestions");
-        Bson filter = Filters.eq("query",query);
+        Bson filter = Filters.eq("query", query);
         Bson update = new Document("$set",
-                new Document("query",query));
+                new Document("query", query));
         UpdateOptions options = new UpdateOptions().upsert(true);
-        suggestions.updateOne(filter,update,options);
+        suggestions.updateOne(filter, update, options);
         r.getResults(query.trim());
-        FindIterable<Document> d = r.rankerCollection.find();
+        FindIterable<Document> d = r.rankerCollection.find().sort(new Document("rank",-1));
         JSONArray responseArray = new JSONArray();
         for (Document doc : d) {
             JSONObject record = new JSONObject();
