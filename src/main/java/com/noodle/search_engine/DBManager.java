@@ -124,10 +124,10 @@ public class DBManager {
     }
   }
 
-  public void updateSeed(String html, int id, String enc) {
+  public void updateSeed(String html, ObjectId id ){
 
     Document update = new Document();
-    update.append("$set", new Document().append("html", html).append("_encryption", enc));
+    update.append("$set", new Document().append("html", html));
     URLSWithHTML.updateOne(new Document().append("_id", id), update);
   }
 }

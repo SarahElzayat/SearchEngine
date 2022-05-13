@@ -21,8 +21,6 @@ public class Crawler extends Thread {
   RobotsManager robotsTxt;
   static HashSet<String> urlsBGD = new HashSet<>(5100);
   static HashSet<String> hashedHTMLS = new HashSet<>(5100);
-//  static HashMap<String, Integer> finalVersionBgdGamedAwy = new HashMap<String, Integer>(5000);
-//  Iterator<Entry<String, Integer>> it;//= map.entrySet().iterator();
 
   Object obj = new Object();
 
@@ -45,13 +43,10 @@ public class Crawler extends Thread {
       currentID =
           (ObjectId)
               returnedDoc.get(
-                  "_id"); // .toString();//Integer.parseInt(returnedDoc.get("_id").toString());
+                  "_id");
       System.out.println("Current ID: @run" + currentID);
             if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
-//      if (finalVersionBgdGamedAwy.containsKey(returnedDoc.get("_url").toString())) {
-//        finalVersionBgdGamedAwy.put(
-//            returnedDoc.get("_url").toString(),
-//            finalVersionBgdGamedAwy.get(returnedDoc.get("_url").toString()) + 1);
+
         dbMongo.updatePopularity(new Document("popularity", 1), returnedDoc.get("_url").toString());
         System.out.println("@run URL exists");
         dbMongo.updateDoc(new Document("_state", 1), currentID);
@@ -70,8 +65,8 @@ public class Crawler extends Thread {
                 .ignoreHttpErrors(true)
                 .timeout(5000)
                 .get(); // fetch the link html source
-        if (!doc.toString().toLowerCase().contains("<!doctype html>")
-            || !(doc.toString().toLowerCase().contains("lang=\"en\""))) {
+        if (!doc.toString().toLowerCase().contains("<!doctype html>")){
+//            || !(doc.toString().toLowerCase().contains("lang=\"en\""))) {
           System.out.println("@Run doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           continue;
@@ -114,7 +109,7 @@ public class Crawler extends Thread {
                 continue;
               }
 
-              dbMongo.insertInFetchedurls(firstLink, 0); // fetchedURLSID, firstLink, 0);
+              dbMongo.insertInFetchedurls(firstLink, 0);
             }
           }
           dbMongo.updateDoc(new Document("_state", 1), currentID);
@@ -142,10 +137,10 @@ public class Crawler extends Thread {
             if (urlsBGD.contains(title)) continue;
 
       // fetch the link here
-      dbMongo.insertInFetchedurls(title, 0); // (fetchedURLSID++, title, 0);
+      dbMongo.insertInFetchedurls(title, 0);
     }
         dbMongo.retrieveElements(urlsBGD);
-//    dbMongo.retrieveElements(finalVersionBgdGamedAwy);
+
     dbMongo.retrieveLinkWithState1();
   }
 
@@ -182,15 +177,16 @@ public class Crawler extends Thread {
 
   public void recrawlSeeds() throws IOException {
     FindIterable<Document> documents = dbMongo.URLSWithHTML.find().limit(6);
-    int tempID = 0;
+    ObjectId tempID ;
     for (Document doc : documents) {
       String url = doc.get("_url").toString();
+      tempID = (ObjectId) doc.get("_id");
       org.jsoup.nodes.Document temp;
       temp = Jsoup.connect(url).get();
       String encryptedHTML = encryptThisString(temp.toString());
-      String tempEncrypted = doc.get("_encryption").toString();
+      String tempEncrypted = encryptThisString(doc.get("html").toString());
       if (!encryptedHTML.equals(tempEncrypted)) {
-        dbMongo.updateSeed(temp.toString(), tempID++, encryptedHTML);
+        dbMongo.updateSeed(temp.toString(), tempID);
 
         System.out.println("Updated document url " + url);
       }
@@ -220,5 +216,6 @@ public class Crawler extends Thread {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
+//    crawl.recrawlSeeds();
   }
 }
