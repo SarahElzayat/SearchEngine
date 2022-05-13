@@ -45,10 +45,9 @@
         background-color: rgba(204, 204, 204, 0.596);
     }
 
-    .pagination a:last-child {
+    /* .pagination a:last-child {
         border-right: none;
-    }
-
+    } */
     .url {
         color: #55E6C1;
         font-size: 13px;
@@ -143,7 +142,7 @@
 }
 </style>
 
-<body>
+<body id="bodyId">
     <br>
 <div class="homeButton">
     <form action="http://localhost:8080/">
@@ -154,226 +153,17 @@
     <div class="resultsHead"><span class="results-count"></span> RESULTS</div>
     <br>
     <ul class="results"></ul>
-    <div class="pagination"></div>
 
+    <div class="pagination">
+        <a href="#" id="btnPrev" class="btn">< Prev</a>
+        <div class="pag"></div>
+        <a href="#" id="btnNext" class="btn" style=" border-right: none;">Next ></a>
+    </div>
     <script th:inline="javascript">
-        // var results = [[${results}]]
+         var results = [[${results}]]
         // // console.log(results);
-        var results = [
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",
-        "header": "Google",
-        "url": "https://www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google12",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google13",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google14",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google15",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google16",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google17",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google18",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google619",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google620",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google21",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google22",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google23",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google24",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google25",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google26",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google27",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google28",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google629",
-        "url": "www.google.com"
-    },
-    {
-        "paragraph": "aaaaa",
-        "header": "google630",
-        "url": "www.google.com"
-    }
-]
-
         let currentPage = 1;
-
+        console.log('Hena')
         document.getElementsByClassName("results-count")[0].innerText = results.length;
         const resultsEl = document.getElementsByClassName("results")[0];
         function showResults(page) {
@@ -401,22 +191,81 @@
 
             });
         }
-        const paginationEl = document.getElementsByClassName("pagination")[0];
+        const paginationEl = document.getElementsByClassName("pag")[0];
+        const prevBtn=document.getElementById('btnPrev');
+        const nextBtn=document.getElementById('btnNext');
         const pages = Math.ceil(results.length / 10.0);
-        [...Array(pages)].forEach((p, index) => {
+        let maxLeft=1
+        let maxRight=10
+        if(maxLeft <1){
+            maxLeft=1;
+            maxRight=10;
+        }
+        if(maxRight >pages){
+            maxLeft=pages-(10-1);
+            maxRight=pages;
+            if(maxLeft <1){
+                maxLeft=1;
+            }
+        }
+        const load=()=>{
+            displaypages(maxLeft,maxRight)
+            showResults(1)
+            prevBtn.style.display='none';
+        }
+        window.addEventListener('load', load)
+        const prevFunc=(e)=>{
+            console.log(e.target)
+            paginationEl.innerHTML='';
+            if(maxLeft!=1)
+            maxLeft=maxLeft-1;
+            maxRight=maxRight-1;
+            displaypages(maxLeft,maxRight);
+            if(maxLeft==1){
+                prevBtn.style.display='none';
+            }
+            else{
+                prevBtn.style.display='inline';
+            }
+           if(maxRight!=pages){
+            nextBtn.style.display='inline';
+           }
+        }
+        const nextFunc=()=>{
+            paginationEl.innerHTML='';
+            maxLeft=maxLeft+1;
+            if(maxRight!=pages)
+            maxRight=maxRight+1;
+            displaypages(maxLeft,maxRight);
+            if(maxLeft>1){
+                prevBtn.style.display='inline';
+            }
+            if(maxRight==pages){
+                nextBtn.style.display='none';
+            }
+            else{
+                nextBtn.style.display='inline';
+            }
+        }
+        prevBtn.addEventListener('click',prevFunc);
+        nextBtn.addEventListener('click',nextFunc);
+        const displaypages=(left,right)=>{
+            console.log(left,right)
+            for( let page=left;page<=right;page++){
+            console.log(page)
             const el = document.createElement("a");
-            el.innerText = index + 1;
+            el.innerText = page;//index + 1;
             el.href = "#";
             el.onclick = () => {
-                showResults(index + 1);
+                showResults(page);//index + 1);
                 paginationEl.querySelectorAll("a").forEach((el) => el.style.backgroundColor = "");
                 el.style.backgroundColor = "#c8c8ec";
             };
+            
             paginationEl.appendChild(el);
-        });
-        paginationEl.children[0].click();
-
-
+        }
+        }
+    
     </script>
 
 </body>
