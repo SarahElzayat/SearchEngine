@@ -295,6 +295,9 @@ public class Phrase_sreach
     }
     public static void main(String[] args) throws JSONException {
 
+        Vector<String>snippet_for_all_urls =new Vector<String>(0);
+        Vector<Integer> DF=new Vector<Integer>(0);
+
         long time=System.nanoTime();
         System.out.println("\ntimeeee"+time);
 
@@ -311,10 +314,7 @@ public class Phrase_sreach
         Vector<Vector<JSONObject>> result=new Vector<Vector<org.json.JSONObject>>(1);;
         if(query.startsWith("\"") && query.endsWith("\""))
         {
-            Vector<String>snippet_for_all_urls =new Vector<String>(1);
-            Vector<Integer> DF=new Vector<Integer>(1);
             result= ps.Phrase_Search(query,snippet_for_all_urls,DF);
-            System.out.println(snippet_for_all_urls);
         }
 //        else{
 //            q.query_process(query,resultorginal, resultforms, NonCommon,NoofDocumentsforword);
@@ -324,10 +324,12 @@ public class Phrase_sreach
 
 
         System.out.println(result.size());
-        for(int m=0;m<result.size();m++)
-            for(int k=0;k<(result.get(m)).size();k++) {
+        for(int m=0;m<result.size();m++) {
+            for (int k = 0; k < (result.get(m)).size(); k++) {
                 System.out.println("Phase search:" + result.get(m).get(k));
             }
+        }
+        System.out.println(snippet_for_all_urls);
 
 
 //        for(int m=0;m<resultforms.size();m++)

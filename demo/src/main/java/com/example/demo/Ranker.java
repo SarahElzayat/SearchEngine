@@ -9,14 +9,26 @@ import org.jsoup.Jsoup;
 
 import javax.print.Doc;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Vector;
 
 public class Ranker {
+    //Urls
     Vector<Vector<JSONObject>> originalResults = new Vector<Vector<org.json.JSONObject>>(0);
     Vector<Vector<org.json.JSONObject>> stemmedResults = new Vector<Vector<org.json.JSONObject>>(0);
     Vector<Vector<JSONObject>> nonCommon = new Vector<Vector<org.json.JSONObject>>(0);
-    Vector<Integer> noOfDocumentsForWord = new Vector<Integer>(0); // EH DA?
+    //DF
+    Vector<Integer> DF = new Vector<Integer>(0); // EH DA?
+    //Snipptes
+    Vector<Vector<String>> snippet_for_all_urls = new Vector<Vector<String>>(0);
+    Vector<Vector<String>> snippet_for_all_urls_forms = new Vector<Vector<String>>(0);
+    Vector<Vector<String>> snippet_for_all_urls_Non_common = new Vector<Vector<String>>(0);
+    //phrase Search Snippets
+    Vector<String> snippet_for_Phrase_Search = new Vector<String>(0);
+
+
     queryprocessing queryProcessor = new queryprocessing();
+    Phrase_sreach PhraseSearch = new Phrase_sreach();
     MongoCollection<Document> rankerCollection;
     MongoCollection<Document> crawlerCollection;
     MongoDatabase db;
@@ -36,6 +48,18 @@ public class Ranker {
     }
 
     public void calculateRank(Vector<Vector<JSONObject>> vec) throws JSONException {
+
+
+//        float[] arr = new float[searchWords.size()];
+//        String s = new String();
+//        for (int i = 0; i < vec.size(); i++) {
+//            for (int j = 0; j < vec.get(i).size(); j++) {
+//                JSONObject obj = vec.get(i).get(j);
+//                s = obj.getString("_url");
+//                JSONObject weights = obj.getJSONObject(searchWords.get(j));
+//
+//            }
+//
         float[] arr = new float[searchWords.size()];
         String s = new String();
         for (int i = 0; i < vec.size(); i++) {
@@ -70,7 +94,7 @@ public class Ranker {
                 System.out.println("Headers "+headers);
                 arr[j] /= Integer.parseInt(shosho.get(s).get("NoOfWords").toString());
                 System.out.println("Headers / by no of words "+ arr[j]);
-                arr[j] += noOfDocumentsForWord.get(j) / 5000.0;
+                arr[j] += DF.get(j) / 5000.0;
                 System.out.println("Multiplied by df "+arr[j]);
                 arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1;
 //                arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1; title
@@ -94,22 +118,30 @@ public class Ranker {
     }
 
     public void getResults(String query) throws JSONException {
-//        if(query.startsWith("\"") && query.endsWith("\"")){
-//            //  phraseSearch.Phraseprocess(query);
-//        }
-//        else{
-//            q.query_process(query,resultorginal, resultforms, NonCommon,DF);
-//        }
+        if(query.startsWith("\"") && query.endsWith("\"")){
+            originalResults=PhraseSearch.Phrase_Search(query,snippet_for_Phrase_Search,DF);
 
-        searchWords = queryProcessor.query_process(query, originalResults, stemmedResults, nonCommon, noOfDocumentsForWord);//DF
-        calculateRank(originalResults);
+            System.out.println(originalResults.size());
+            for(int m=0;m<originalResults.size();m++) {
+                for (int k = 0; k < (originalResults.get(m)).size(); k++) {
+                    System.out.println("Phase search:" + originalResults.get(m).get(k));
+                }
+            }
+            System.out.println(snippet_for_Phrase_Search);
+        }
+        else
+        {
+            searchWords = queryProcessor.query_process(query, originalResults, stemmedResults, nonCommon, DF, snippet_for_all_urls, snippet_for_all_urls_forms, snippet_for_all_urls_Non_common);
+            calculateRank(originalResults);
 //        calculateRank(stemmedResults);
 //        calculateRank(nonCommon);
+        }
+
     }
 
     public static void main(String[] args) throws JSONException {
         Ranker r = new Ranker();
-        r.getResults("putin");
+        r.getResults("\"first-class\"");
 
     }
 
