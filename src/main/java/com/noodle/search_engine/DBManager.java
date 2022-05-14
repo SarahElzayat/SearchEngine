@@ -20,7 +20,7 @@ public class DBManager {
   DBManager() {
     String uri = "mongodb://localhost:27017";
     MongoClient mongo = MongoClients.create(uri);
-    MongoDatabase db = mongo.getDatabase("SearchEngine");
+    MongoDatabase db = mongo.getDatabase("a");
     fetchedURLS = db.getCollection("FetchedURLs");
     URLSWithHTML = db.getCollection("URLSWithHTML");
   }
@@ -58,13 +58,13 @@ public class DBManager {
   }
 
   public void insertIntoDBHtmls(
-      String url, String html){//, String hash) { // (long id, String url, String html,String hash){
+      String url, String html,String title){//, String hash) { // (long id, String url, String html,String hash){
 
     Document s =
         new Document // ("_id", id)
             // .append
             ("_url", url)
-            .append("html", html).append("popularity",1);
+            .append("html", html).append("popularity",1).append("title",title);
     URLSWithHTML.insertOne(s);
   }
 

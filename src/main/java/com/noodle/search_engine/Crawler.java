@@ -6,19 +6,17 @@ import org.bson.types.ObjectId;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Scanner;
 ///////////////////////////////////////////
-///////////////////////TODO///////////////
-/////////////////////CHECK FOR HOST////////////
-/////////////////////NEGLECT SIGNIN/SIGNUP...//////
-
+/////////////////////// TODO///////////////
+///////////////////// CHECK FOR HOST////////////
+///////////////////// NEGLECT SIGNIN/SIGNUP...//////
 
 public class Crawler extends Thread {
   DBManager dbMongo;
@@ -44,12 +42,9 @@ public class Crawler extends Thread {
       synchronized (obj) {
         returnedDoc = dbMongo.returnDocwithstate(0, new Document("_state", 1), 1);
       }
-      currentID =
-          (ObjectId)
-              returnedDoc.get(
-                  "_id");
+      currentID = (ObjectId) returnedDoc.get("_id");
       System.out.println("Current ID: @run" + currentID);
-            if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
+      if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
 
         dbMongo.updatePopularity(new Document("popularity", 1), returnedDoc.get("_url").toString());
         System.out.println("@run URL exists");
@@ -75,7 +70,7 @@ public class Crawler extends Thread {
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           continue;
         }
-//        String encryptedHTML = encryptThisString(doc.toString());
+        //        String encryptedHTML = encryptThisString(doc.toString());
         String encryptedHTML = encryptThisString(doc);
         if (!hashedHTMLS.contains(encryptedHTML)) {
           System.out.println("@Run hashed doesn't contain encryption");
@@ -88,11 +83,12 @@ public class Crawler extends Thread {
           if (URLSWithHTMLID < 6) {
             System.out.println("URLSWithHTMLID < 6");
             dbMongo.insertIntoDBHtmls(
-                returnedDoc.get("_url").toString(), doc.toString());//, encryptedHTML);
+                returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
           } else {
             System.out.println("URLSWithHTMLID >>>> 6");
 
-            dbMongo.insertIntoDBHtmls(returnedDoc.get("_url").toString(), doc.toString());//, "");
+            dbMongo.insertIntoDBHtmls(
+                returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML); // , "");
           }
           System.out.println(
               "THREAD: "
@@ -102,25 +98,24 @@ public class Crawler extends Thread {
           System.out.println("URL: " + returnedDoc.get("_url").toString());
 
           synchronized (obj) {
-             urlsBGD.add(returnedDoc.get("_url").toString());
+            urlsBGD.add(returnedDoc.get("_url").toString());
           }
 
           Elements el = doc.select("a[href]");
-          int counter =0;
-//          String hashedLinks="";
+          int counter = 0;
+          //          String hashedLinks="";
           for (Element lis : el) {
-            if(counter >50)
-              break;
+            if (counter > 50) break;
             String firstLink = lis.attr("href");
-            if (firstLink.startsWith("https://")&&!(firstLink.contains("register")
-            ||firstLink.contains("signup")
-            ||firstLink.contains("signin")
-            ||firstLink.contains("help"))
-            )
-            {
+            if (firstLink.startsWith("https://")
+                && !(firstLink.contains("register")
+                    || firstLink.contains("signup")
+                    || firstLink.contains("signin")
+                    || firstLink.contains("help")
+                    || firstLink.contains("login"))) {
 
               URL temp = new URL(returnedDoc.get("_url").toString());
-//              hashedLinks+=temp.toString();
+              //              hashedLinks+=temp.toString();
               if (!robotsTxt.checkifAllowed(firstLink, temp)) {
                 continue;
               }
@@ -128,20 +123,22 @@ public class Crawler extends Thread {
               dbMongo.insertInFetchedurls(firstLink, 0);
             }
             counter++;
-            System.out.println("THREAD" + currentThread().getName()+ "COUNTER: "+counter);
+            System.out.println("THREAD" + currentThread().getName() + "COUNTER: " + counter);
           }
-//          hashedHTMLS.add(hashedLinks);
+          //          hashedHTMLS.add(hashedLinks);
           dbMongo.updateDoc(new Document("_state", 1), currentID);
         } else {
           dbMongo.updateDoc(new Document("_state", 1), currentID);
         }
       } catch (IOException e) {
 
-//        e.printStackTrace();
+        //        e.printStackTrace();
+        dbMongo.updateDoc(new Document("_state", 1), currentID);
+
         continue;
       }
     }
- }
+  }
 
   public void initializeSeeds() throws IOException {
 
@@ -149,77 +146,79 @@ public class Crawler extends Thread {
     Scanner myReader = new Scanner(myObj);
     URLSWithHTMLID = dbMongo.getHTMLURLsCount();
     //    fetchedURLSID = dbMongo.getFetchedCount();
-        dbMongo.retrieveSeeds(urlsBGD);
-//    dbMongo.retrieveSeeds(finalVersionBgdGamedAwy);
+    dbMongo.retrieveSeeds(urlsBGD);
+    //    dbMongo.retrieveSeeds(finalVersionBgdGamedAwy);
     while (myReader.hasNextLine()) {
       String title = myReader.nextLine();
-            if (urlsBGD.contains(title)) continue;
+      if (urlsBGD.contains(title)) continue;
       // fetch the link here
       dbMongo.insertInFetchedurls(title, 0);
     }
-        dbMongo.retrieveElements(urlsBGD);
+    dbMongo.retrieveElements(urlsBGD);
 
     dbMongo.retrieveLinkWithState1();
   }
 
-//  public static String encryptThisString(String input) {
+  //  public static String encryptThisString(String input) {
   public static String encryptThisString(org.jsoup.nodes.Document input) {
-//    try {
-//      // getInstance() method is called with algorithm SHA-1
-//      MessageDigest md = MessageDigest.getInstance("SHA-1");
-//
-//      // digest() method is called
-//      // to calculate message digest of the input string
-//      // returned as array of byte
-//      byte[] messageDigest = md.digest(input.getBytes());
-//
-//      // Convert byte array into signum representation
-//      BigInteger no = new BigInteger(1, messageDigest);
-//
-//      // Convert message digest into hex value
-//      String hashtext = no.toString(16);
-//
-//      // Add preceding 0s to make it 32 bit
-//      while (hashtext.length() < 32) {
-//        hashtext = "0" + hashtext;
-//      }
-//      // return the HashText
+    //    try {
+    //      // getInstance() method is called with algorithm SHA-1
+    //      MessageDigest md = MessageDigest.getInstance("SHA-1");
+    //
+    //      // digest() method is called
+    //      // to calculate message digest of the input string
+    //      // returned as array of byte
+    //      byte[] messageDigest = md.digest(input.getBytes());
+    //
+    //      // Convert byte array into signum representation
+    //      BigInteger no = new BigInteger(1, messageDigest);
+    //
+    //      // Convert message digest into hex value
+    //      String hashtext = no.toString(16);
+    //
+    //      // Add preceding 0s to make it 32 bit
+    //      while (hashtext.length() < 32) {
+    //        hashtext = "0" + hashtext;
+    //      }
+    //      // return the HashText
 
-//      return hashtext;
-//temp.append("header",Jsoup.parse(shosho.get(s).get("html").toString()).title()
+    //      return hashtext;
+    // temp.append("header",Jsoup.parse(shosho.get(s).get("html").toString()).title()
+    if (input.title().equals("")) return input.attr("title");
     return input.title();
-//    hashedHTMLS.add(s);
 
+    //    hashedHTMLS.add(s);
 
     // For specifying wrong message digest algorithms
-//    catch (NoSuchAlgorithmException e) {
-//      throw new RuntimeException(e);
-//    }
-//  int i=0;
-//    Elements el = input.select("a[href]");
-//    String s = "";
-//    for (Element lis : el) {
-//      s+= lis.attr("href");
-//      i++;
-//      if(i>20);
-//      break;
-//    }
-//    return s;
+    //    catch (NoSuchAlgorithmException e) {
+    //      throw new RuntimeException(e);
+    //    }
+    //  int i=0;
+    //    Elements el = input.select("a[href]");
+    //    String s = "";
+    //    for (Element lis : el) {
+    //      s+= lis.attr("href");
+    //      i++;
+    //      if(i>20);
+    //      break;
+    //    }
+    //    return s;
 
   }
 
   public void recrawlSeeds() throws IOException {
     FindIterable<Document> documents = dbMongo.URLSWithHTML.find().limit(6);
-    ObjectId tempID ;
+    ObjectId tempID;
     for (Document doc : documents) {
       String url = doc.get("_url").toString();
       tempID = (ObjectId) doc.get("_id");
       org.jsoup.nodes.Document temp;
       temp = Jsoup.connect(url).get();
-//      String encryptedHTML = encryptThisString(temp.toString());
+      //      String encryptedHTML = encryptThisString(temp.toString());
       String encryptedHTML = encryptThisString(temp);
-//      String tempEncrypted = encryptThisString(doc.get("html").toString());
-      String tempEncrypted = encryptThisString(org.jsoup.nodes.Document.createShell(doc.get("html").toString()));
+      //      String tempEncrypted = encryptThisString(doc.get("html").toString());
+      String tempEncrypted =
+          encryptThisString(org.jsoup.nodes.Document.createShell(doc.get("html").toString()));
       if (!encryptedHTML.equals(tempEncrypted)) {
         dbMongo.updateSeed(temp.toString(), tempID);
 
@@ -234,7 +233,7 @@ public class Crawler extends Thread {
     Crawler crawl = new Crawler(db, new RobotsManager());
     crawl.initializeSeeds();
     System.out.println("ENTER NUMBER OF THREADS");
-   // crawl.run();
+    // crawl.run();
     Scanner sc = new Scanner(System.in);
     int numberOfThreads;
     numberOfThreads = sc.nextInt();
@@ -252,6 +251,6 @@ public class Crawler extends Thread {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-//    crawl.recrawlSeeds();
+    //    crawl.recrawlSeeds();
   }
 }
