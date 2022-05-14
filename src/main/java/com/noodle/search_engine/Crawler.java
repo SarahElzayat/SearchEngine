@@ -70,13 +70,13 @@ public class Crawler extends Thread {
                 .timeout(5000)
                 .get(); // fetch the link html source
         if (!doc.toString().toLowerCase().contains("<!doctype html>")
-            || !(doc.toString().toLowerCase().contains("lang=\"en\""))) {
+            || !(doc.toString().toLowerCase().contains("lang=\"en"))) {
           System.out.println("@Run doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           continue;
         }
-        String encryptedHTML = encryptThisString(doc.toString());
-//        String encryptedHTML = encryptThisString(doc);
+//        String encryptedHTML = encryptThisString(doc.toString());
+        String encryptedHTML = encryptThisString(doc);
         if (!hashedHTMLS.contains(encryptedHTML)) {
           System.out.println("@Run hashed doesn't contain encryption");
           synchronized (obj) {
@@ -163,36 +163,39 @@ public class Crawler extends Thread {
     dbMongo.retrieveLinkWithState1();
   }
 
-  public static String encryptThisString(String input) {
-//  public static String encryptThisString(org.jsoup.nodes.Document input) {
-    try {
-      // getInstance() method is called with algorithm SHA-1
-      MessageDigest md = MessageDigest.getInstance("SHA-1");
+//  public static String encryptThisString(String input) {
+  public static String encryptThisString(org.jsoup.nodes.Document input) {
+//    try {
+//      // getInstance() method is called with algorithm SHA-1
+//      MessageDigest md = MessageDigest.getInstance("SHA-1");
+//
+//      // digest() method is called
+//      // to calculate message digest of the input string
+//      // returned as array of byte
+//      byte[] messageDigest = md.digest(input.getBytes());
+//
+//      // Convert byte array into signum representation
+//      BigInteger no = new BigInteger(1, messageDigest);
+//
+//      // Convert message digest into hex value
+//      String hashtext = no.toString(16);
+//
+//      // Add preceding 0s to make it 32 bit
+//      while (hashtext.length() < 32) {
+//        hashtext = "0" + hashtext;
+//      }
+//      // return the HashText
 
-      // digest() method is called
-      // to calculate message digest of the input string
-      // returned as array of byte
-      byte[] messageDigest = md.digest(input.getBytes());
+//      return hashtext;
+//temp.append("header",Jsoup.parse(shosho.get(s).get("html").toString()).title()
+    return input.title();
+//    hashedHTMLS.add(s);
 
-      // Convert byte array into signum representation
-      BigInteger no = new BigInteger(1, messageDigest);
-
-      // Convert message digest into hex value
-      String hashtext = no.toString(16);
-
-      // Add preceding 0s to make it 32 bit
-      while (hashtext.length() < 32) {
-        hashtext = "0" + hashtext;
-      }
-      // return the HashText
-
-      return hashtext;
-    }
 
     // For specifying wrong message digest algorithms
-    catch (NoSuchAlgorithmException e) {
-      throw new RuntimeException(e);
-    }
+//    catch (NoSuchAlgorithmException e) {
+//      throw new RuntimeException(e);
+//    }
 //  int i=0;
 //    Elements el = input.select("a[href]");
 //    String s = "";
@@ -203,6 +206,7 @@ public class Crawler extends Thread {
 //      break;
 //    }
 //    return s;
+
   }
 
   public void recrawlSeeds() throws IOException {
@@ -213,10 +217,10 @@ public class Crawler extends Thread {
       tempID = (ObjectId) doc.get("_id");
       org.jsoup.nodes.Document temp;
       temp = Jsoup.connect(url).get();
-      String encryptedHTML = encryptThisString(temp.toString());
-//      String encryptedHTML = encryptThisString(temp);
-      String tempEncrypted = encryptThisString(doc.get("html").toString());
+//      String encryptedHTML = encryptThisString(temp.toString());
+      String encryptedHTML = encryptThisString(temp);
 //      String tempEncrypted = encryptThisString(doc.get("html").toString());
+      String tempEncrypted = encryptThisString(org.jsoup.nodes.Document.createShell(doc.get("html").toString()));
       if (!encryptedHTML.equals(tempEncrypted)) {
         dbMongo.updateSeed(temp.toString(), tempID);
 
