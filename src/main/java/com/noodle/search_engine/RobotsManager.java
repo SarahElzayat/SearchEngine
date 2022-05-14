@@ -5,7 +5,10 @@ package com.noodle.search_engine;
 
 import com.ibm.icu.impl.Assert;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.regex.*;
@@ -39,22 +42,35 @@ public class RobotsManager {
 
     if (hostsWithFetchedRobotsTxt.containsKey(currentURL.getHost())) return;
 
-    URL temp = new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt");
-    HttpURLConnection connection =  (HttpURLConnection)temp.openConnection();
-    connection.setRequestMethod("GET");
-    connection.connect();
-    int responseCode ;
+    URL temp;
+    // = new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt");
     try{
-    responseCode =connection.getResponseCode();
-      if(responseCode!=200) return;
+      temp = new URL(currentURL.getProtocol() + "://" + currentURL.getHost() + "/robots.txt");
     }
-    catch (UnknownHostException e) {
-      connection.disconnect();
+    catch (MalformedURLException e){
+      return;
     }
+//    HttpURLConnection connection =  (HttpURLConnection)temp.openConnection();
+//    connection.setRequestMethod("GET");
+//    connection.connect();
+//    int responseCode ;
+//    try{
+//    responseCode =connection.getResponseCode();
+//      if(responseCode!=200) return;
+//    }
+//    catch (UnknownHostException e) {
+//      connection.disconnect();
+//    }
 //    System.out.println("At robots url //////////////////////////+////// "+temp.toString());
-
-    InputStream in = new URL(temp.toString()).openStream();
-    Scanner robots7aga = new Scanner(in).useDelimiter("\\A");
+    BufferedReader readIn;
+    try{
+      readIn=new BufferedReader(new InputStreamReader(temp.openStream()));
+    }
+    catch (IOException e) {
+      return;
+    }
+   // InputStream in = new URL(temp.toString()).openStream();
+    Scanner robots7aga = new Scanner(readIn).useDelimiter("\\A");
     String result = robots7aga.hasNext() ? robots7aga.next() : "";
     String[] array = result.split("\n"); // array of robots.txt as strings
     Vector<String> disallows = new Vector<String>(array.length);

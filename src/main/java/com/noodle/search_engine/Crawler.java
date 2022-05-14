@@ -88,11 +88,11 @@ public class Crawler extends Thread {
           if (URLSWithHTMLID < 6) {
             System.out.println("URLSWithHTMLID < 6");
             dbMongo.insertIntoDBHtmls(
-                returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
+                returnedDoc.get("_url").toString(), doc.toString());//, encryptedHTML);
           } else {
             System.out.println("URLSWithHTMLID >>>> 6");
 
-            dbMongo.insertIntoDBHtmls(returnedDoc.get("_url").toString(), doc.toString(), "");
+            dbMongo.insertIntoDBHtmls(returnedDoc.get("_url").toString(), doc.toString());//, "");
           }
           System.out.println(
               "THREAD: "
@@ -154,7 +154,6 @@ public class Crawler extends Thread {
     while (myReader.hasNextLine()) {
       String title = myReader.nextLine();
             if (urlsBGD.contains(title)) continue;
-
       // fetch the link here
       dbMongo.insertInFetchedurls(title, 0);
     }
@@ -235,6 +234,7 @@ public class Crawler extends Thread {
     Crawler crawl = new Crawler(db, new RobotsManager());
     crawl.initializeSeeds();
     System.out.println("ENTER NUMBER OF THREADS");
+   // crawl.run();
     Scanner sc = new Scanner(System.in);
     int numberOfThreads;
     numberOfThreads = sc.nextInt();

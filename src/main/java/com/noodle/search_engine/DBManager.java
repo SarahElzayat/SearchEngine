@@ -58,7 +58,7 @@ public class DBManager {
   }
 
   public void insertIntoDBHtmls(
-      String url, String html, String hash) { // (long id, String url, String html,String hash){
+      String url, String html){//, String hash) { // (long id, String url, String html,String hash){
 
     Document s =
         new Document // ("_id", id)
