@@ -27,10 +27,9 @@ public class queryprocessing {
         porterStemmer = new PorterStemmer();
         stopWords=Indexer.getStopWords();
         ImportantWords=Indexer.getImportantword();
-
     }
-    public  Vector<String> query_process(String QP_str,Vector<Vector<JSONObject>>resultorginal,Vector<Vector<JSONObject>> resultforms,Vector<Vector<JSONObject>>NonCommon,Vector<Integer>DF,Vector<Vector<String>>snippet_for_all_urls,Vector<Vector<String>>snippet_for_all_urls_forms) throws JSONException {
-
+    public  Vector<String> query_process(String QP_str,Vector<Vector<JSONObject>>resultorginal,Vector<Vector<JSONObject>> resultforms,Vector<Vector<JSONObject>>NonCommon,Vector<Integer>DF,Vector<Vector<String>>snippet_for_all_urls,Vector<Vector<String>>snippet_for_all_urls_forms,Vector<Vector<String>>snippet_for_all_urls_Non_Common) throws JSONException {
+        Boolean Notfound=false;
         String[] words = (QP_str).toLowerCase().split("\\s");//splits the string based on whitespace
         Vector<String>finalword=new Vector<String>(1);
         Vector<JSONArray>docarr=new Vector<JSONArray>(1);
@@ -59,6 +58,9 @@ public class queryprocessing {
                         DF.add(obj.getInt("DF"));
                         docarr.add(arr);
                     }
+                    else{
+                        Notfound=true;
+                    }
                 }
             }
             else{
@@ -75,17 +77,17 @@ public class queryprocessing {
         }
 //            for(int k=0;k<docarr.size();k++)
 //                System.out.println("docarr:" + docarr.get(k));
-        query_process_work(finalword,docarr,resultorginal,resultforms,NonCommon);
+        query_process_work(finalword,docarr,resultorginal,resultforms,NonCommon,Notfound);
         extract_Common_Array_tags(finalword,resultorginal,snippet_for_all_urls);
         extract_Steaming_Array_tags(resultforms,snippet_for_all_urls_forms);
+        extract_Steaming_Array_tags(NonCommon,snippet_for_all_urls_Non_Common);
         return finalword;
     }
-    private void query_process_work(  Vector<String>words, Vector<JSONArray> docarr, Vector<Vector<JSONObject>> resultorginal,Vector<Vector<JSONObject>>  resultforms,Vector<Vector<JSONObject>>NonCommon) throws JSONException {
+    private void query_process_work(  Vector<String>words, Vector<JSONArray> docarr, Vector<Vector<JSONObject>> resultorginal,Vector<Vector<JSONObject>>  resultforms,Vector<Vector<JSONObject>>NonCommon,Boolean not_Found) throws JSONException {
 
         Vector<JSONObject> tempNonCommon = new Vector<JSONObject>(1);
         Vector<JSONObject> temporginal = new Vector<JSONObject>(1);
         Vector<JSONObject> tempform = new Vector<JSONObject>(1);
-
         //unique urls
         HashMap<String, Integer> Urls = new HashMap<String, Integer>();
         for (int j = 0; j < docarr.size(); j++) {
@@ -147,10 +149,19 @@ public class queryprocessing {
                 NonCommon.add(new Vector<JSONObject>(tempNonCommon));
             }
             //is orignal for all words
-            else if (temporginal.size() == words.size()) {
+            else if (temporginal.size() == words.size())
+            {
+                if(not_Found)
+                    NonCommon.add(new Vector<JSONObject>(temporginal));
+                else
                 resultorginal.add(new Vector<JSONObject>(temporginal));
-            } else {
-                tempform.addAll(temporginal);
+            } else
+            {
+
+                    tempform.addAll(temporginal);
+                if(not_Found)
+                    NonCommon.add(new Vector<JSONObject>(tempform));
+                else
                 resultforms.add(new Vector<JSONObject>(tempform));
             }
             tempform.clear();
@@ -270,33 +281,34 @@ public class queryprocessing {
             snippet_for_all_urls_forms.add(snippet_url(body,Start_index));
         }
     }
+
     public static void main(String[] args) throws JSONException {
 
-        long time=System.nanoTime();
-        System.out.println("\ntimeeee"+time);
+        long time = System.nanoTime();
+        System.out.println("\ntimeeee" + time);
 
-        queryprocessing q=new queryprocessing();
-        String query="general library";
-        query=query.trim();
+        queryprocessing q = new queryprocessing();
+        String query = "c++ zeinab";
+        query = query.trim();
 
-        Vector<Vector<org.json.JSONObject>> resultorginal=new Vector<Vector<org.json.JSONObject>>(1);
-        Vector<Vector<org.json.JSONObject>>  resultforms=new Vector<Vector<org.json.JSONObject>>(1);
-        Vector<Vector<JSONObject>>NonCommon=new Vector<Vector<org.json.JSONObject>>(1);
-        Vector<Vector<String>>snippet_for_all_urls=new Vector<Vector<String>>(1);
-        Vector<Integer> DF=new Vector<Integer>(1);
-         Vector<Vector<String>>snippet_for_all_urls_forms=new Vector<Vector<String>>(1);
-        if(query.startsWith("\"") && query.endsWith("\"")){
+        Vector<Vector<org.json.JSONObject>> resultorginal = new Vector<Vector<org.json.JSONObject>>(1);
+        Vector<Vector<org.json.JSONObject>> resultforms = new Vector<Vector<org.json.JSONObject>>(1);
+        Vector<Vector<JSONObject>> NonCommon = new Vector<Vector<org.json.JSONObject>>(1);
+        Vector<Vector<String>> snippet_for_all_urls = new Vector<Vector<String>>(1);
+        Vector<Integer> DF = new Vector<Integer>(1);
+        Vector<Vector<String>> snippet_for_all_urls_forms = new Vector<Vector<String>>(1);
+        Vector<Vector<String>> snippet_for_all_urls_Non_common = new Vector<Vector<String>>(1);
+        if (query.startsWith("\"") && query.endsWith("\"")) {
             //  phraseSearch.Phraseprocess(query);
+        } else {
+            q.query_process(query, resultorginal, resultforms, NonCommon, DF, snippet_for_all_urls, snippet_for_all_urls_forms, snippet_for_all_urls_Non_common);
         }
-        else{
-            q.query_process(query,resultorginal, resultforms, NonCommon,DF,snippet_for_all_urls,snippet_for_all_urls_forms);
-        }
-         long time2 =System.nanoTime();
-        System.out.println("\ntimeafter"+(time2-time));
+        long time2 = System.nanoTime();
+        System.out.println("\ntimeafter" + (time2 - time));
 
 
         System.out.println(resultorginal.size());
-        for(int m=0;m<resultorginal.size();m++) {
+        for (int m = 0; m < resultorginal.size(); m++) {
             for (int k = 0; k < (resultorginal.get(m)).size(); k++) {
                 System.out.println("Orignal:" + resultorginal.get(m).get(k));
 //                System.out.println(m);
@@ -307,20 +319,22 @@ public class queryprocessing {
 //            System.out.println(DF.get(i));
 
 
-        for(int m=0;m<resultforms.size();m++)
-        {
-            for(int k=0;k<(resultforms.get(m)).size();k++) {
+        for (int m = 0; m < resultforms.size(); m++) {
+            for (int k = 0; k < (resultforms.get(m)).size(); k++) {
                 System.out.println("steming:" + resultforms.get(m).get(k));
                 System.out.println(m);
             }
             System.out.println(snippet_for_all_urls_forms.get(m));
         }
 
-        for(int m=0;m<NonCommon.size();m++)
-            for(int k=0;k<(NonCommon.get(m)).size();k++) {
+        for (int m = 0; m < NonCommon.size(); m++)
+        {
+            for (int k = 0; k < (NonCommon.get(m)).size(); k++) {
                 System.out.println("Noncommon:" + NonCommon.get(m).get(k));
-                System.out.println(m);}
-
+                System.out.println(m);
+            }
+            System.out.println(snippet_for_all_urls_Non_common.get(m));
+    }
 
     }
 
