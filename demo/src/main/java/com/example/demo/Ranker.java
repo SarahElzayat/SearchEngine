@@ -49,17 +49,26 @@ public class Ranker {
 
     public void calculateRank(Vector<Vector<JSONObject>> vec) throws JSONException {
 
-
+//
 //        float[] arr = new float[searchWords.size()];
 //        String s = new String();
 //        for (int i = 0; i < vec.size(); i++) {
 //            for (int j = 0; j < vec.get(i).size(); j++) {
 //                JSONObject obj = vec.get(i).get(j);
 //                s = obj.getString("_url");
-//                JSONObject weights = obj.getJSONObject(searchWords.get(j));
 //
+//
+//                Iterator<String> iterator=obj.keys();
+//                while (iterator.hasNext()) {
+//                   String key = iterator.next().toString();//here the key is "working"  "worker"  "_url" "workers"
+//                   if(key.equals("_url"))//ignore url key
+//                       continue;
+//                    JSONObject weights = obj.getJSONObject(key);
+//                    }
+//                }
 //            }
-//
+
+
         float[] arr = new float[searchWords.size()];
         String s = new String();
         for (int i = 0; i < vec.size(); i++) {
@@ -114,7 +123,6 @@ public class Ranker {
             rankerCollection.insertOne(temp);
         }
         vec.clear();
-
     }
 
     public void getResults(String query) throws JSONException {
