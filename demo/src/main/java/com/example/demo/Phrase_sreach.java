@@ -173,7 +173,7 @@ snippet.append(body.getString(i)+" ");
 //        Vector<Vector<JSONObject>>NonCommon=new Vector<Vector<org.json.JSONObject>>(1);
 //
 //        Vector<Integer> NoofDocumentsforword=new Vector<Integer>(1);
-        Vector<Vector<JSONObject>> result=new Vector<Vector<org.json.JSONObject>>(1);;
+        Vector<Vector<JSONObject>> result=new Vector<Vector<org.json.JSONObject>>(1);
         if(query.startsWith("\"") && query.endsWith("\""))
         {
             Vector<String>snippet_for_all_urls =new Vector<String>(1);
