@@ -34,7 +34,8 @@ public class Ranker {
     MongoDatabase db;
     Vector<String> searchWords = new Vector<String>(0);
     HashMap<String, Document> shosho = new HashMap<String, Document>(5007);
-  //  Vector<JSONObject> phraseResults = new Vector<>(0);
+
+    //  Vector<JSONObject> phraseResults = new Vector<>(0);
     public Ranker() {
         String uri = "mongodb://localhost:27017";
         MongoClient mongo = MongoClients.create(uri);
@@ -46,34 +47,197 @@ public class Ranker {
             shosho.put(doc.get("_url").toString(), doc);
         }
     }
+
     public void Teamp_func() throws JSONException {
+
         String s = new String();
-        for (int i=0;i<originalResults.size();i++)
-        {
+        for (int i = 0; i < originalResults.size(); i++) {
             JSONObject obj = originalResults.get(i).get(0);
             s = obj.getString("_url");
-            Document temp = new Document();
-            temp.append("url", s);//s=>url
-            temp.append("header", Jsoup.parse(shosho.get(s).get("html").toString()).title());
-            temp.append("paragraph", snippet_for_Phrase_Search.get(i));
-            temp.append("rank", 1);
-            rankerCollection.insertOne(temp);
+            Iterator<String> iterator = obj.keys();
+            while (iterator.hasNext()) {
+                JSONObject weights = obj.getJSONObject(searchWords.get(i));
+                float headers = 0;
+
+                if (weights.has("h1"))
+                    headers += weights.getJSONArray("h1").length() + 100;
+
+                if (weights.has("h2"))
+                    headers += weights.getJSONArray("h2").length() + 50;
+
+                if (weights.has("h3"))
+                    headers += weights.getJSONArray("h3").length() + 25;
+
+                if (weights.has("h4"))
+                    headers += weights.getJSONArray("h4").length() + 12;
+
+                if (weights.has("h5"))
+                    headers += weights.getJSONArray("h5").length() + 6;
+
+                if (weights.has("h6"))
+                    headers += weights.getJSONArray("h6").length() + 3;
+
+                if (weights.has("p"))
+                    headers += weights.getJSONArray("p").length();
+
+                System.out.println(s);
+//                arr[i] = headers;// the query processor ->
+//                System.out.println("Headers " + headers);
+//                arr[i] /= Integer.parseInt(shosho.get(s).get("NoOfWords").toString());
+//                System.out.println("Headers / by no of words " + arr[i]);
+//                arr[i] += DF.get(i) / 5000.0;
+//                System.out.println("Multiplied by df " + arr[i]);
+//                arr[i] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1;
+////                arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1; title
+//                System.out.println("after pop " + arr[i]);
+
+            }
+
+
+//        float rank = 0;
+//        for (int k = 0; k < arr.length; k++) {
+////                System.out.println("K "+ arr[k] );
+//            rank += arr[k];
+//        }
+        Document temp = new Document();
+        temp.append("url", s);//s=>url
+        temp.append("header", shosho.get(s).get("title").toString());
+        temp.append("paragraph", snippet_for_Phrase_Search.get(i));
+        temp.append("rank", 1);
+        rankerCollection.insertOne(temp);
+    }
+
+//    originalResults .);
+}
+public void calculateStemmed() throws JSONException {
+    float[] arr = new float[searchWords.size()];
+    String s = new String();
+    for (int i = 0; i < stemmedResults.size(); i++) {
+        for (int j = 0; j < stemmedResults.get(i).size(); j++) {
+            JSONObject obj = stemmedResults.get(i).get(j);
+            s = obj.getString("_url");
+            Iterator<String> iterator= obj.keys();
+            while(iterator.hasNext()){
+                String key = iterator.next();
+                if(key.equals("_url"))
+                    continue;
+            JSONObject weights = obj.getJSONObject(key);
+            float headers = 0;
+
+            if (weights.has("h1"))
+                headers += weights.getJSONArray("h1").length() + 100;
+
+            if (weights.has("h2"))
+                headers += weights.getJSONArray("h2").length() + 50;
+
+            if (weights.has("h3"))
+                headers += weights.getJSONArray("h3").length() + 25;
+
+            if (weights.has("h4"))
+                headers += weights.getJSONArray("h4").length() + 12;
+
+            if (weights.has("h5"))
+                headers += weights.getJSONArray("h5").length() + 6;
+
+            if (weights.has("h6"))
+                headers += weights.getJSONArray("h6").length() + 3;
+
+            if (weights.has("p"))
+                headers += weights.getJSONArray("p").length();
+            System.out.println(s);
+            arr[j] = headers;// the query processor ->
+            System.out.println("Headers " + headers);
+            arr[j] /= Integer.parseInt(shosho.get(s).get("NoOfWords").toString());
+            System.out.println("Headers / by no of words " + arr[j]);
+            arr[j] += DF.get(j) / 5000.0;
+            System.out.println("Multiplied by df " + arr[j]);
+            arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1;
+//                arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1; title
+            System.out.println("after pop " + arr[j]);
+                float rank = 0;
+                for (int k = 0; k < arr.length; k++) {
+//                System.out.println("K "+ arr[k] );
+                    rank += arr[k];
+                }
+                Document temp = new Document();
+                temp.append("url", s);
+                temp.append("header", shosho.get(s).get("title").toString());
+                temp.append("paragraph", snippet_for_all_urls_forms.get(j));///////*******///////
+                temp.append("rank", rank);
+                rankerCollection.insertOne(temp);
         }
-        originalResults.clear();
+        }
+
+    }
+    stemmedResults.clear();
+
+
+}
+    public void calculateNonCommon() throws JSONException {
+        float[] arr = new float[searchWords.size()];
+        String s = new String();
+        for (int i = 0; i < nonCommon.size(); i++) {
+            for (int j = 0; j < nonCommon.get(i).size(); j++) {
+                JSONObject obj = nonCommon.get(i).get(j);
+                s = obj.getString("_url");
+                Iterator<String> iterator= obj.keys();
+                while(iterator.hasNext()){
+                    String key = iterator.next();
+                    if(key.equals("_url"))
+                        continue;
+                    JSONObject weights = obj.getJSONObject(key);
+                    float headers = 0;
+
+                    if (weights.has("h1"))
+                        headers += weights.getJSONArray("h1").length() + 100;
+
+                    if (weights.has("h2"))
+                        headers += weights.getJSONArray("h2").length() + 50;
+
+                    if (weights.has("h3"))
+                        headers += weights.getJSONArray("h3").length() + 25;
+
+                    if (weights.has("h4"))
+                        headers += weights.getJSONArray("h4").length() + 12;
+
+                    if (weights.has("h5"))
+                        headers += weights.getJSONArray("h5").length() + 6;
+
+                    if (weights.has("h6"))
+                        headers += weights.getJSONArray("h6").length() + 3;
+
+                    if (weights.has("p"))
+                        headers += weights.getJSONArray("p").length();
+                    System.out.println(s);
+                    arr[j] = headers;// the query processor ->
+                    System.out.println("Headers " + headers);
+                    arr[j] /= Integer.parseInt(shosho.get(s).get("NoOfWords").toString());
+                    System.out.println("Headers / by no of words " + arr[j]);
+                    arr[j] += DF.get(j) / 5000.0;
+                    System.out.println("Multiplied by df " + arr[j]);
+                    arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1;
+                    System.out.println("after pop " + arr[j]);
+                    float rank = 0;
+                    for (int k = 0; k < arr.length; k++) {
+//                System.out.println("K "+ arr[k] );
+                        rank += arr[k];
+                    }
+                    Document temp = new Document();
+                    temp.append("url", s);
+                    temp.append("header", shosho.get(s).get("title").toString());
+                    temp.append("paragraph", snippet_for_all_urls_Non_common.get(j));//////******//////
+                    temp.append("rank", rank);
+                    rankerCollection.insertOne(temp);
+                }
+            }
+
+        }
+        nonCommon.clear();
+
+
     }
     public void calculateRank(Vector<Vector<JSONObject>> vec) throws JSONException {
 
-
-//        float[] arr = new float[searchWords.size()];
-//        String s = new String();
-//        for (int i = 0; i < vec.size(); i++) {
-//            for (int j = 0; j < vec.get(i).size(); j++) {
-//                JSONObject obj = vec.get(i).get(j);
-//                s = obj.getString("_url");
-//                JSONObject weights = obj.getJSONObject(searchWords.get(j));
-//
-//            }
-//
         float[] arr = new float[searchWords.size()];
         String s = new String();
         for (int i = 0; i < vec.size(); i++) {
@@ -84,35 +248,35 @@ public class Ranker {
                 float headers = 0;
 
                 if (weights.has("h1"))
-                    headers += weights.getJSONArray("h1").length()+100 ;
+                    headers += weights.getJSONArray("h1").length() + 100;
 
                 if (weights.has("h2"))
-                    headers += weights.getJSONArray("h2").length()+50 ;
+                    headers += weights.getJSONArray("h2").length() + 50;
 
                 if (weights.has("h3"))
-                    headers += weights.getJSONArray("h3").length()+25 ;
+                    headers += weights.getJSONArray("h3").length() + 25;
 
                 if (weights.has("h4"))
-                    headers += weights.getJSONArray("h4").length()+12 ;
+                    headers += weights.getJSONArray("h4").length() + 12;
 
                 if (weights.has("h5"))
-                    headers += weights.getJSONArray("h5").length()+6 ;
+                    headers += weights.getJSONArray("h5").length() + 6;
 
                 if (weights.has("h6"))
-                    headers += weights.getJSONArray("h6").length()+3;
+                    headers += weights.getJSONArray("h6").length() + 3;
 
                 if (weights.has("p"))
                     headers += weights.getJSONArray("p").length();
                 System.out.println(s);
                 arr[j] = headers;// the query processor ->
-                System.out.println("Headers "+headers);
+                System.out.println("Headers " + headers);
                 arr[j] /= Integer.parseInt(shosho.get(s).get("NoOfWords").toString());
-                System.out.println("Headers / by no of words "+ arr[j]);
+                System.out.println("Headers / by no of words " + arr[j]);
                 arr[j] += DF.get(j) / 5000.0;
-                System.out.println("Multiplied by df "+arr[j]);
+                System.out.println("Multiplied by df " + arr[j]);
                 arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1;
 //                arr[j] *= Integer.parseInt(shosho.get(s).get("popularity").toString());//*.1; title
-                System.out.println("after pop " +arr[j]);
+                System.out.println("after pop " + arr[j]);
             }
             float rank = 0;
             for (int k = 0; k < arr.length; k++) {
@@ -121,17 +285,17 @@ public class Ranker {
             }
             Document temp = new Document();
             temp.append("url", s);
-            temp.append("header",Jsoup.parse(shosho.get(s).get("html").toString()).title()
-            );
-            temp.append("paragraph", s);
+            temp.append("header", shosho.get(s).get("title").toString());
+            temp.append("paragraph", snippet_for_all_urls.get(i));/////********/////
             temp.append("rank", rank);
             rankerCollection.insertOne(temp);
         }
         vec.clear();
 
     }
+
     public void calculatePhrase() throws JSONException {
-       // float[] arr = new float[searchWords.size()];
+        // float[] arr = new float[searchWords.size()];
 //        String s = new String();
 //        for (int i = 0; i < vec.size(); i++) {
 //            for (int j = 0; j < vec.get(i).size(); j++) {
@@ -189,44 +353,23 @@ public class Ranker {
     }
 
     public void getResults(String query) throws JSONException {
-//        if(query.startsWith("\"") && query.endsWith("\"")){
-//            //  phraseSearch.Phraseprocess(query);
-//        }
-//        else{
-//            q.query_process(query,resultorginal, resultforms, NonCommon,DF);
-//        }
-        if(query.startsWith("\"") && query.endsWith("\"")){
-            originalResults=phraseSearch.Phraseprocess(query,snippetsUrls,noOfDocumentsForWord);
-            calculatePhrase();
-        }
-        else{
-            searchWords = queryProcessor.query_process(query, originalResults, stemmedResults, nonCommon, noOfDocumentsForWord);//DF
+
+        if (query.startsWith("\"") && query.endsWith("\"")) {
+            originalResults = PhraseSearch.Phrase_Search(query, snippet_for_Phrase_Search, DF);
+//            calculatePhrase();
+            Teamp_func();
+//            System.out.println(originalResults);
+        } else {
+            searchWords = queryProcessor.query_process(query, originalResults, stemmedResults, nonCommon, DF, snippet_for_all_urls, snippet_for_all_urls_forms, snippet_for_all_urls_Non_common);//DF
             calculateRank(originalResults);
         }
-        if(query.startsWith("\"") && query.endsWith("\"")){
-            originalResults=PhraseSearch.Phrase_Search(query,snippet_for_Phrase_Search,DF);
-                   Teamp_func();
-            System.out.println(originalResults.size());
-//            for(int m=0;m<originalResults.size();m++) {
-//                for (int k = 0; k < (originalResults.get(m)).size(); k++) {
-//                    System.out.println("Phase search:" + originalResults.get(m).get(k));
-//                }
-//            }
-         //   System.out.println(snippet_for_Phrase_Search);
-        }
-        else
-        {
-            searchWords = queryProcessor.query_process(query, originalResults, stemmedResults, nonCommon, DF, snippet_for_all_urls, snippet_for_all_urls_forms, snippet_for_all_urls_Non_common);
-            calculateRank(originalResults);
-//        calculateRank(stemmedResults);
-//        calculateRank(nonCommon);
-        }
+
 
     }
 
     public static void main(String[] args) throws JSONException {
         Ranker r = new Ranker();
-        r.getResults("\"first-class\"");
+        r.getResults("\"war\"");
 
     }
 
