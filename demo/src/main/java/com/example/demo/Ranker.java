@@ -46,7 +46,21 @@ public class Ranker {
             shosho.put(doc.get("_url").toString(), doc);
         }
     }
-
+    public void Teamp_func() throws JSONException {
+        String s = new String();
+        for (int i=0;i<originalResults.size();i++)
+        {
+            JSONObject obj = originalResults.get(i).get(0);
+            s = obj.getString("_url");
+            Document temp = new Document();
+            temp.append("url", s);//s=>url
+            temp.append("header", Jsoup.parse(shosho.get(s).get("html").toString()).title());
+            temp.append("paragraph", snippet_for_Phrase_Search.get(i));
+            temp.append("rank", 1);
+            rankerCollection.insertOne(temp);
+        }
+        originalResults.clear();
+    }
     public void calculateRank(Vector<Vector<JSONObject>> vec) throws JSONException {
 
 //
@@ -128,14 +142,14 @@ public class Ranker {
     public void getResults(String query) throws JSONException {
         if(query.startsWith("\"") && query.endsWith("\"")){
             originalResults=PhraseSearch.Phrase_Search(query,snippet_for_Phrase_Search,DF);
-
+                   Teamp_func();
             System.out.println(originalResults.size());
-            for(int m=0;m<originalResults.size();m++) {
-                for (int k = 0; k < (originalResults.get(m)).size(); k++) {
-                    System.out.println("Phase search:" + originalResults.get(m).get(k));
-                }
-            }
-            System.out.println(snippet_for_Phrase_Search);
+//            for(int m=0;m<originalResults.size();m++) {
+//                for (int k = 0; k < (originalResults.get(m)).size(); k++) {
+//                    System.out.println("Phase search:" + originalResults.get(m).get(k));
+//                }
+//            }
+         //   System.out.println(snippet_for_Phrase_Search);
         }
         else
         {
