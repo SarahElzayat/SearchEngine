@@ -60,6 +60,7 @@ public class Ranker {
             rankerCollection.insertOne(temp);
         }
         originalResults.clear();
+        snippet_for_Phrase_Search.clear();
     }
     public void calculateRank(Vector<Vector<JSONObject>> vec) throws JSONException {
 

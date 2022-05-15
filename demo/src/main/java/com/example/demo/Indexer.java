@@ -173,7 +173,7 @@ public class Indexer {
         {
             Index(d.get("_url").toString(),d.get("html").toString());
             i++;
-            System.out.println(i);
+            System.out.println("\n\n"+i+"\n\n");
         }
     }
 

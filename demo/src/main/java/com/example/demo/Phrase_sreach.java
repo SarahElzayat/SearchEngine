@@ -280,6 +280,7 @@ public class Phrase_sreach
             i--;
         }
         snippet.reverse();
+        snippet.append(" ");
         i=start_index+1;
         if(body.getString(start_index).endsWith("."))
             return snippet.toString();
