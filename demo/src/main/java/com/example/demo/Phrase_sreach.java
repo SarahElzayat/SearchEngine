@@ -25,20 +25,23 @@ public class Phrase_sreach
     private static HashSet<String> ImportantWords;
 
 
+
+
+
     //Constructor
-    public Phrase_sreach()
-    {
+    public Phrase_sreach() throws JSONException {
         //connect to DB
         database=new MongoDB("SearchEngine","URLSWithHTML");
         database_Indexer=new MongoDB("SearchEngine","Indexer");
         porterStemmer = new PorterStemmer();
         stopWords=Indexer.getStopWords();
         ImportantWords=Indexer.getImportantword();
+
     }
     //Gets Urls that contain the Phrase, The snippets ,The DF for each Word
     //return -1 if one No website conatin one of the words of the Phrase and 0 sucess
     //But Note still the Original Results may be empty if the Phrase isn't found in The URLS
-    public int Phrase_Search(String QP_str, HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
+    public int Phrase_Search(String QP_str, HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls,Vector<Integer>DF,HashMap<String, Document> shosho ) throws JSONException {
         long time1 =System.currentTimeMillis();
 
         Vector<String>Steam_Words_Arr=new Vector<>();
@@ -112,7 +115,7 @@ public class Phrase_sreach
 
         long time2 =System.currentTimeMillis();
         System.out.println("\nTime after our work:"+(time2-time1));
-        phrase_Search_work(finalword,docarr,Original_Results,snippet_for_all_urls);
+        phrase_Search_work(finalword,docarr,Original_Results,snippet_for_all_urls,shosho);
         long time3 =System.currentTimeMillis();
         System.out.println("\nTime here:"+(time3-time2));
         return 1;
@@ -121,7 +124,7 @@ public class Phrase_sreach
 
     //*********************************************Private Functions
     //Phrase Search Work ==>Original Results(URLS that Contain Exact Phrase) , Snippet fo each URL
-    private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls) throws JSONException
+    private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls,HashMap<String, Document> shosho) throws JSONException
     {
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
@@ -154,25 +157,28 @@ public class Phrase_sreach
 
 
 
-        long time3 =System.currentTimeMillis();
-        HashMap<String,JSONArray> bodies = new HashMap<String,JSONArray>();
+//        long time3 =System.currentTimeMillis();
+//        long time4 =System.currentTimeMillis();
+//        System.out.println("\nloop2:"+(time4-time3));
         //filing bodies and getting snippets
         //get Documents for those final word
-        FindIterable<Document>  DBresult = database.collection.find(new Document("_url", new BasicDBObject("$in",Urls.keySet())));
-        MongoCursor<Document> iterator = DBresult.iterator();
-        JSONArray body = null;
-        while (iterator.hasNext()) {
-            String s = iterator.next().toJson();
-            JSONObject Jsonobj = new JSONObject(s);
-            String url=Jsonobj.getString("_url");
-            bodies.put(url,Jsonobj.getJSONArray("_body"));
-        }
-        long time4 =System.currentTimeMillis();
-        System.out.println("\nloop2:"+(time4-time3));
+//        FindIterable<Document>  DBresult = database.collection.find(new Document("_url", new BasicDBObject("$in",Urls.keySet())));
+//        MongoCursor<Document> iterator = DBresult.iterator();
+//        JSONArray body = null;
+//        while (iterator.hasNext()) {
+//            String s = iterator.next().toJson();
+//            JSONObject Jsonobj = new JSONObject(s);
+//            String url=Jsonobj.getString("_url");
+//            bodies.put(url,Jsonobj.getJSONArray("_body"));
+//        }
+//        long time4 =System.currentTimeMillis();
+//        System.out.println("\nloop2:"+(time4-time3));
 
 
         //loop over all urls
         //O(n2)
+
+        long totaltime=0;
         long time5 =System.currentTimeMillis();
         for (Map.Entry<String, Integer> set : Urls.entrySet()) {
             Boolean common = true;
@@ -226,12 +232,19 @@ public class Phrase_sreach
                         {
                             //check order
                             int first_Index = compare_Json_array(TagArray);
+                            long Time10=System.currentTimeMillis();
                             if (first_Index != -1)//if true then this url is valid
                             {
                                 //add  this row to the resutlst to be returned
                                 Original_Results.put(url, new Vector<>(Temp_Original));
                                  //getting Snippet
-                                snippet_for_all_urls.add(snippet_url(bodies.get(url), first_Index));
+                                String s =shosho.get(url).toJson();
+                                JSONObject Jsonobj = new JSONObject(s);
+                               // snippet_for_all_urls.add(snippet_url(bodies.get(url), first_Index))
+                                long Time11=System.currentTimeMillis();
+                                totaltime+=Time11-Time10;
+                                 snippet_for_all_urls.add(snippet_url(Jsonobj.getJSONArray("_body"), first_Index));
+
                                 break;//break out of loop of searching for tags
                             }
                             //else//this Tag doesn't contain this Phrase==> go to another tag
@@ -246,6 +259,7 @@ public class Phrase_sreach
 
             Temp_Original.clear();
         }//end loop of urls
+        System.out.println("\nTotal==>:"+totaltime);
         long time6 =System.currentTimeMillis();
         System.out.println("\nloop3:"+(time6-time5));
 
@@ -343,7 +357,7 @@ public class Phrase_sreach
         query=query.trim();
 
         if(query.startsWith("\"") && query.endsWith("\"")) {
-            ps.Phrase_Search(query, Original_Results, snippet_for_all_urls, DF);
+//            ps.Phrase_Search(query, Original_Results, snippet_for_all_urls, DF);
         }
         long time2 =System.currentTimeMillis();
         System.out.println("\nTime"+(time2-time1));

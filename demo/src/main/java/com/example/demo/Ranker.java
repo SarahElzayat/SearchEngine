@@ -40,9 +40,8 @@ public class Ranker {
     MongoCollection<Document> crawlerCollection;
     MongoDatabase db;
     Vector<String> searchWords = new Vector<String>(0);
-    HashMap<String, Document> shosho = new HashMap<String, Document>(5007);
-
-    public Ranker() {
+    public static HashMap<String, Document> shosho = new HashMap<String, Document>(5007);
+    public Ranker() throws JSONException {
         String uri = "mongodb://localhost:27017";
         MongoClient mongo = MongoClients.create(uri);
         db = mongo.getDatabase("SearchEngine");
@@ -51,6 +50,10 @@ public class Ranker {
         FindIterable<Document> shoshoGet = db.getCollection("URLSWithHTML").find();
         for (Document doc : shoshoGet) {
             shosho.put(doc.get("_url").toString(), doc);
+//            String s=doc.toJson();
+//            JSONObject Jsonobj = new JSONObject(s);
+//            if(Jsonobj.has("_body"))
+//             bodies.put(doc.get("_url").toString(),Jsonobj.getJSONArray("_body"));
         }
     }
     public void Teamp_func() throws JSONException {
@@ -156,7 +159,7 @@ public class Ranker {
     public void getResults(String query) throws JSONException {
         if(query.startsWith("\"") && query.endsWith("\"")){
             long time1 =System.currentTimeMillis();
-           PhraseSearch.Phrase_Search(query,Original_Results,snippet_for_Phrase_Search,DF);
+           PhraseSearch.Phrase_Search(query,Original_Results,snippet_for_Phrase_Search,DF,shosho);
            System.out.println("No of URLS:"+Original_Results.size());
            Teamp_func();
             long time2 =System.currentTimeMillis();

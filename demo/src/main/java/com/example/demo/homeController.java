@@ -27,6 +27,9 @@ public class homeController {
     //    Phrase_sreach phraseSearch=new Phrase_sreach();
     Ranker r = new Ranker();
 
+    public homeController() throws JSONException {
+    }
+
     @GetMapping(value = "/")
     @ResponseBody
     public ModelAndView homePage() {
