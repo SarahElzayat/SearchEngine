@@ -28,8 +28,10 @@ public class queryprocessing {
         stopWords=Indexer.getStopWords();
         ImportantWords=Indexer.getImportantword();
     }
-    public  Vector<String> query_process(String QP_str,Vector<Vector<JSONObject>>resultorginal,Vector<Vector<JSONObject>> resultforms,Vector<Vector<JSONObject>>NonCommon,Vector<Integer>DF,Vector<Vector<String>>snippet_for_all_urls,Vector<Vector<String>>snippet_for_all_urls_forms,Vector<Vector<String>>snippet_for_all_urls_Non_Common) throws JSONException {
+    public  Vector<String> query_process(String QP_str,HashMap<String,Vector<JSONObject>> Original_Results, HashMap<String, Vector<JSONObject>> Steam_Results,HashMap<String, Vector<JSONObject>> NonCommon_Results,Vector<Integer>DF,Vector<Vector<String>>snippet_for_all_urls,Vector<Vector<String>>snippet_for_all_urls_forms,Vector<Vector<String>>snippet_for_all_urls_Non_Common) throws JSONException {
         Boolean Notfound=false;
+
+        HashMap<String ,JSONObject>Snippets_and_DF=new HashMap<>();
         String[] words = (QP_str).toLowerCase().split("\\s");//splits the string based on whitespace
         Vector<String>finalword=new Vector<String>(1);
         Vector<JSONArray>docarr=new Vector<JSONArray>(1);
@@ -77,24 +79,40 @@ public class queryprocessing {
         }
 //            for(int k=0;k<docarr.size();k++)
 //                System.out.println("docarr:" + docarr.get(k));
-        query_process_work(finalword,docarr,resultorginal,resultforms,NonCommon,Notfound);
-        extract_Common_Array_tags(finalword,resultorginal,snippet_for_all_urls);
-        extract_Steaming_Array_tags(resultforms,snippet_for_all_urls_forms);
-        extract_Steaming_Array_tags(NonCommon,snippet_for_all_urls_Non_Common);
+        query_process_work(finalword,docarr,Original_Results,Steam_Results,NonCommon_Results,Notfound);
+//        extract_Common_Array_tags(finalword,resultorginal,snippet_for_all_urls);
+//        extract_Steaming_Array_tags(resultforms,snippet_for_all_urls_forms);
+//        extract_Steaming_Array_tags(NonCommon,snippet_for_all_urls_Non_Common);
         return finalword;
     }
-    private void query_process_work(  Vector<String>words, Vector<JSONArray> docarr, Vector<Vector<JSONObject>> resultorginal,Vector<Vector<JSONObject>>  resultforms,Vector<Vector<JSONObject>>NonCommon,Boolean not_Found) throws JSONException {
+    private void query_process_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String, Vector<JSONObject>> Original_Results, HashMap<String, Vector<JSONObject>> Steam_Results,HashMap<String, Vector<JSONObject>> NonCommon_Results,Boolean not_Found) throws JSONException {
 
-        Vector<JSONObject> tempNonCommon = new Vector<JSONObject>(1);
-        Vector<JSONObject> temporginal = new Vector<JSONObject>(1);
-        Vector<JSONObject> tempform = new Vector<JSONObject>(1);
+        HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
+
+//        HashMap<String, Vector<JSONObject>> Original_Results = new HashMap<String, Vector<JSONObject>>();
+//        HashMap<String, Vector<JSONObject>> Steam_Results = new HashMap<String, Vector<JSONObject>>();
+//        HashMap<String, Vector<JSONObject>> NonCommon_Results = new HashMap<String, Vector<JSONObject>>();
+
+
+        Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
+        Vector<JSONObject> Temp_Steam = new Vector<JSONObject>(0);
+        Vector<JSONObject> Temp_NonCommon = new Vector<JSONObject>(0);
+
+
+//        Vector<JSONObject> temporginal = new Vector<JSONObject>(1);
+//        Vector<JSONObject> tempNonCommon = new Vector<JSONObject>(1);
+//        Vector<JSONObject> tempform = new Vector<JSONObject>(1);
+
         //unique urls
         HashMap<String, Integer> Urls = new HashMap<String, Integer>();
+        //loop over each word
+        //O(n2)
         for (int j = 0; j < docarr.size(); j++) {
-            //each document
+            HashMap<String, JSONObject> HashMap_Word = new HashMap<>();
+            //loop over each url for this word
             for (int k = 0; k < docarr.get(j).length(); k++) {
-                //each url of it\
                 String url = docarr.get(j).getJSONObject(k).getString("_url");
+                HashMap_Word.put(docarr.get(j).getJSONObject(k).getString("_url"), docarr.get(j).getJSONObject(k));
                 //getting Frequency
                 Integer freq = Urls.get(url);
                 if (freq == null)
@@ -102,76 +120,62 @@ public class queryprocessing {
                 freq++;
                 Urls.put(url, freq);
             }
+            Inedxer_Results.put(words.get(j), HashMap_Word);
         }
 
         //loop over all urls
+        //O(n2)
         for (Map.Entry<String, Integer> set : Urls.entrySet()) {
+//            boolean common = true;
+//            boolean original = false;
             String url = set.getKey();
-            //loop over documents of words
-            boolean common = true;
-            boolean original = false;
+            Integer freq = set.getValue();
+            //loop over all words in the query
             for (int i = 0; i < docarr.size(); i++) {
                 //loop over all urls of this word to compare with url
-                JSONArray wordDocs = docarr.get(i);
-                int j;
-                for (j = 0; j < wordDocs.length(); j++) {
-                    if (url.equals(wordDocs.getJSONObject(j).getString("_url"))) {
-
-                        Integer freq = set.getValue();
-                        if (freq < words.size())//non common
-                        {
-                            common=false;
-                            tempNonCommon.add(wordDocs.getJSONObject(j));
-                            //break;
-                        }
-                        //common
-                        //original or steam
-                        else if (wordDocs.getJSONObject(j).has(words.get(i))) {
-                            original = true;
-                        }
-
-                        break;
+                //get this url for this word
+                //Getting hashmap of this word
+                String Query_Word = words.get(i);
+                JSONObject word_Url = Inedxer_Results.get(Query_Word).get(url);
+                if (word_Url == null) {//this word isn't in this url
+//                    common = false;
+                } else {//this word is in this url
+                    if (freq < words.size())//non common
+                    {
+                        Temp_NonCommon.add(word_Url);
+                    }
+                    else if (word_Url.has(Query_Word))//has original form like word in the query
+                    {
+                        Temp_Original.add(word_Url);
+                    } else {//this word's stem is in the url
+                        Temp_Steam.add(word_Url);
                     }
                 }
-
-                if(j==wordDocs.length()) //this link doesn't contain the original or even the stem of words(j)
-                    continue;
-                if(!common)
-                    continue;
-                if (original) {
-                    temporginal.add(wordDocs.getJSONObject(j));
-                } else {
-                    tempform.add(wordDocs.getJSONObject(j));
-                }
             }
-            if(tempNonCommon.size()!=0)
+            if(Temp_NonCommon.size()!=0)
             {
-                NonCommon.add(new Vector<JSONObject>(tempNonCommon));
+                NonCommon_Results.put(url,new Vector<JSONObject>(Temp_NonCommon));
             }
-            //is orignal for all words
-            else if (temporginal.size() == words.size())
+            else if(Temp_Original.size()==words.size())//Original URL
             {
                 if(not_Found)
-                    NonCommon.add(new Vector<JSONObject>(temporginal));
+                    NonCommon_Results.put(url,new Vector<JSONObject>(Temp_Original));
                 else
-                resultorginal.add(new Vector<JSONObject>(temporginal));
-            } else
-            {
-
-                    tempform.addAll(temporginal);
-                if(not_Found)
-                    NonCommon.add(new Vector<JSONObject>(tempform));
-                else
-                resultforms.add(new Vector<JSONObject>(tempform));
+                    Original_Results.put(url,new Vector<JSONObject>(Temp_Original));
             }
-            tempform.clear();
-            temporginal.clear();
-            tempNonCommon.clear();
-
-//            System.out.println(Urls);
-//            System.out.println(Urls.size());
+            else{//Non Orignal
+                Temp_Steam.addAll(Temp_Original);
+                if(not_Found)
+                    NonCommon_Results.put(url,new Vector<JSONObject>(Temp_Steam));
+                else
+                    Steam_Results.put(url,new Vector<JSONObject>(Temp_Steam));
+            }
+            Temp_Original.clear();
+            Temp_NonCommon.clear();
+            Temp_Steam.clear();
         }
     }
+
     public Vector<String> snippet_url(JSONArray body,Vector<Integer>Start_index) throws JSONException
     {
         Vector<String>all_Sinppet=new Vector<>(1);
@@ -284,11 +288,11 @@ public class queryprocessing {
 
     public static void main(String[] args) throws JSONException {
 
-        long time = System.nanoTime();
+        long time = System.currentTimeMillis();
         System.out.println("\ntimeeee" + time);
 
         queryprocessing q = new queryprocessing();
-        String query = "c++ zeinab";
+        String query = "virus";
         query = query.trim();
 
         Vector<Vector<org.json.JSONObject>> resultorginal = new Vector<Vector<org.json.JSONObject>>(1);
@@ -301,9 +305,9 @@ public class queryprocessing {
         if (query.startsWith("\"") && query.endsWith("\"")) {
             //  phraseSearch.Phraseprocess(query);
         } else {
-            q.query_process(query, resultorginal, resultforms, NonCommon, DF, snippet_for_all_urls, snippet_for_all_urls_forms, snippet_for_all_urls_Non_common);
+            //q.query_process(query, resultorginal, resultforms, NonCommon, DF, snippet_for_all_urls, snippet_for_all_urls_forms, snippet_for_all_urls_Non_common);
         }
-        long time2 = System.nanoTime();
+        long time2 = System.currentTimeMillis();
         System.out.println("\ntimeafter" + (time2 - time));
 
 
@@ -334,7 +338,7 @@ public class queryprocessing {
                 System.out.println(m);
             }
             System.out.println(snippet_for_all_urls_Non_common.get(m));
-    }
+        }
 
     }
 

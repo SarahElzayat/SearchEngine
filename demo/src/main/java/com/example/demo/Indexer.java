@@ -61,9 +61,8 @@ public class Indexer {
         tagsnames.add("p");
         //connect to DB
         database_Index=new MongoDB("SearchEngine","Indexer");
-//        database_Index=new MongoDB("SearchEngine","Index");
         database_Crawler=new MongoDB("SearchEngine","URLSWithHTML");
-//        database_Crawler=new MongoDB("SearchEngine","try");
+
 
     }
 
