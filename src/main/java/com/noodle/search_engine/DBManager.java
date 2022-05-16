@@ -30,7 +30,7 @@ public class DBManager {
 
     FindIterable<Document> ddd = URLSWithHTML.find();
     for (Document ff : ddd) {
-      urls.add((String) ff.get("_url"));
+      urls.add((String) ff.get("_id"));
     }
   }
       public void retrieveSeeds(HashSet<String> urls){
@@ -63,9 +63,14 @@ public class DBManager {
     Document s =
         new Document // ("_id", id)
             // .append
-            ("_url", url)
+            ("_id", url)
             .append("html", html).append("popularity",1).append("title",title);
+    try{
     URLSWithHTML.insertOne(s);
+    }
+    catch (Exception e){
+//      System.out.println("YALAHWWYYYYYY");
+    }
   }
 
   public void insertInFetchedurls(String url, int state) { // (long id, String url, int state ){
@@ -110,7 +115,7 @@ public class DBManager {
   public void updatePopularity(Document doc, String url) {
     //        returnDocwithstate(id,doc,2);
     Document find0;
-    find0 = new Document("_url", url);
+    find0 = new Document("_id", url);
     // System.out.println(state);
     Document increase = new Document("$inc", doc);
     // System.out.println(doc.toString());
@@ -124,7 +129,7 @@ public class DBManager {
     }
   }
 
-  public void updateSeed(String html, ObjectId id ){
+  public void updateSeed(String html, String id ){
 
     Document update = new Document();
     update.append("$set", new Document().append("html", html));

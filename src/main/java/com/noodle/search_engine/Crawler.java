@@ -25,7 +25,8 @@ public class Crawler extends Thread {
   static HashSet<String> hashedHTMLS = new HashSet<>(5100);
 
   Object obj = new Object();
-
+  public static final String TEXT_BLUE = "\u001B[34m";
+  public static final String TEXT_RESET = "\u001B[0m";
   static long URLSWithHTMLID;
 
   Crawler(DBManager db, RobotsManager rb) throws IOException {
@@ -44,6 +45,7 @@ public class Crawler extends Thread {
       }
       currentID = (ObjectId) returnedDoc.get("_id");
       System.out.println("Current ID: @run" + currentID);
+
       if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
 
         dbMongo.updatePopularity(new Document("popularity", 1), returnedDoc.get("_url").toString());
@@ -65,7 +67,7 @@ public class Crawler extends Thread {
                 .timeout(5000)
                 .get(); // fetch the link html source
         if (!doc.toString().toLowerCase().contains("<!doctype html>")
-            || !(doc.toString().toLowerCase().contains("lang=\"en"))) {
+            || !(doc.toString().toLowerCase().contains(" lang=\"en"))) {
           System.out.println("@Run doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           continue;
@@ -78,17 +80,9 @@ public class Crawler extends Thread {
             hashedHTMLS.add(encryptedHTML);
             URLSWithHTMLID++;
             System.out.println("URLS HTML ID: " + URLSWithHTMLID);
-          }
-
-          if (URLSWithHTMLID < 6) {
-            System.out.println("URLSWithHTMLID < 6");
+            System.out.println(TEXT_BLUE + "FROM THREAD " + currentThread()+" "+returnedDoc.get("_url").toString()+TEXT_RESET);
             dbMongo.insertIntoDBHtmls(
                 returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
-          } else {
-            System.out.println("URLSWithHTMLID >>>> 6");
-
-            dbMongo.insertIntoDBHtmls(
-                returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML); // , "");
           }
           System.out.println(
               "THREAD: "
@@ -161,71 +155,31 @@ public class Crawler extends Thread {
 
   //  public static String encryptThisString(String input) {
   public static String encryptThisString(org.jsoup.nodes.Document input) {
-    //    try {
-    //      // getInstance() method is called with algorithm SHA-1
-    //      MessageDigest md = MessageDigest.getInstance("SHA-1");
-    //
-    //      // digest() method is called
-    //      // to calculate message digest of the input string
-    //      // returned as array of byte
-    //      byte[] messageDigest = md.digest(input.getBytes());
-    //
-    //      // Convert byte array into signum representation
-    //      BigInteger no = new BigInteger(1, messageDigest);
-    //
-    //      // Convert message digest into hex value
-    //      String hashtext = no.toString(16);
-    //
-    //      // Add preceding 0s to make it 32 bit
-    //      while (hashtext.length() < 32) {
-    //        hashtext = "0" + hashtext;
-    //      }
-    //      // return the HashText
 
-    //      return hashtext;
-    // temp.append("header",Jsoup.parse(shosho.get(s).get("html").toString()).title()
     if (input.title().equals("")) return input.attr("title");
     return input.title();
-
-    //    hashedHTMLS.add(s);
-
-    // For specifying wrong message digest algorithms
-    //    catch (NoSuchAlgorithmException e) {
-    //      throw new RuntimeException(e);
-    //    }
-    //  int i=0;
-    //    Elements el = input.select("a[href]");
-    //    String s = "";
-    //    for (Element lis : el) {
-    //      s+= lis.attr("href");
-    //      i++;
-    //      if(i>20);
-    //      break;
-    //    }
-    //    return s;
-
   }
 
   public void recrawlSeeds() throws IOException {
     FindIterable<Document> documents = dbMongo.URLSWithHTML.find().limit(6);
     ObjectId tempID;
     for (Document doc : documents) {
-      String url = doc.get("_url").toString();
-      tempID = (ObjectId) doc.get("_id");
+      String url = doc.get("_id").toString();
+//      tempID = (ObjectId) doc.get("_id");
       org.jsoup.nodes.Document temp;
       temp = Jsoup.connect(url).get();
       //      String encryptedHTML = encryptThisString(temp.toString());
-      String encryptedHTML = encryptThisString(temp);
+//      String encryptedHTML = encryptThisString(temp);
       //      String tempEncrypted = encryptThisString(doc.get("html").toString());
-      String tempEncrypted =
-          encryptThisString(org.jsoup.nodes.Document.createShell(doc.get("html").toString()));
-      if (!encryptedHTML.equals(tempEncrypted)) {
-        dbMongo.updateSeed(temp.toString(), tempID);
+//      String tempEncrypted =
+//          encryptThisString(org.jsoup.nodes.Document.createShell(doc.get("html").toString()));
+//      if (!encryptedHTML.equals(tempEncrypted)) {
+        dbMongo.updateSeed(temp.toString(), url);
 
         System.out.println("Updated document url " + url);
       }
     }
-  }
+
 
   public static void main(String[] args)
       throws IOException, URISyntaxException, InterruptedException {

@@ -44,7 +44,7 @@ public class Ranker {
         rankerCollection = db.getCollection("Ranker");
         FindIterable<Document> shoshoGet = db.getCollection("URLSWithHTML").find();
         for (Document doc : shoshoGet) {
-            shosho.put(doc.get("_url").toString(), doc);
+            shosho.put(doc.get("_id").toString(), doc);
         }
     }
 
