@@ -42,7 +42,7 @@ public class Phrase_sreach
     //return -1 if one No website conatin one of the words of the Phrase and 0 sucess
     //But Note still the Original Results may be empty if the Phrase isn't found in The URLS
     public int Phrase_Search(String QP_str, HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
-        long time1 =System.currentTimeMillis();
+        long time01 =System.currentTimeMillis();
 
         Vector<String>Steam_Words_Arr=new Vector<>();
         //remove quotations
@@ -52,7 +52,7 @@ public class Phrase_sreach
         QP_str=To_remove_space.toString();
 
         //Preprocessing the Query
-        String[] words = (QP_str).toLowerCase().split("\\s");//splits the string based on whitespace
+        String[] words = (QP_str).toLowerCase().split("\\s+");//splits the string based on whitespace
         Vector<String>finalword=new Vector<String>(0);
 
         for (int i = 0; i < words.length; i++)
@@ -61,7 +61,7 @@ public class Phrase_sreach
             {
                 words[i] = words[i].replaceAll("[^a-zA-Z0-9]", " ");
                 //System.out.println(words[i]);
-                String[] subwords = words[i].split("\\s");//splits the string based on whitespace
+                String[] subwords = words[i].split("\\s+");//splits the string based on whitespace
                 for (String sw : subwords)
                 {
                     if (stopWords.contains(sw))
@@ -72,20 +72,6 @@ public class Phrase_sreach
                     String stemw = porterStemmer.stem(sw);
                     Steam_Words_Arr.add(stemw);
                     finalword.add(sw);
-//                    Document DBresult = database_Indexer.collection.find(new Document("_id", stemw)).first();
-//                    if (DBresult != null)
-//                    {
-//                        // System.out.println(stemw);
-//                        JSONObject obj = new JSONObject(DBresult.toJson());
-//                        JSONArray arr = obj.getJSONArray("DOC");
-//
-//                        DF.add(obj.getInt("DF"));
-//                        docarr.add(arr);
-//                    }
-//                    else{
-//                       // Notfound=true;
-//                       return  -1;
-//
                 }
             }
             else{
@@ -96,7 +82,6 @@ public class Phrase_sreach
         }//end of loop
 
         //get Documents for those final word
-//        Vector<JSONArray>docarr=new Vector<JSONArray>(finalword.size());
         JSONArray[]docarr_Array=new JSONArray[finalword.size()];
         FindIterable<Document>  DBresult = database_Indexer.collection.find(new Document("_id", new BasicDBObject("$in",(Steam_Words_Arr))));
         MongoCursor<Document> iterator = DBresult.iterator();
@@ -118,18 +103,15 @@ public class Phrase_sreach
 //                System.out.println("docarr:" + docarr.get(k));
 
 
-        long time2 =System.currentTimeMillis();
-        System.out.println("\nTime after our work:"+(time2-time1));
         phrase_Search_work(finalword,new Vector<JSONArray>(List.of(docarr_Array)),Original_Results,snippet_for_all_urls);
-        long time3 =System.currentTimeMillis();
-        System.out.println("\nTime here:"+(time3-time2));
+        long time03 =System.currentTimeMillis();
+        System.out.println("\nTime to phrase query:"+(time03-time01));
         return 1;
     }
 
 
     //*********************************************Private Functions
-    //Phrase Search Work ==>Original Results(URLS that Contain Exact Phrase) , Snippet fo each URL
-    private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls) throws JSONException
+     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls) throws JSONException
     {
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
@@ -157,7 +139,7 @@ public class Phrase_sreach
             Inedxer_Results.put(words.get(j), HashMap_Word);
         }
         long time2 =System.currentTimeMillis();
-        System.out.println("\nloop1:"+(time2-time1));
+      long loop1=time2-time1;
 
 
 
@@ -182,18 +164,20 @@ public class Phrase_sreach
             bodies.put(doc.getString("_id"),doc.getString("_body"));
         }
         long time4 =System.currentTimeMillis();
-        System.out.println("\nloop2:"+(time4-time3));
+        long loop2=time4-time3;
 
 
         //loop over all urls
         //O(n2)
         long totaltime=0;
         long time5 =System.currentTimeMillis();
+        long totaltime1=0;
         for (Map.Entry<String, Integer> set : Urls.entrySet()) {
             Boolean common = true;
             String url = set.getKey();
             Integer freq = set.getValue();
             //loop over all words in the query
+            long time20=System.currentTimeMillis();
             for (int i = 0; i < docarr.size(); i++) {
                 //loop over all urls of this word to compare with url
                 //Getting hashmap of this word
@@ -211,8 +195,10 @@ public class Phrase_sreach
                         break;
                     }
                 }
-            }
+            }long time30=System.currentTimeMillis();
+            totaltime1=time20-time30;
 
+            long time40=System.currentTimeMillis();
             boolean Valid_URL=false;
             if (Temp_Original.size() == words.size())//Valid URL
             {
@@ -269,6 +255,8 @@ public class Phrase_sreach
         }//end loop of urls
         System.out.println("\nTotal==>:"+totaltime);
         long time6 =System.currentTimeMillis();
+        System.out.println("\nloop1"+loop1);
+        System.out.println("\nloop2"+loop2);
         System.out.println("\nloop3:"+(time6-time5));
 
 

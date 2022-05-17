@@ -83,7 +83,7 @@ public class Indexer {
             String[] word = (element.ownText().split("\\s+"));//splits the string based on whitespace
 
             String tag=element.tagName();
-            List<String>words=Arrays.asList(word) ;
+//            List<String>words=Arrays.asList(word) ;
             boolean take=false;
             if (!tagsnames.contains(tag)) {
 
