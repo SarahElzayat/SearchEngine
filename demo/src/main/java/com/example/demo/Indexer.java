@@ -67,7 +67,7 @@ public class Indexer {
     }
 
     public void Index(String url,String source_str) throws IOException {
-        Bson filter=eq("_url",url);
+        StringBuffer body_String=new StringBuffer("");
         int no_Of_Words=0;
         int position=0;
         org.jsoup.nodes.Document doc= Jsoup.parse(source_str,"UTF-8");
@@ -92,11 +92,11 @@ public class Indexer {
                 }
                 else continue;
             }
-            Bson update2 = Updates.pushEach("_body",words);
-            database_Crawler.collection.updateMany(filter, update2);
+//            Bson update2 = Updates.pushEach("_body",words);
+//            database_Crawler.collection.updateMany(filter, update2);
             //each word in the par
             for (int i = 0; i < word.length; i++) {//all words
-
+                body_String.append(word[i]+" ");
                 String search_word=word[i].toLowerCase();
                 search_word=search_word.trim();
 
@@ -130,8 +130,13 @@ public class Indexer {
 //        MongoCursor<Document> cursor = database_Index.collection.find().iterator();
 //        while (cursor.hasNext()) {
 //            System.out.println("collection is " +cursor.next() );}
-
-        Bson update2 = Updates.set("NoOfWords",no_Of_Words);
+        String body;
+        if(body_String.length()==0)
+            body=body_String.toString();
+        else
+            body=body_String.deleteCharAt(body_String.length()-1).toString();
+        Bson filter=eq("_id",url);
+        Bson update2=Updates.combine(Updates.set("NoOfWords",no_Of_Words),Updates.set("_body",body));
         database_Crawler.collection.updateMany(filter, update2);
     }
 
@@ -170,7 +175,7 @@ public class Indexer {
         FindIterable<Document> itratdoc=database_Crawler.collection.find();
         for (Document d:itratdoc)
         {
-            Index(d.get("_url").toString(),d.get("html").toString());
+            Index(d.get("_id").toString(),d.get("html").toString());
             i++;
             System.out.println("\n\n"+i+"\n\n");
         }
