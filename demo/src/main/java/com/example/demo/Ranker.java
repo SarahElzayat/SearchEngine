@@ -17,7 +17,8 @@ public class Ranker {
 
 
     HashMap<String, Vector<JSONObject>> Original_Results=new HashMap<>();
-    Vector<String> snippet_for_Phrase_Search = new Vector<String>(0);
+    HashMap<String,String> snippet_for_Phrase_Search = new HashMap<String,String>(0);
+//    Vector<String> snippet_for_Phrase_Search = new Vector<String>(0);
     Vector<Integer> DF = new Vector<Integer>(0); // EH DA?
 
 
@@ -55,6 +56,7 @@ public class Ranker {
     public void Teamp_func() throws JSONException {
 
 
+
         String url = new String();
         Iterator<String> it=Original_Results.keySet().iterator();
         int i=-1;
@@ -66,7 +68,7 @@ public class Ranker {
             Document temp = new Document();
             temp.append("url", url);//s=>url
             temp.append("header", Jsoup.parse(shosho.get(url).get("html").toString()).title());
-            temp.append("paragraph", snippet_for_Phrase_Search.get(i));
+            temp.append("paragraph", snippet_for_Phrase_Search.get(url));
             temp.append("rank", 1);
             rankerCollection.insertOne(temp);
         }

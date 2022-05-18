@@ -41,7 +41,7 @@ public class Phrase_sreach
     //Gets Urls that contain the Phrase, The snippets ,The DF for each Word
     //return -1 if one No website conatin one of the words of the Phrase and 0 sucess
     //But Note still the Original Results may be empty if the Phrase isn't found in The URLS
-    public int Phrase_Search(String QP_str, HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
+    public int Phrase_Search(String QP_str, HashMap<String,Vector<JSONObject>> Original_Results,HashMap<String,String> snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
         long time01 =System.currentTimeMillis();
 
         Vector<String>Steam_Words_Arr=new Vector<>();
@@ -111,8 +111,7 @@ public class Phrase_sreach
 
 
     //*********************************************Private Functions
-     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>> Original_Results,Vector<String>snippet_for_all_urls) throws JSONException
-    {
+     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>> Original_Results,HashMap<String,String> snippet_for_all_urls) throws JSONException  {
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
 
@@ -235,7 +234,7 @@ public class Phrase_sreach
 //                                 //getting Snippet
 //                                String s =shosho.get(url).toJson();
 //                                JSONObject Jsonobj = new JSONObject(s);
-                                snippet_for_all_urls.add(snippet_url(bodies.get(url), first_Index));
+                                snippet_for_all_urls.put(url,snippet_url(bodies.get(url), first_Index));
                                 // snippet_for_all_urls.add(snippet_url(Jsonobj.getJSONArray("_body"), first_Index));
                                 long Time11=System.currentTimeMillis();
                                 totaltime+=Time11-Time10;
@@ -347,7 +346,8 @@ public class Phrase_sreach
     public static void main(String[] args) throws JSONException {
 
         HashMap<String,Vector<JSONObject>> Original_Results=new HashMap<>();
-        Vector<String>snippet_for_all_urls =new Vector<String>(0);
+        HashMap<String,String>snippet_for_all_urls =new HashMap<>(0);
+//        Vector<String>snippet_for_all_urls =new Vector<String>(0);
         Vector<Integer> DF=new Vector<Integer>(0);
 
         long time1=System.currentTimeMillis();
@@ -374,7 +374,7 @@ public class Phrase_sreach
             for (int k = 0; k < Documnets_for_this_url.size(); k++) {
                 System.out.println("Phase search:" + Documnets_for_this_url.get(k));
             }
-            System.out.println(snippet_for_all_urls.get(i)+"\n\n");//snippet
+            System.out.println(snippet_for_all_urls.get(url)+"\n\n");//snippet
         }
     }
 }
