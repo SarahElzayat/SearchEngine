@@ -3,7 +3,7 @@ package com.noodle.search_engine;
 
 
 
-import com.ibm.icu.impl.Assert;
+//import com.ibm.icu.impl.Assert;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

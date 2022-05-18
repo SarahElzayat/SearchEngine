@@ -266,6 +266,9 @@ public class queryprocessing {
             for (int j = 0; j < Words_Documents.size(); j++) {
                 Iterator<String> iter = Words_Documents.get(j).keys();
                 String key = iter.next().toString();
+                while(key.equals("_url")) {
+                    key = iter.next().toString();
+                }
                 docarr[j] = Words_Documents.get(j).getJSONObject(key);
                 Indexer Id = new Indexer();
                 Iterator<String> it = Id.tagsnames.iterator();

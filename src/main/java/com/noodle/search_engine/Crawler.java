@@ -66,8 +66,11 @@ public class Crawler extends Thread {
                 .ignoreHttpErrors(true)
                 .timeout(5000)
                 .get(); // fetch the link html source
+//        Jsoup.connect(returnedDoc.get("_url").toString()).header("Accept-Language", "en");
+
         if (!doc.toString().toLowerCase().contains("<!doctype html>")
-            || !(doc.toString().toLowerCase().contains(" lang=\"en"))) {
+            || !(doc.toString().toLowerCase().contains("<html lang=\"en"))) {
+
           System.out.println("@Run doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           continue;
@@ -106,6 +109,7 @@ public class Crawler extends Thread {
                     || firstLink.contains("signup")
                     || firstLink.contains("signin")
                     || firstLink.contains("help")
+                    || firstLink.contains("twitter")
                     || firstLink.contains("login"))) {
 
               URL temp = new URL(returnedDoc.get("_url").toString());
