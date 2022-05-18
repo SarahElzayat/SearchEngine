@@ -40,8 +40,8 @@ public class queryprocessing {
 
         HashMap<String ,JSONObject>Snippets_and_DF=new HashMap<>();
         String[] words = (QP_str).toLowerCase().split("\\s+");//splits the string based on whitespace
-        Vector<String>finalword=new Vector<String>(1);
-        Vector<JSONArray>docarr=new Vector<JSONArray>(1);
+        Vector<String>finalword=new Vector<String>(0);
+        Vector<JSONArray>docarr=new Vector<JSONArray>(0);
         for (int i = 0; i < words.length; i++)
         {
             if (!ImportantWords.contains(words[i]))
@@ -347,7 +347,7 @@ public class queryprocessing {
         HashMap<String, Vector<JSONObject>> NonCommon_Results=new HashMap<>();
 
 //        Vector<Vector<String>> snippet_for_all_urls = new Vector<Vector<String>>(1);
-        Vector<Integer> DF = new Vector<Integer>(1);
+        Vector<Integer> DF = new Vector<Integer>(0);
 //        Vector<Vector<String>> snippet_for_all_urls_forms = new Vector<Vector<String>>(1);
 //        Vector<Vector<String>> snippet_for_all_urls_Non_common = new Vector<Vector<String>>(1);
         HashMap<String,Vector<String>>Snipptes=new  HashMap<String,Vector<String>>();
