@@ -55,9 +55,10 @@ public class Ranker {
             url = it.next();
 //            i++;
             Vector<JSONObject> weights = Original_Results.get(url);//==> the original words only
-            float rank;
+            float rank=0;
             float headers = 0;
             for (int i = 0; i < weights.size(); i++) {
+                float internalRank =0;
                 if (weights.get(i).has("h1"))
                     headers += weights.get(i).getJSONArray("h1").length() + 100;
 
@@ -78,18 +79,20 @@ public class Ranker {
 
                 if (weights.get(i).has("p"))
                     headers += weights.get(i).getJSONArray("p").length();
-                rank = headers;
-                rank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
-                rank += DF.get(i) / 5000.0;
-                rank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
+                internalRank = headers;
+                internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
+                internalRank += DF.get(i) / 5000.0;
+                internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
+                rank += internalRank;
 
-                Document temp = new Document();
-                temp.append("url", url);//s=>url
-                temp.append("header", shosho.get(url).get("title"));
-                temp.append("paragraph", snippet_for_Phrase_Search.get(url));
-                temp.append("rank", rank);
-                rankerCollection.insertOne(temp);
             }
+            Document temp = new Document();
+            temp.append("url", url);//s=>url
+            temp.append("header", shosho.get(url).get("title"));
+            temp.append("paragraph", snippet_for_Phrase_Search.get(url));
+            temp.append("rank", rank);
+            rankerCollection.insertOne(temp);
+            rank =0;
         }
     }
 
@@ -101,10 +104,11 @@ public class Ranker {
 
         Iterator<String> it = vec.keySet().iterator();
 //        int i = -1;
-        float rank;
+        float rank=0;
         while (it.hasNext()) {
             url = it.next();
 //            i++;
+            float internalRank=0;
             Vector<JSONObject> weights = vec.get(url);//==> the original words only //loop
             for (int i = 0; i < weights.size(); i++) {
                 float headers = 0;
@@ -129,18 +133,20 @@ public class Ranker {
 
                 if (weights.get(i).has("p"))
                     headers += weights.get(i).getJSONArray("p").length();
-                rank = headers;
-                rank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
-                rank += DF.get(i) / 5000.0;
-                rank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
+                internalRank = headers;
+                internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
+                internalRank += DF.get(i) / 5000.0;
+                internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
+                rank += internalRank;
 
-                Document temp = new Document();
-                temp.append("url", url);//s=>url
-                temp.append("header", shosho.get(url).get("title"));
-                temp.append("paragraph", Snippets.get(url));
-                temp.append("rank", rank);
-                rankerCollection.insertOne(temp);
             }
+            Document temp = new Document();
+            temp.append("url", url);//s=>url
+            temp.append("header", shosho.get(url).get("title"));
+            temp.append("paragraph", Snippets.get(url));
+            temp.append("rank", rank);
+            rankerCollection.insertOne(temp);
+            rank =0;
         }
 
     }
@@ -153,7 +159,7 @@ public class Ranker {
             System.out.println("No of URLS:" + Original_Results.size());
             Teamp_func();
             long time2 = System.currentTimeMillis();
-            System.out.println("\nTime" + (time2 - time1));
+            System.out.println("\nTime " + (time2 - time1));
         } else {
             HashMap<String, Vector<JSONObject>> Steam_Results = new HashMap();
             HashMap<String, Vector<JSONObject>> NonCommon_Results = new HashMap();
@@ -161,13 +167,13 @@ public class Ranker {
 
             searchWords = queryProcessor.query_process(query, Original_Results, Steam_Results, NonCommon_Results, DF, Snippets);
             long time2 = System.currentTimeMillis();
-            System.out.println("\nTime1" + (time2 - time1));
+            System.out.println("\nTime1 " + (time2 - time1));
             time1 = System.currentTimeMillis();
             calculateRank(Original_Results);
             calculateRank(Steam_Results);
             calculateRank(NonCommon_Results);
             time2 = System.currentTimeMillis();
-            System.out.println("\nTime2" + (time2 - time1));
+            System.out.println("\nTime2 " + (time2 - time1));
 
         }
         Original_Results.clear();
