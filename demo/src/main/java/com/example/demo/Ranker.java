@@ -22,15 +22,16 @@ public class Ranker {
     Vector<Integer> DF = new Vector<Integer>(0); // EH DA?
 
 
-    Vector<Vector<JSONObject>> originalResults = new Vector<Vector<org.json.JSONObject>>(0);;
-    Vector<Vector<org.json.JSONObject>> stemmedResults = new Vector<Vector<org.json.JSONObject>>(0);
-    Vector<Vector<JSONObject>> nonCommon = new Vector<Vector<org.json.JSONObject>>(0);
+//    Vector<Vector<JSONObject>> originalResults = new Vector<Vector<org.json.JSONObject>>(0);;
+//    Vector<Vector<org.json.JSONObject>> stemmedResults = new Vector<Vector<org.json.JSONObject>>(0);
+//    Vector<Vector<JSONObject>> nonCommon = new Vector<Vector<org.json.JSONObject>>(0);
     //DF
 //    Vector<Integer> DF = new Vector<Integer>(0); // EH DA?
     //Snipptes
-    Vector<Vector<String>> snippet_for_all_urls = new Vector<Vector<String>>(0);
-    Vector<Vector<String>> snippet_for_all_urls_forms = new Vector<Vector<String>>(0);
-    Vector<Vector<String>> snippet_for_all_urls_Non_common = new Vector<Vector<String>>(0);
+//    Vector<Vector<String>> snippet_for_all_urls = new Vector<Vector<String>>(0);
+//    Vector<Vector<String>> snippet_for_all_urls_forms = new Vector<Vector<String>>(0);
+//    Vector<Vector<String>> snippet_for_all_urls_Non_common = new Vector<Vector<String>>(0);
+    HashMap<String,Vector<String>>Snippets=new HashMap<>(0);
     //phrase Search Snippets
     Vector<String> getSnippet_for_Phrase_Search = new Vector<String>(0);
 
@@ -166,8 +167,8 @@ public class Ranker {
         {
             HashMap<String,Vector<JSONObject>>Steam_Results=new HashMap();
             HashMap<String,Vector<JSONObject>>NonCommon_Results=new HashMap();
-            searchWords = queryProcessor.query_process(query, Original_Results, Steam_Results, NonCommon_Results, DF, snippet_for_all_urls, snippet_for_all_urls_forms, snippet_for_all_urls_Non_common);
-            calculateRank(originalResults);
+            searchWords = queryProcessor.query_process(query, Original_Results, Steam_Results, NonCommon_Results, DF, Snippets);
+           // calculateRank(originalResults);
 //        calculateRank(stemmedResults);
 //        calculateRank(nonCommon);
         }

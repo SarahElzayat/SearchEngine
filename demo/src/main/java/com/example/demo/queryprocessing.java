@@ -33,7 +33,7 @@ public class queryprocessing {
         stopWords=Indexer.getStopWords();
         ImportantWords=Indexer.getImportantword();
     }
-    public  Vector<String> query_process(String QP_str,HashMap<String,Vector<JSONObject>> Original_Results, HashMap<String, Vector<JSONObject>> Steam_Results,HashMap<String, Vector<JSONObject>> NonCommon_Results,Vector<Integer>DF,Vector<Vector<String>>snippet_for_all_urls,Vector<Vector<String>>snippet_for_all_urls_forms,Vector<Vector<String>>snippet_for_all_urls_Non_Common) throws JSONException {
+    public  Vector<String> query_process(String QP_str,HashMap<String,Vector<JSONObject>> Original_Results, HashMap<String, Vector<JSONObject>> Steam_Results,HashMap<String, Vector<JSONObject>> NonCommon_Results,Vector<Integer>DF,HashMap<String,Vector<String>>Snippets) throws JSONException {
 
         Boolean Notfound=false;
         Vector<String>Steam_Words_Arr=new Vector<>();
@@ -111,10 +111,10 @@ public class queryprocessing {
 
 //            for(int k=0;k<docarr.size();k++)
 //                System.out.println("docarr:" + docarr.get(k));
-        query_process_work(finalword,docarr,Original_Results,Steam_Results,NonCommon_Results,Notfound);
-        extract_Common_Array_tags(finalword,Original_Results,snippet_for_all_urls);
-        extract_Steaming_Array_tags(Steam_Results,snippet_for_all_urls_forms);
-        extract_Steaming_Array_tags(NonCommon_Results,snippet_for_all_urls_Non_Common);
+        query_process_work(finalword,new Vector<JSONArray>(List.of(docarr_Array)),Original_Results,Steam_Results,NonCommon_Results,Notfound);
+        extract_Common_Array_tags(finalword,Original_Results,Snippets);
+        extract_Steaming_Array_tags(Steam_Results,Snippets);
+        extract_Steaming_Array_tags(NonCommon_Results,Snippets);
         return finalword;
     }
     private void query_process_work( Vector<String>words, Vector<JSONArray> docarr,  HashMap<String, Vector<JSONObject>> Original_Results, HashMap<String, Vector<JSONObject>> Steam_Results,HashMap<String, Vector<JSONObject>> NonCommon_Results, boolean not_Found) throws JSONException {
@@ -141,7 +141,7 @@ public class queryprocessing {
             //loop over each url for this word
             for (int k = 0; k < docarr.get(j).length(); k++) {
                 String url = docarr.get(j).getJSONObject(k).getString("_url");
-                HashMap_Word.put(docarr.get(j).getJSONObject(k).getString("_url"), docarr.get(j).getJSONObject(k));
+                HashMap_Word.put(url, docarr.get(j).getJSONObject(k));
                 //getting Frequency
                 Integer freq = Urls.get(url);
                 if (freq == null)
@@ -220,7 +220,7 @@ public class queryprocessing {
     }
 
 //    private void extract_Common_Array_tags(  Vector<String>finalword,Vector<Vector<org.json.JSONObject>> resultorginal,Vector<Vector<String>>snippet_for_all_urls) throws JSONException
-    private void extract_Common_Array_tags(  Vector<String>finalword,HashMap<String,Vector<JSONObject>>resultorginal ,Vector<Vector<String>>snippet_for_all_urls) throws JSONException
+    private void extract_Common_Array_tags(  Vector<String>finalword,HashMap<String,Vector<JSONObject>>resultorginal ,HashMap<String,Vector<String>>Snipptes) throws JSONException
     {
         for (Map.Entry<String, Vector<JSONObject>> url_entry : resultorginal.entrySet())
         {
@@ -245,11 +245,13 @@ public class queryprocessing {
                     }
                 }
             }
-            snippet_for_all_urls.add(snippet_url(bodies.get(url),Start_index));
+//            snippet_for_all_urls.add(snippet_url(bodies.get(url),Start_index));
+//            HashMap<String,Vector<String>>Snipptes
+            Snipptes.put(url,snippet_url(bodies.get(url),Start_index));
 
         }
     }
-    private void extract_Steaming_Array_tags(  HashMap<String,Vector<JSONObject>> resultforms,Vector<Vector<String>>snippet_for_all_urls_forms) throws JSONException
+    private void extract_Steaming_Array_tags(  HashMap<String,Vector<JSONObject>> resultforms,HashMap<String,Vector<String>>Snipptes) throws JSONException
     {
 
 
@@ -276,7 +278,7 @@ public class queryprocessing {
                     }
                 }
             }
-            snippet_for_all_urls_forms.add(snippet_url(bodies.get(url), Start_index));
+            Snipptes.put(url,snippet_url(bodies.get(url), Start_index));
         }
     }
 
@@ -299,6 +301,10 @@ public class queryprocessing {
             }
             StringBuffer snippet = new StringBuffer();
             int i = Start_index.get(j);
+            StringBuffer temp2=new StringBuffer(body[i]);
+            temp2.reverse();
+            snippet.append(temp2+" ");
+            i--;
             while (i >= 0 && !body[i].endsWith(".")) {
                 //snippet.insert(0,body.getString(i)+" ");
                 StringBuffer temp = new StringBuffer(body[i]);
@@ -340,15 +346,16 @@ public class queryprocessing {
         HashMap<String, Vector<JSONObject>> Steam_Results=new HashMap<>();
         HashMap<String, Vector<JSONObject>> NonCommon_Results=new HashMap<>();
 
-        Vector<Vector<String>> snippet_for_all_urls = new Vector<Vector<String>>(1);
+//        Vector<Vector<String>> snippet_for_all_urls = new Vector<Vector<String>>(1);
         Vector<Integer> DF = new Vector<Integer>(1);
-        Vector<Vector<String>> snippet_for_all_urls_forms = new Vector<Vector<String>>(1);
-        Vector<Vector<String>> snippet_for_all_urls_Non_common = new Vector<Vector<String>>(1);
+//        Vector<Vector<String>> snippet_for_all_urls_forms = new Vector<Vector<String>>(1);
+//        Vector<Vector<String>> snippet_for_all_urls_Non_common = new Vector<Vector<String>>(1);
+        HashMap<String,Vector<String>>Snipptes=new  HashMap<String,Vector<String>>();
         if (query.startsWith("\"") && query.endsWith("\"")) {
             //  phraseSearch.Phraseprocess(query);
         } else {
             long time = System.currentTimeMillis();
-            q.query_process(query, Original_Results, Steam_Results, NonCommon_Results, DF, snippet_for_all_urls, snippet_for_all_urls_forms, snippet_for_all_urls_Non_common);
+            q.query_process(query, Original_Results, Steam_Results, NonCommon_Results, DF, Snipptes);
             long time2 = System.currentTimeMillis();
             System.out.println("\ntime:" + (time2 - time));
         }
@@ -365,7 +372,8 @@ public class queryprocessing {
             for (int k = 0; k < Words_Documents.size(); k++) {
                 System.out.println("Orignal:" + Words_Documents.get(k));
             }
-            System.out.println(snippet_for_all_urls_forms.get(m));
+           // System.out.println(snippet_for_all_urls.get(m));
+            System.out.println(Snipptes.get(url));
         }
 
 
@@ -379,7 +387,8 @@ public class queryprocessing {
             for (int k = 0; k < Words_Documents.size(); k++) {
                 System.out.println("Steamed:" + Words_Documents.get(k));
             }
-            System.out.println(snippet_for_all_urls_forms.get(m));
+           // System.out.println(snippet_for_all_urls_forms.get(m));
+            System.out.println(Snipptes.get(url));
         }
 
 
@@ -395,7 +404,8 @@ public class queryprocessing {
             for (int k = 0; k < Words_Documents.size(); k++) {
                 System.out.println("NonCommon:" + Words_Documents.get(k));
             }
-            System.out.println(snippet_for_all_urls_Non_common.get(m));
+//            System.out.println(snippet_for_all_urls_Non_common.get(m));
+            System.out.println(Snipptes.get(url));
         }
     }
 

@@ -315,6 +315,10 @@ public class Phrase_sreach
 
         StringBuffer snippet=new StringBuffer();
         int i=start_index;
+        StringBuffer temp2=new StringBuffer(body[start_index]);
+        temp2.reverse();
+        snippet.append(temp2+" ");
+        i--;
         while (i>=0&&!body[i].endsWith(".")&&!body[i].endsWith(",")&&!body[i].endsWith("-"))
         {
             //snippet.insert(0,body.getString(i)+" ");
