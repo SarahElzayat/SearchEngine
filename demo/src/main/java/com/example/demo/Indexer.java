@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.*;
 
 //Elements
+import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Updates;
@@ -25,12 +26,9 @@ import com.mongodb.client.model.Projections;
 import java.lang.String;
 import com.mongodb.client.model.Sorts;//sort
 
-import static com.mongodb.client.model.Filters.and;
-import static com.mongodb.client.model.Filters.eq;//eq
 import com.mongodb.client.model.Updates;//update
 
-
-
+import static com.mongodb.client.model.Filters.*;
 
 
 public class Indexer {
@@ -100,7 +98,7 @@ public class Indexer {
                 String search_word=word[i].toLowerCase();
                 search_word=search_word.trim();
 
-                    if (!ImportantWords.contains(search_word))
+                if (!ImportantWords.contains(search_word))
                 {
                     search_word =search_word.replaceAll("[^a-zA-Z0-9]", " ");
                     String[] subwords = search_word.split("\\s+");//splits the string based on whitespace
@@ -221,5 +219,114 @@ public class Indexer {
             e.printStackTrace();
         }
         return impword;
+    }
+
+    public void ReIndex_Crawlar_New_URLS() throws IOException {
+
+        //Remove prvious version
+        FindIterable<Document> itratdoc_to_remove=database_Crawler.collection.find().skip((int) (database_Crawler.collection.countDocuments()-6));
+        Vector<String>old_URLs=new Vector<>();
+        int j=0;
+        for (Document d:itratdoc_to_remove)
+        {
+            String url=d.get("_id").toString();
+            ReIndex_URL(url,d.get("html").toString());
+            old_URLs.add(url);
+            j++;
+            System.out.println("\n\n"+j+"\n\n");
+        }
+        //remove these three last 6 documents from DB Crawlar
+//        database_Crawler.collection.deleteMany("_id",new BasicDBObject("$in",(old_URLs)));
+
+        int i=0;
+        FindIterable<Document> itratdoc=database_Crawler.collection.find().limit(6);
+        for (Document d:itratdoc)
+        {
+            Index(d.get("_id").toString(),d.get("html").toString());
+            i++;
+            System.out.println("\n\n"+i+"\n\n");
+        }
+    }
+
+
+
+    public void ReIndex_URL(String url,String source_str) throws IOException {
+        //StringBuffer body_String=new StringBuffer("");
+        //int no_Of_Words=0;
+        //int position=0;
+        org.jsoup.nodes.Document doc= Jsoup.parse(source_str,"UTF-8");
+        Elements bodyElements=doc.body().select("*");//select al tags in the body
+
+//        Elements Tags = doc.select("title , h1 , h2 , h3 , h4 , h5 , h6 , p");
+        //loop over all elements
+        for(Element element:bodyElements)
+        {
+            //basam Hate
+            if(element.ownText().isEmpty())
+                continue;
+            String[] word = (element.ownText().split("\\s+"));//splits the string based on whitespace
+
+            //String tag=element.tagName();
+//            List<String>words=Arrays.asList(word) ;
+//            boolean take=false;
+//            if (!tagsnames.contains(tag)) {
+//
+//                if(tagsnames.contains(element.parent().tagName())) {
+//                    tag=element.parent().tagName();
+//                }
+//                else continue;
+//            }
+//            Bson update2 = Updates.pushEach("_body",words);
+//            database_Crawler.collection.updateMany(filter, update2);
+            //each word in the par
+            for (int i = 0; i < word.length; i++) {//all words
+                //      body_String.append(word[i]+" ");
+                String search_word=word[i].toLowerCase();
+                search_word=search_word.trim();
+
+                if (!ImportantWords.contains(search_word))
+                {
+                    search_word =search_word.replaceAll("[^a-zA-Z0-9]", " ");
+                    String[] subwords = search_word.split("\\s+");//splits the string based on whitespace
+                    for (int j = 0; j < subwords.length; j++) {
+                        search_word=subwords[j];
+//                        if (search_word == null || search_word.trim().isEmpty()) {
+//                            continue;
+//                        }
+                        if (stopWords.contains(search_word)) {
+                            // no_Of_Words++;
+                            continue;
+                        }
+
+                        Remove_Words_Old_URL(search_word, url);
+//                        no_Of_Words++;
+                    }
+//                    position++;
+                } else {
+                    Remove_Words_Old_URL(search_word, url);
+                    // no_Of_Words++;
+                    //position++;
+                }
+            }
+        }
+//        String body;
+//        if(body_String.length()==0)
+//            body=body_String.toString();
+//        else
+//            body=body_String.deleteCharAt(body_String.length()-1).toString();
+//        Bson filter=eq("_id",url);
+//        Bson update2=Updates.combine(Updates.set("NoOfWords",no_Of_Words),Updates.set("_body",body));
+//        database_Crawler.collection.updateMany(filter, update2);
+    }
+
+
+    private void Remove_Words_Old_URL(String word,String url )
+    {
+        //steaming the word
+        String stemword = porterStemmer.stem(word);//hello
+        Document fillter=new Document("_id",stemword);
+        Document update =new Document("DOC",new Document("$pull",new Document("_url",url)));
+        database_Index.collection.updateOne(fillter,update);
+
     }
 }

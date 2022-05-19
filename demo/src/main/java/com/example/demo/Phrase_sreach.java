@@ -49,7 +49,7 @@ public class Phrase_sreach
     //Gets Urls that contain the Phrase, The snippets ,The DF for each Word
     //return -1 if one No website conatin one of the words of the Phrase and 0 sucess
     //But Note still the Original Results may be empty if the Phrase isn't found in The URLS
-    public int Phrase_Search(String QP_str, HashMap<String,JSONObject> Original_Results,HashMap<String,String> snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
+    public int Phrase_Search(String QP_str, HashMap<String,Vector<JSONObject>> Original_Results,HashMap<String,String> snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
         long time01 =System.currentTimeMillis();
 
         Vector<String>Steam_Words_Arr=new Vector<>();
@@ -115,7 +115,7 @@ public class Phrase_sreach
 
 
     //*********************************************Private Functions
-     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,JSONObject>Original_Results,HashMap<String,String> snippet_for_all_urls) throws JSONException  {
+     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>>Original_Results,HashMap<String,String> snippet_for_all_urls) throws JSONException  {
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
 
@@ -258,8 +258,9 @@ public class Phrase_sreach
                         TagArray.clear();
                         Tags_Indexes.clear();                  }
                 }//end of loop of tags
-
-            Original_Results.put(url, new JSONObject(String.valueOf(Weights_Of_Phrase)));
+                Vector<JSONObject> v=new Vector<>();
+                v.add(Weights_Of_Phrase);
+            Original_Results.put(url,new Vector<JSONObject>(v));
             }
             //else{} //==>Invlaid URL
 
