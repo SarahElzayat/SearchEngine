@@ -1,8 +1,4 @@
 package com.example.demo;
-/*import IndexerPackage.Indexer;
- *//*import QueryProcessing.queryprocessing;*//*
-import MongoDBPackage.MongoDB;*/
-/*import QueryProcessing.queryprocessing;*/
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
@@ -13,9 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 public class Phrase_sreach
 {
     private MongoDB database;
@@ -49,7 +42,7 @@ public class Phrase_sreach
     //Gets Urls that contain the Phrase, The snippets ,The DF for each Word
     //return -1 if one No website conatin one of the words of the Phrase and 0 sucess
     //But Note still the Original Results may be empty if the Phrase isn't found in The URLS
-    public int Phrase_Search(String QP_str, HashMap<String,Vector<JSONObject>> Original_Results,HashMap<String,String> snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
+    public int Phrase_Search(String QP_str, HashMap<String,JSONObject> Original_Results,HashMap<String,String> snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
         long time01 =System.currentTimeMillis();
 
         Vector<String>Steam_Words_Arr=new Vector<>();
@@ -115,7 +108,7 @@ public class Phrase_sreach
 
 
     //*********************************************Private Functions
-     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>>Original_Results,HashMap<String,String> snippet_for_all_urls) throws JSONException  {
+     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,JSONObject>Original_Results,HashMap<String,String> snippet_for_all_urls) throws JSONException  {
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
 
@@ -210,13 +203,13 @@ public class Phrase_sreach
             if (Temp_Original.size() == words.size())//Valid URL
             {
                 //for this url check it has the Phrase
-                JSONObject Weights_Of_Phrase=new JSONObject();
 
                 Iterator<String> it=tags.iterator();
                 Vector<JSONArray> TagArray = new Vector<>(0);
                 Vector<Integer>Tags_Indexes=new Vector<Integer>(0);
                 //loop over all tags ==> to get common Tag & Phrase Word
                 //O(n2)
+                JSONObject Weights_Of_Phrase=new JSONObject();
                 while (it.hasNext()) {
                     String Tag = it.next();
                     if (Temp_Original.get(0).has(Tag)) {
@@ -240,7 +233,7 @@ public class Phrase_sreach
                             if (first_Index != -1)//if true then this url is valid
                             {
                                 //add  this row to the resutlst to be returned
-                                Weights_Of_Phrase.put(Tag,Tags_Indexes);
+                                Weights_Of_Phrase.put(Tag,new Vector<Integer>(Tags_Indexes));
                                // Original_Results.put(url, new Vector<>(Temp_Original));
 //                                 //getting Snippet
 //                                String s =shosho.get(url).toJson();
@@ -258,9 +251,8 @@ public class Phrase_sreach
                         TagArray.clear();
                         Tags_Indexes.clear();                  }
                 }//end of loop of tags
-                Vector<JSONObject> v=new Vector<>();
-                v.add(Weights_Of_Phrase);
-            Original_Results.put(url,new Vector<JSONObject>(v));
+
+            Original_Results.put(url, new JSONObject(Weights_Of_Phrase, new String[]{""}));
             }
             //else{} //==>Invlaid URL
 

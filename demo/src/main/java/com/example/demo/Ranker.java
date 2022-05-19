@@ -14,9 +14,8 @@ import java.util.Vector;
 
 public class Ranker {
     //Urls
-
-
     HashMap<String, Vector<JSONObject>> Original_Results = new HashMap<>();
+    HashMap<String, JSONObject> phraseSearchResults = new HashMap<>();
     HashMap<String, String> snippet_for_Phrase_Search = new HashMap<String, String>(0);
     //    Vector<String> snippet_for_Phrase_Search = new Vector<String>(0);
     Vector<Integer> DF = new Vector<Integer>(0); // EH DA?
@@ -46,54 +45,57 @@ public class Ranker {
     }
 
     public void Teamp_func() throws JSONException {
-
-
         String url = new String();
-        Iterator<String> it = Original_Results.keySet().iterator();
+        Iterator<String> it = phraseSearchResults.keySet().iterator();
+        int NoofURLS=phraseSearchResults.size();
 //        int i = -1;
         while (it.hasNext()) {
             url = it.next();
 //            i++;
-            Vector<JSONObject> weights = Original_Results.get(url);//==> the original words only
-            float rank=0;
+            JSONObject weights = phraseSearchResults.get(url);//==> the original words only
+            System.out.println(weights);
+            float rank = 0;
             float headers = 0;
-            for (int i = 0; i < weights.size(); i++) {
-                float internalRank =0;
-                if (weights.get(i).has("h1"))
-                    headers += weights.get(i).getJSONArray("h1").length() + 100;
+//            for (int i = 0; i < weights.size(); i++) {
+            float internalRank = 0;
+            if (weights.has("h1"))
+                headers += weights.getJSONArray("h1").length() + 100;
 
-                if (weights.get(i).has("h2"))
-                    headers += weights.get(i).getJSONArray("h2").length() + 50;
+            if (weights.has("h2"))
+                headers += weights.getJSONArray("h2").length() + 50;
 
-                if (weights.get(i).has("h3"))
-                    headers += weights.get(i).getJSONArray("h3").length() + 25;
+            if (weights.has("h3"))
+                headers += weights.getJSONArray("h3").length() + 25;
 
-                if (weights.get(i).has("h4"))
-                    headers += weights.get(i).getJSONArray("h4").length() + 12;
+            if (weights.has("h4"))
+                headers += weights.getJSONArray("h4").length() + 12;
 
-                if (weights.get(i).has("h5"))
-                    headers += weights.get(i).getJSONArray("h5").length() + 6;
+            if (weights.has("h5"))
+                headers += weights.getJSONArray("h5").length() + 6;
 
-                if (weights.get(i).has("h6"))
-                    headers += weights.get(i).getJSONArray("h6").length() + 3;
+            if (weights.has("h6"))
+                headers += weights.getJSONArray("h6").length() + 3;
 
-                if (weights.get(i).has("p"))
-                    headers += weights.get(i).getJSONArray("p").length();
-                internalRank = headers;
-                internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
-                internalRank += DF.get(i) / 5000.0;
-                internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
-                rank += internalRank;
+            if (weights.has("p"))
+                headers += weights.getJSONArray("p").length();
+            internalRank = headers;
+            internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
+            //internalRank += DF.get(i) / 5000.0;
+            internalRank+=NoofURLS/5000.0;
+            internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
+            rank += internalRank;
 
-            }
+
             Document temp = new Document();
             temp.append("url", url);//s=>url
             temp.append("header", shosho.get(url).get("title"));
             temp.append("paragraph", snippet_for_Phrase_Search.get(url));
             temp.append("rank", rank);
             rankerCollection.insertOne(temp);
-            rank =0;
+            rank = 0;
+
         }
+
     }
 
     public void calculateRank(HashMap<String, Vector<JSONObject>> vec) throws JSONException {
@@ -104,11 +106,11 @@ public class Ranker {
 
         Iterator<String> it = vec.keySet().iterator();
 //        int i = -1;
-        float rank=0;
+        float rank = 0;
         while (it.hasNext()) {
             url = it.next();
 //            i++;
-            float internalRank=0;
+            float internalRank = 0;
             Vector<JSONObject> weights = vec.get(url);//==> the original words only //loop
             for (int i = 0; i < weights.size(); i++) {
                 float headers = 0;
@@ -146,18 +148,18 @@ public class Ranker {
             temp.append("paragraph", Snippets.get(url));
             temp.append("rank", rank);
             rankerCollection.insertOne(temp);
-            rank =0;
+            rank = 0;
         }
 
     }
 
 
     public void getResults(String query) throws JSONException {
-        long timeq1 =0,timeq2=0,timeR1=0,timeR2=0;
-        long Time1=System.currentTimeMillis();
+        long timeq1 = 0, timeq2 = 0, timeR1 = 0, timeR2 = 0;
+        long Time1 = System.currentTimeMillis();
         if (query.startsWith("\"") && query.endsWith("\"")) {
 
-            PhraseSearch.Phrase_Search(query, Original_Results, snippet_for_Phrase_Search, DF);
+            PhraseSearch.Phrase_Search(query, phraseSearchResults, snippet_for_Phrase_Search, DF);
             System.out.println("No of URLS:" + Original_Results.size());
             Teamp_func();
         } else {
@@ -183,7 +185,7 @@ public class Ranker {
         NonCommon_Results.clear();
 
         long Time2 = System.currentTimeMillis();
-        System.out.println("\n\nTotal Time to get result in fun get results:"+(Time2-Time1));
+        System.out.println("\n\nTotal Time to get result in fun get results:" + (Time2 - Time1));
         System.out.println("\nQuery Processing " + (timeq2 - timeq1));
         System.out.println("\nRanker " + (timeR2 - timeR1));
 

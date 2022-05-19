@@ -200,31 +200,31 @@ public class Crawler extends Thread {
       throws IOException, URISyntaxException, InterruptedException {
     DBManager db = new DBManager();
     Crawler crawl = new Crawler(db, new RobotsManager());
-    crawl.initializeSeeds();
-    System.out.println("ENTER NUMBER OF THREADS");
-    // crawl.run();
-    Scanner sc = new Scanner(System.in);
-    int numberOfThreads;
-    int sleepSecs = 0;
-    numberOfThreads = sc.nextInt();
-//    if (numberOfThreads > 6) sleepSecs = 3000;
+//     crawl.initializeSeeds();
+//     System.out.println("ENTER NUMBER OF THREADS");
+//     // crawl.run();
+//     Scanner sc = new Scanner(System.in);
+//     int numberOfThreads;
+//     int sleepSecs = 0;
+//     numberOfThreads = sc.nextInt();
+// //    if (numberOfThreads > 6) sleepSecs = 3000;
 
-    Crawler threads[] = new Crawler[numberOfThreads];
-    for (int i = 0; i < numberOfThreads; i++) {
-      threads[i] = new Crawler(new DBManager(), new RobotsManager());
-      threads[i].setName(Integer.toString(i));
-      threads[i].start();
-      threads[i].sleep(3000);
-    }
-    try {
-      for (int i = 0; i < numberOfThreads; i++) {
-        threads[i].join();
-      }
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-    java.awt.Toolkit.getDefaultToolkit().beep();
+//     Crawler threads[] = new Crawler[numberOfThreads];
+//     for (int i = 0; i < numberOfThreads; i++) {
+//       threads[i] = new Crawler(new DBManager(), new RobotsManager());
+//       threads[i].setName(Integer.toString(i));
+//       threads[i].start();
+//       threads[i].sleep(3000);
+//     }
+//     try {
+//       for (int i = 0; i < numberOfThreads; i++) {
+//         threads[i].join();
+//       }
+//     } catch (InterruptedException e) {
+//       e.printStackTrace();
+//     }
+//     java.awt.Toolkit.getDefaultToolkit().beep();
 
-    //        crawl.recrawlSeeds();
+   crawl.recrawlSeeds();
   }
 }

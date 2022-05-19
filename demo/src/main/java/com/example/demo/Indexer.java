@@ -7,6 +7,7 @@ import java.util.*;
 //Elements
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
@@ -42,6 +43,9 @@ public class Indexer {
 
     private MongoDB database_Index;
     private MongoDB database_Crawler;
+    private MongoDB database_Old_Crawler;
+
+
     public HashSet<String>tagsnames;
     Indexer()
     {
@@ -57,11 +61,11 @@ public class Indexer {
         tagsnames.add("h5");
         tagsnames.add("h6");
         tagsnames.add("p");
+
         //connect to DB
         database_Index=new MongoDB("SearchEngine","Indexer");
         database_Crawler=new MongoDB("SearchEngine","URLSWithHTML");
-
-
+        database_Old_Crawler = new MongoDB("SearchEngine","OldSeeds");
     }
 
     public void Index(String url,String source_str) throws IOException {
@@ -181,7 +185,11 @@ public class Indexer {
 
     public static void main(String[] args) throws IOException {
         Indexer indexer=new Indexer();
-        indexer.Index_crawlar();
+//        indexer.Index_crawlar();
+
+
+        //reindexing
+        indexer.ReIndex_Crawlar_New_URLS();
         return;
     }
 
@@ -224,7 +232,7 @@ public class Indexer {
     public void ReIndex_Crawlar_New_URLS() throws IOException {
 
         //Remove prvious version
-        FindIterable<Document> itratdoc_to_remove=database_Crawler.collection.find().skip((int) (database_Crawler.collection.countDocuments()-6));
+        FindIterable<Document> itratdoc_to_remove=database_Old_Crawler.collection.find();
         Vector<String>old_URLs=new Vector<>();
         int j=0;
         for (Document d:itratdoc_to_remove)
@@ -235,8 +243,9 @@ public class Indexer {
             j++;
             System.out.println("\n\n"+j+"\n\n");
         }
-        //remove these three last 6 documents from DB Crawlar
-//        database_Crawler.collection.deleteMany("_id",new BasicDBObject("$in",(old_URLs)));
+        //drop this database
+        database_Old_Crawler.collection.drop();
+
 
         int i=0;
         FindIterable<Document> itratdoc=database_Crawler.collection.find().limit(6);
