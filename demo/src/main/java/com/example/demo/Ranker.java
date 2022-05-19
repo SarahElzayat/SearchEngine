@@ -14,8 +14,6 @@ import java.util.Vector;
 
 public class Ranker {
     //Urls
-
-
     HashMap<String, Vector<JSONObject>> Original_Results = new HashMap<>();
     HashMap<String, JSONObject> phraseSearchResults = new HashMap<>();
     HashMap<String, String> snippet_for_Phrase_Search = new HashMap<String, String>(0);
@@ -47,14 +45,13 @@ public class Ranker {
     }
 
     public void Teamp_func() throws JSONException {
-
-
         String url = new String();
         Iterator<String> it = phraseSearchResults.keySet().iterator();
-        int i = -1;
+        int NoofURLS=phraseSearchResults.size();
+//        int i = -1;
         while (it.hasNext()) {
             url = it.next();
-            i++;
+//            i++;
             JSONObject weights = phraseSearchResults.get(url);//==> the original words only
             System.out.println(weights);
             float rank = 0;
@@ -83,7 +80,8 @@ public class Ranker {
                 headers += weights.getJSONArray("p").length();
             internalRank = headers;
             internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
-            internalRank += DF.get(i) / 5000.0;
+            //internalRank += DF.get(i) / 5000.0;
+            internalRank+=NoofURLS/5000.0;
             internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
             rank += internalRank;
 

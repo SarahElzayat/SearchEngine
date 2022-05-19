@@ -134,7 +134,7 @@ public class DBManager {
   public void updateSeed(String html, String id,String oldHTML ){
 
     Document update = new Document();
-    update.append("$set", new Document().append("html", html));
+    update.append("$set", new Document().append("html", html).append("_body","").append("NoOfWords",0));
     URLSWithHTML.updateOne(new Document().append("_id", id), update);
     OldSeeds.insertOne(new Document("_id",id).append("html",oldHTML));
 
