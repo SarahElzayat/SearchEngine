@@ -16,6 +16,7 @@ import java.util.HashSet;
 public class DBManager {
   MongoCollection<Document> fetchedURLS;
   MongoCollection<Document> URLSWithHTML;
+  MongoCollection<Document> OldSeeds;
 
   DBManager() {
     String uri = "mongodb://localhost:27017";
@@ -23,6 +24,7 @@ public class DBManager {
     MongoDatabase db = mongo.getDatabase("a");
     fetchedURLS = db.getCollection("FetchedURLs");
     URLSWithHTML = db.getCollection("URLSWithHTML");
+    OldSeeds = db.getCollection("OldSeeds");
   }
 
 //  public void retrieveElements(HashMap<String, Integer> urls) {
@@ -129,10 +131,12 @@ public class DBManager {
     }
   }
 
-  public void updateSeed(String html, String id ){
+  public void updateSeed(String html, String id,String oldHTML ){
 
     Document update = new Document();
     update.append("$set", new Document().append("html", html));
     URLSWithHTML.updateOne(new Document().append("_id", id), update);
+    OldSeeds.insertOne(new Document("_id",id).append("html",oldHTML));
+
   }
 }
