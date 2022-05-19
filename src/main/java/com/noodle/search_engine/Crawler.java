@@ -9,8 +9,11 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Scanner;
 ///////////////////////////////////////////
@@ -37,25 +40,28 @@ public class Crawler extends Thread {
   public void run() {
 
     ObjectId currentID;
-    System.out.println("AAAAAAA " + URLSWithHTMLID);
-    while (URLSWithHTMLID < 5000) {
+    //    System.out.println("AAAAAAA " + URLSWithHTMLID);
+    while (URLSWithHTMLID < 5100) {
       Document returnedDoc = new Document();
       synchronized (obj) {
         returnedDoc = dbMongo.returnDocwithstate(0, new Document("_state", 1), 1);
+        if (returnedDoc == null) {
+          break;
+        }
       }
       currentID = (ObjectId) returnedDoc.get("_id");
-      System.out.println("Current ID: @run" + currentID);
+      //      System.out.println("Current ID: @run" + currentID);
 
       if (urlsBGD.contains(returnedDoc.get("_url").toString())) {
 
         dbMongo.updatePopularity(new Document("popularity", 1), returnedDoc.get("_url").toString());
-        System.out.println("@run URL exists");
+        //        System.out.println("@run URL exists");
         dbMongo.updateDoc(new Document("_state", 1), currentID);
         continue;
       }
       try {
         robotsTxt.getRobotsfile(returnedDoc.get("_url").toString());
-        System.out.println("@Run got robots.txt file");
+        //        System.out.println("@Run got robots.txt file");
       } catch (IOException e) {
         e.printStackTrace();
       }
@@ -66,33 +72,40 @@ public class Crawler extends Thread {
                 .ignoreHttpErrors(true)
                 .timeout(5000)
                 .get(); // fetch the link html source
-//        Jsoup.connect(returnedDoc.get("_url").toString()).header("Accept-Language", "en");
+        Element taglang = doc.select("html").first();
+        //        System.out.println("LANG " + taglang.attr("lang"));
 
         if (!doc.toString().toLowerCase().contains("<!doctype html>")
-            || !(doc.toString().toLowerCase().contains("<html lang=\"en"))) {
+                      || !(taglang.attr("lang").contains("en"))) {
 
-          System.out.println("@Run doesn't contain <doc html>");
+          //          System.out.println(returnedDoc.get("_url") + " doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
           continue;
         }
-        //        String encryptedHTML = encryptThisString(doc.toString());
+
         String encryptedHTML = encryptThisString(doc);
         if (!hashedHTMLS.contains(encryptedHTML)) {
-          System.out.println("@Run hashed doesn't contain encryption");
+          //          System.out.println("@Run hashed doesn't contain encryption");
           synchronized (obj) {
             hashedHTMLS.add(encryptedHTML);
             URLSWithHTMLID++;
-            System.out.println("URLS HTML ID: " + URLSWithHTMLID);
-            System.out.println(TEXT_BLUE + "FROM THREAD " + currentThread()+" "+returnedDoc.get("_url").toString()+TEXT_RESET);
+            //            System.out.println("URLS HTML ID: " + URLSWithHTMLID);
+            System.out.println(
+                TEXT_BLUE
+                    + "FROM THREAD "
+                    + currentThread()
+                    + " "
+                    + returnedDoc.get("_url").toString()
+                    + TEXT_RESET);
             dbMongo.insertIntoDBHtmls(
                 returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
           }
-          System.out.println(
-              "THREAD: "
-                  + currentThread().getName()
-                  + " URLS HTML ID: AFTER Insertion"
-                  + URLSWithHTMLID);
-          System.out.println("URL: " + returnedDoc.get("_url").toString());
+          //          System.out.println(
+          //              "THREAD: "
+          //                  + currentThread().getName()
+          //                  + " URLS HTML ID: AFTER Insertion"
+          //                  + URLSWithHTMLID);
+          //          System.out.println("URL: " + returnedDoc.get("_url").toString());
 
           synchronized (obj) {
             urlsBGD.add(returnedDoc.get("_url").toString());
@@ -121,7 +134,8 @@ public class Crawler extends Thread {
               dbMongo.insertInFetchedurls(firstLink, 0);
             }
             counter++;
-            System.out.println("THREAD" + currentThread().getName() + "COUNTER: " + counter);
+            //            System.out.println("THREAD" + currentThread().getName() + "COUNTER: " +
+            // counter);
           }
           //          hashedHTMLS.add(hashedLinks);
           dbMongo.updateDoc(new Document("_state", 1), currentID);
@@ -157,7 +171,6 @@ public class Crawler extends Thread {
     dbMongo.retrieveLinkWithState1();
   }
 
-  //  public static String encryptThisString(String input) {
   public static String encryptThisString(org.jsoup.nodes.Document input) {
 
     if (input.title().equals("")) return input.attr("title");
@@ -165,25 +178,23 @@ public class Crawler extends Thread {
   }
 
   public void recrawlSeeds() throws IOException {
+    dbMongo.OldSeeds.drop();
     FindIterable<Document> documents = dbMongo.URLSWithHTML.find().limit(6);
-    ObjectId tempID;
+    int tempID = 0;
     for (Document doc : documents) {
       String url = doc.get("_id").toString();
-//      tempID = (ObjectId) doc.get("_id");
       org.jsoup.nodes.Document temp;
       temp = Jsoup.connect(url).get();
-      //      String encryptedHTML = encryptThisString(temp.toString());
-//      String encryptedHTML = encryptThisString(temp);
-      //      String tempEncrypted = encryptThisString(doc.get("html").toString());
-//      String tempEncrypted =
-//          encryptThisString(org.jsoup.nodes.Document.createShell(doc.get("html").toString()));
-//      if (!encryptedHTML.equals(tempEncrypted)) {
-        dbMongo.updateSeed(temp.toString(), url);
+      int hashedNew = temp.hashCode();
+      String html = doc.get("html").toString();
+      int hashedOld = html.hashCode();
+      if (hashedOld != hashedNew) {
 
-        System.out.println("Updated document url " + url);
+        dbMongo.updateSeed(temp.toString(), url, html);
+        //        System.out.println("Updated document url " + url);
       }
     }
-
+  }
 
   public static void main(String[] args)
       throws IOException, URISyntaxException, InterruptedException {
@@ -194,7 +205,10 @@ public class Crawler extends Thread {
     // crawl.run();
     Scanner sc = new Scanner(System.in);
     int numberOfThreads;
+    int sleepSecs = 0;
     numberOfThreads = sc.nextInt();
+//    if (numberOfThreads > 6) sleepSecs = 3000;
+
     Crawler threads[] = new Crawler[numberOfThreads];
     for (int i = 0; i < numberOfThreads; i++) {
       threads[i] = new Crawler(new DBManager(), new RobotsManager());
@@ -209,6 +223,8 @@ public class Crawler extends Thread {
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    //    crawl.recrawlSeeds();
+    java.awt.Toolkit.getDefaultToolkit().beep();
+
+    //        crawl.recrawlSeeds();
   }
 }
