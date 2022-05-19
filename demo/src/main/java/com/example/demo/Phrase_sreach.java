@@ -49,7 +49,7 @@ public class Phrase_sreach
     //Gets Urls that contain the Phrase, The snippets ,The DF for each Word
     //return -1 if one No website conatin one of the words of the Phrase and 0 sucess
     //But Note still the Original Results may be empty if the Phrase isn't found in The URLS
-    public int Phrase_Search(String QP_str, HashMap<String,Vector<JSONObject>> Original_Results,HashMap<String,String> snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
+    public int Phrase_Search(String QP_str, HashMap<String,JSONObject> Original_Results,HashMap<String,String> snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
         long time01 =System.currentTimeMillis();
 
         Vector<String>Steam_Words_Arr=new Vector<>();
@@ -101,14 +101,10 @@ public class Phrase_sreach
             String id=Jsonobj.getString("_id");//stem word
             int index= Steam_Words_Arr.indexOf(id);
             docarr_Array[index]=Jsonobj.getJSONArray("DOC");
-//            docarr.insertElementAt(Jsonobj.getJSONArray("DOC"),index);
             DF.add(Jsonobj.getInt("DF"));
         }
         if(counter_for_Documents_from_DB!=finalword.size())
             return -1;
-
-//            for(int k=0;k<docarr.size();k++)
-//                System.out.println("docarr:" + docarr.get(k));
 
 
         phrase_Search_work(finalword,new Vector<JSONArray>(List.of(docarr_Array)),Original_Results,snippet_for_all_urls);
@@ -119,7 +115,7 @@ public class Phrase_sreach
 
 
     //*********************************************Private Functions
-     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,Vector<JSONObject>> Original_Results,HashMap<String,String> snippet_for_all_urls) throws JSONException  {
+     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,JSONObject>Original_Results,HashMap<String,String> snippet_for_all_urls) throws JSONException  {
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
 
@@ -180,6 +176,7 @@ public class Phrase_sreach
         long time5 =System.currentTimeMillis();
         long totaltime1=0;
         for (Map.Entry<String, Integer> set : Urls.entrySet()) {
+            //each url
             Boolean common = true;
             String url = set.getKey();
             Integer freq = set.getValue();
@@ -205,14 +202,19 @@ public class Phrase_sreach
             }long time30=System.currentTimeMillis();
             totaltime1=time20-time30;
 
+
+
+            //tik=ll here this url is common betweeen the 2 words
             long time40=System.currentTimeMillis();
             boolean Valid_URL=false;
             if (Temp_Original.size() == words.size())//Valid URL
             {
                 //for this url check it has the Phrase
+                JSONObject Weights_Of_Phrase=new JSONObject();
 
                 Iterator<String> it=tags.iterator();
                 Vector<JSONArray> TagArray = new Vector<>(0);
+                Vector<Integer>Tags_Indexes=new Vector<Integer>(0);
                 //loop over all tags ==> to get common Tag & Phrase Word
                 //O(n2)
                 while (it.hasNext()) {
@@ -233,12 +235,13 @@ public class Phrase_sreach
                         if (has)
                         {
                             //check order
-                            int first_Index = compare_Json_array(TagArray);
+                            int first_Index = compare_Json_array(TagArray,Tags_Indexes);
                             long Time10=System.currentTimeMillis();
                             if (first_Index != -1)//if true then this url is valid
                             {
                                 //add  this row to the resutlst to be returned
-                                Original_Results.put(url, new Vector<>(Temp_Original));
+                                Weights_Of_Phrase.put(Tag,Tags_Indexes);
+                               // Original_Results.put(url, new Vector<>(Temp_Original));
 //                                 //getting Snippet
 //                                String s =shosho.get(url).toJson();
 //                                JSONObject Jsonobj = new JSONObject(s);
@@ -246,15 +249,17 @@ public class Phrase_sreach
                                 // snippet_for_all_urls.add(snippet_url(Jsonobj.getJSONArray("_body"), first_Index));
                                 long Time11=System.currentTimeMillis();
                                 totaltime+=Time11-Time10;
-                                break;//break out of loop of searching for tags
+                                /////////////////////
+                               // break;//break out of loop of searching for tags
                             }
                             //else//this Tag doesn't contain this Phrase==> go to another tag
 
                         }
                         TagArray.clear();
-                    }
+                        Tags_Indexes.clear();                  }
                 }//end of loop of tags
 
+            Original_Results.put(url, new JSONObject(String.valueOf(Weights_Of_Phrase)));
             }
             //else{} //==>Invlaid URL
 
@@ -272,7 +277,8 @@ public class Phrase_sreach
 
 
     //Compare Json Arrays to find consecutive numbers
-    private int compare_Json_array(Vector<JSONArray>tagarr) throws JSONException {int k=0;
+    private int compare_Json_array(Vector<JSONArray>tagarr,Vector<Integer> Indexes_Of_Tags) throws JSONException {
+        int k=0;
         for (;k<tagarr.get(0).length();k++)
         {
             int x= ((int) tagarr.get(0).get(k));
@@ -286,11 +292,14 @@ public class Phrase_sreach
                     break;
             }
             if(j==tagarr.size())
-            {
-                return  ((int) tagarr.get(0).get(k));
-            }
+                {
+//                    return  ((int) tagarr.get(0).get(k));
+                    Indexes_Of_Tags.add((int) tagarr.get(0).get(k));
+                }
         }
-        return -1;
+       if(Indexes_Of_Tags.size()==0)
+           return -1;
+       return Indexes_Of_Tags.get(0);
     }
 
 
@@ -357,36 +366,36 @@ public class Phrase_sreach
     ///***************************************MAIN for Test***********************************////
     public static void main(String[] args) throws JSONException {
 
-        HashMap<String,Vector<JSONObject>> Original_Results=new HashMap<>();
-        HashMap<String,String>snippet_for_all_urls =new HashMap<>(0);
-//        Vector<String>snippet_for_all_urls =new Vector<String>(0);
-        Vector<Integer> DF=new Vector<Integer>(0);
-
-        long time1=System.currentTimeMillis();
-        Phrase_sreach ps=new Phrase_sreach();
-        String query="\"first-class\"";
-        query=query.trim();
-
-        if(query.startsWith("\"") && query.endsWith("\"")) {
-            ps.Phrase_Search(query, Original_Results, snippet_for_all_urls, DF);
-        }
-        long time2 =System.currentTimeMillis();
-        System.out.println("\nTime"+(time2-time1));
-
-
-        System.out.println("No of Urls:"+Original_Results.size());
-        Iterator<String> it=Original_Results.keySet().iterator();
-        int i=-1;
-        while(it.hasNext())
-        {
-            i++;
-            String url=it.next();
-            Vector<JSONObject>Documnets_for_this_url=Original_Results.get(url);
-            System.out.println("URL:"+url);
-            for (int k = 0; k < Documnets_for_this_url.size(); k++) {
-                System.out.println("Phase search:" + Documnets_for_this_url.get(k));
-            }
-            System.out.println(snippet_for_all_urls.get(url)+"\n\n");//snippet
-        }
+//        HashMap<String,Vector<JSONObject>> Original_Results=new HashMap<>();
+//        HashMap<String,String>snippet_for_all_urls =new HashMap<>(0);
+////        Vector<String>snippet_for_all_urls =new Vector<String>(0);
+//        Vector<Integer> DF=new Vector<Integer>(0);
+//
+//        long time1=System.currentTimeMillis();
+//        Phrase_sreach ps=new Phrase_sreach();
+//        String query="\"first-class\"";
+//        query=query.trim();
+//
+//        if(query.startsWith("\"") && query.endsWith("\"")) {
+//            ps.Phrase_Search(query, Original_Results, snippet_for_all_urls, DF);
+//        }
+//        long time2 =System.currentTimeMillis();
+//        System.out.println("\nTime"+(time2-time1));
+//
+//
+//        System.out.println("No of Urls:"+Original_Results.size());
+//        Iterator<String> it=Original_Results.keySet().iterator();
+//        int i=-1;
+//        while(it.hasNext())
+//        {
+//            i++;
+//            String url=it.next();
+//            Vector<JSONObject>Documnets_for_this_url=Original_Results.get(url);
+//            System.out.println("URL:"+url);
+//            for (int k = 0; k < Documnets_for_this_url.size(); k++) {
+//                System.out.println("Phase search:" + Documnets_for_this_url.get(k));
+//            }
+//            System.out.println(snippet_for_all_urls.get(url)+"\n\n");//snippet
+//        }
     }
 }
