@@ -75,8 +75,8 @@ public class Crawler extends Thread {
         Element taglang = doc.select("html").first();
         //        System.out.println("LANG " + taglang.attr("lang"));
 
-        if (!doc.toString().toLowerCase().contains("<!doctype html>")
-                      || !(taglang.attr("lang").contains("en"))) {
+        if (!doc.toString().toLowerCase().contains("<!doctype html>") || !doc.toString().toLowerCase().contains(" lang=\"en")) {
+          //            || !(taglang.attr("lang").contains("en"))) {
 
           //          System.out.println(returnedDoc.get("_url") + " doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
