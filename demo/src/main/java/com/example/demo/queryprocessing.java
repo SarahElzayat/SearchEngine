@@ -25,6 +25,14 @@ public class queryprocessing {
 
     HashMap<String,String>bodies=new HashMap<>();
 
+    Indexer indexer;
+    public HashSet<String>tags;
+
+
+long total_Snippettime_searching_Common=0;
+
+
+int print1=0;
     public queryprocessing()
     {
         database_Crawler=new MongoDB("SearchEngine","URLSWithHTML");
@@ -32,9 +40,14 @@ public class queryprocessing {
         porterStemmer = new PorterStemmer();
         stopWords=Indexer.getStopWords();
         ImportantWords=Indexer.getImportantword();
-    }
-    public  Vector<String> query_process(String QP_str,HashMap<String,Vector<JSONObject>> Original_Results, HashMap<String, Vector<JSONObject>> Steam_Results,HashMap<String, Vector<JSONObject>> NonCommon_Results,Vector<Integer>DF,HashMap<String,Vector<String>>Snippets) throws JSONException {
 
+
+        indexer=new Indexer();
+        tags=indexer.tagsnames;
+    }
+
+    public  Vector<String> query_process(String QP_str,HashMap<String,Vector<JSONObject>> Original_Results, HashMap<String, Vector<JSONObject>> Steam_Results,HashMap<String, Vector<JSONObject>> NonCommon_Results,Vector<Integer>DF,HashMap<String,Vector<String>>Snippets) throws JSONException {
+        long TimeQuery_process1=System.currentTimeMillis();
         Boolean Notfound=false;
         Vector<String>Steam_Words_Arr=new Vector<>();
 
@@ -42,6 +55,7 @@ public class queryprocessing {
         String[] words = (QP_str).toLowerCase().split("\\s+");//splits the string based on whitespace
         Vector<String>finalword=new Vector<String>(0);
         Vector<JSONArray>docarr=new Vector<JSONArray>(0);
+        //preprocessing the query
         for (int i = 0; i < words.length; i++)
         {
             if (!ImportantWords.contains(words[i]))
@@ -59,37 +73,19 @@ public class queryprocessing {
                     String stemw = porterStemmer.stem(sw);
                     Steam_Words_Arr.add(stemw);
                     finalword.add(sw);
-
-//                    Document DBresult = database.collection.find(new Document("_id", stemw)).first();
-//                    if (DBresult != null) {
-//                        // System.out.println(stemw);
-//                        JSONObject obj = new JSONObject(DBresult.toJson());
-//                        JSONArray arr = obj.getJSONArray("DOC");
-//                        finalword.add(sw);
-//                        DF.add(obj.getInt("DF"));
-//                        docarr.add(arr);
-//                    }
-//                    else{
-//                        Notfound=true;
-//                    }
-                }
+               }
             }
             else{
                 String stemw = porterStemmer.stem(words[i]);
                 Steam_Words_Arr.add(stemw);
                 finalword.add(words[i]);
-//                Document DBresult = database.collection.find(new Document("_id", stemw)).first();
-//                if (DBresult != null) {
-//                    JSONObject obj = new JSONObject(DBresult.toJson());
-//                    JSONArray arr = obj.getJSONArray("DOC");
-//                    docarr.add(arr);
-//                    finalword.add(words[i]);
-//                }
             }
 
         }//end of loop
 
 
+
+        //get documents of the words
         JSONArray[]docarr_Array=new JSONArray[finalword.size()];
         FindIterable<Document> DBresult = database_Indexer.collection.find(new Document("_id", new BasicDBObject("$in",(Steam_Words_Arr))));
         MongoCursor<Document> iterator = DBresult.iterator();
@@ -107,24 +103,52 @@ public class queryprocessing {
         if(counter_for_Documents_from_DB!=finalword.size())
             Notfound=true;
 
-
-
-//            for(int k=0;k<docarr.size();k++)
-//                System.out.println("docarr:" + docarr.get(k));
+        long timeqpw1 =System.currentTimeMillis();
         query_process_work(finalword,new Vector<JSONArray>(List.of(docarr_Array)),Original_Results,Steam_Results,NonCommon_Results,Notfound);
+        long timeqpw2 =System.currentTimeMillis();
+
+
+        long timewxtract_Common1 =System.currentTimeMillis();
         extract_Common_Array_tags(finalword,Original_Results,Snippets);
+        long timewxtract_Common2 =System.currentTimeMillis();
+
+        long timesteam1 =System.currentTimeMillis();
         extract_Steaming_Array_tags(Steam_Results,Snippets);
+        long timesteam2 =System.currentTimeMillis();
+
+        long timeNonComm1 =System.currentTimeMillis();
         extract_Steaming_Array_tags(NonCommon_Results,Snippets);
+        long timeNonComm2 =System.currentTimeMillis();
+
+
+
+
+
+
+
+
+
+
+        long TimeQuery_process2=System.currentTimeMillis();
+        System.out.println("QueryProcess total time"+(TimeQuery_process2-TimeQuery_process1));
+
+        System.out.println("Query_process_work total-time"+(timeqpw2-timeqpw1));
+        System.out.println("extract_Common_Array_tags"+(timewxtract_Common2-timewxtract_Common1));
+        System.out.println("extract_Steaming_Array_tags"+(timesteam2-timesteam1));
+        System.out.println("extract_NONCommon_Array_tags"+(timeNonComm2-timeNonComm1));
+
+
+        System.out.println("total_Snippettime_searching_Common"+total_Snippettime_searching_Common);
+
+
+        System.out.println("Original urls:"+Original_Results.size());
+        System.out.println("Steamed urls:"+Steam_Results.size());
+        System.out.println("Non Common urls:"+NonCommon_Results.size());
         return finalword;
     }
     private void query_process_work( Vector<String>words, Vector<JSONArray> docarr,  HashMap<String, Vector<JSONObject>> Original_Results, HashMap<String, Vector<JSONObject>> Steam_Results,HashMap<String, Vector<JSONObject>> NonCommon_Results, boolean not_Found) throws JSONException {
 
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
-
-//        HashMap<String, Vector<JSONObject>> Original_Results = new HashMap<String, Vector<JSONObject>>();
-//        HashMap<String, Vector<JSONObject>> Steam_Results = new HashMap<String, Vector<JSONObject>>();
-//        HashMap<String, Vector<JSONObject>> NonCommon_Results = new HashMap<String, Vector<JSONObject>>();
-
 
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
         Vector<JSONObject> Temp_Steam = new Vector<JSONObject>(0);
@@ -153,7 +177,6 @@ public class queryprocessing {
         }
 
         //filing bodies and getting snippets
-        long time3 =System.currentTimeMillis();
         FindIterable<Document>  DBresult = database_Crawler.collection.find(new Document("_id", new BasicDBObject("$in",Urls.keySet())));
         MongoCursor<Document> iterator = DBresult.iterator();
         JSONArray body = null;
@@ -162,8 +185,7 @@ public class queryprocessing {
             doc=iterator.next();
             bodies.put(doc.getString("_id"),doc.getString("_body"));
         }
-        long time4 =System.currentTimeMillis();
-        long loop2=time4-time3;
+
 
 
         //loop over all urls
@@ -219,22 +241,26 @@ public class queryprocessing {
         }
     }
 
-//    private void extract_Common_Array_tags(  Vector<String>finalword,Vector<Vector<org.json.JSONObject>> resultorginal,Vector<Vector<String>>snippet_for_all_urls) throws JSONException
     private void extract_Common_Array_tags(  Vector<String>finalword,HashMap<String,Vector<JSONObject>>resultorginal ,HashMap<String,Vector<String>>Snipptes) throws JSONException
     {
+
         for (Map.Entry<String, Vector<JSONObject>> url_entry : resultorginal.entrySet())
         {
             //some url
             String url = url_entry.getKey();
             Vector<JSONObject> Words_Documents= url_entry.getValue();
 
-            Vector<Integer>Start_index=new Vector<Integer>(1);
+        Vector<Integer>Start_index=new Vector<Integer>(1);
             JSONObject[] docarr = new JSONObject[Words_Documents.size()];
+
             for (int j = 0; j < Words_Documents.size(); j++)
             {
                 docarr[j] =Words_Documents.get(j).getJSONObject(finalword.get(j));
-                Indexer Id=new Indexer();
-                Iterator<String> it=Id.tagsnames.iterator();
+                long a=System.currentTimeMillis();
+                Iterator<String> it=tags.iterator();
+                long b=  System.currentTimeMillis();
+                long ba=b-a;
+                System.out.println(ba);
                 while (it.hasNext()) {
                     String x = it.next();
                     if (docarr[j].has(x))
@@ -245,12 +271,13 @@ public class queryprocessing {
                     }
                 }
             }
-//            snippet_for_all_urls.add(snippet_url(bodies.get(url),Start_index));
-//            HashMap<String,Vector<String>>Snipptes
+            long x=System.currentTimeMillis();
             Snipptes.put(url,snippet_url(bodies.get(url),Start_index));
-
+            long y=System.currentTimeMillis();
+            total_Snippettime_searching_Common+=y-x;
         }
     }
+
     private void extract_Steaming_Array_tags(  HashMap<String,Vector<JSONObject>> resultforms,HashMap<String,Vector<String>>Snipptes) throws JSONException
     {
 
@@ -263,6 +290,7 @@ public class queryprocessing {
 
             Vector<Integer> Start_index = new Vector<Integer>(1);
             JSONObject[] docarr = new JSONObject[Words_Documents.size()];
+            long time200 = System.currentTimeMillis();
             for (int j = 0; j < Words_Documents.size(); j++) {
                 Iterator<String> iter = Words_Documents.get(j).keys();
                 String key = iter.next().toString();
@@ -270,8 +298,7 @@ public class queryprocessing {
                     key = iter.next().toString();
                 }
                 docarr[j] = Words_Documents.get(j).getJSONObject(key);
-                Indexer Id = new Indexer();
-                Iterator<String> it = Id.tagsnames.iterator();
+                Iterator<String> it = tags.iterator();
                 while (it.hasNext()) {
                     String x = it.next();
                     if (docarr[j].has(x)) {
@@ -281,6 +308,8 @@ public class queryprocessing {
                     }
                 }
             }
+
+
             Snipptes.put(url,snippet_url(bodies.get(url), Start_index));
         }
     }

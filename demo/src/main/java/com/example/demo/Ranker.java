@@ -153,27 +153,26 @@ public class Ranker {
 
 
     public void getResults(String query) throws JSONException {
+        long timeq1 =0,timeq2=0,timeR1=0,timeR2=0;
+        long Time1=System.currentTimeMillis();
         if (query.startsWith("\"") && query.endsWith("\"")) {
-            long time1 = System.currentTimeMillis();
+
             PhraseSearch.Phrase_Search(query, Original_Results, snippet_for_Phrase_Search, DF);
             System.out.println("No of URLS:" + Original_Results.size());
             Teamp_func();
-            long time2 = System.currentTimeMillis();
-            System.out.println("\nTime " + (time2 - time1));
         } else {
             HashMap<String, Vector<JSONObject>> Steam_Results = new HashMap();
             HashMap<String, Vector<JSONObject>> NonCommon_Results = new HashMap();
-            long time1 = System.currentTimeMillis();
 
+            timeq1 = System.currentTimeMillis();
             searchWords = queryProcessor.query_process(query, Original_Results, Steam_Results, NonCommon_Results, DF, Snippets);
-            long time2 = System.currentTimeMillis();
-            System.out.println("\nTime1 " + (time2 - time1));
-            time1 = System.currentTimeMillis();
+            timeq2 = System.currentTimeMillis();
+            timeR1 = System.currentTimeMillis();
             calculateRank(Original_Results);
             calculateRank(Steam_Results);
             calculateRank(NonCommon_Results);
-            time2 = System.currentTimeMillis();
-            System.out.println("\nTime2 " + (time2 - time1));
+            timeR2 = System.currentTimeMillis();
+
 
         }
         Original_Results.clear();
@@ -182,6 +181,11 @@ public class Ranker {
         snippet_for_Phrase_Search.clear();
         Snippets.clear();
         NonCommon_Results.clear();
+
+        long Time2 = System.currentTimeMillis();
+        System.out.println("\n\nTotal Time to get result in fun get results:"+(Time2-Time1));
+        System.out.println("\nQuery Processing " + (timeq2 - timeq1));
+        System.out.println("\nRanker " + (timeR2 - timeR1));
 
     }
 

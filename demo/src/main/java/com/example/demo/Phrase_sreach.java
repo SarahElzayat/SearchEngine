@@ -24,6 +24,9 @@ public class Phrase_sreach
     private static HashSet<String> stopWords ;
     private static HashSet<String> ImportantWords;
 
+    Indexer indexer;
+    public HashSet<String>tags;
+
 
 
 
@@ -36,6 +39,11 @@ public class Phrase_sreach
         porterStemmer = new PorterStemmer();
         stopWords=Indexer.getStopWords();
         ImportantWords=Indexer.getImportantword();
+
+
+
+        indexer=new Indexer();
+        tags=indexer.tagsnames;
 
     }
     //Gets Urls that contain the Phrase, The snippets ,The DF for each Word
@@ -202,8 +210,8 @@ public class Phrase_sreach
             if (Temp_Original.size() == words.size())//Valid URL
             {
                 //for this url check it has the Phrase
-                Indexer Id=new Indexer();
-                Iterator<String> it=Id.tagsnames.iterator();
+
+                Iterator<String> it=tags.iterator();
                 Vector<JSONArray> TagArray = new Vector<>(0);
                 //loop over all tags ==> to get common Tag & Phrase Word
                 //O(n2)
