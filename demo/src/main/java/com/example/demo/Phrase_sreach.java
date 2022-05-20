@@ -222,7 +222,7 @@ public class Phrase_sreach {
                             if (first_Index != -1)//if true then this url is valid
                             {
                                 //add  this row to the resutlst to be returned
-                                Weights_Of_Phrase.put(Tag, new Vector<Integer>(Tags_Indexes));
+                                Weights_Of_Phrase.put(Tag, new JSONArray(Tags_Indexes));
                                 // Original_Results.put(url, new Vector<>(Temp_Original));
 //                                 //getting Snippet
 //                                String s =shosho.get(url).toJson();
@@ -242,7 +242,7 @@ public class Phrase_sreach {
                     }
                 }//end of loop of tags
 
-                Original_Results.put(url, new JSONObject(Weights_Of_Phrase, new String[]{""}));
+                Original_Results.put(url,Weights_Of_Phrase);
             }
             //else{} //==>Invlaid URL
 
