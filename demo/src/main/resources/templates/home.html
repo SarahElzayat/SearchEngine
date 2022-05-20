@@ -23,8 +23,6 @@
         width: 100vw;
         height: 100vh;
         background-color: #1e272e;
-        /* background-image: linear-gradient(0deg, white 1%,#1e272e 100%); */
-
         display: flex;
         justify-content: center;
         align-items: center;
@@ -82,6 +80,7 @@
 
         cursor: pointer;
         border: none;
+        
     }
 
 
@@ -95,6 +94,9 @@
         border: none;
         background: #9bccf2;
         box-shadow: 0px 0px 1px #777;
+        transform: scale(1.2);
+        transition:all 500ms;
+
     }
 
     .mag {
@@ -110,6 +112,16 @@
         position: relative;
         top: 105px;
         margin-left: 1rem;
+        border-radius:30px;
+        padding: 7px;
+    }
+
+    .voice:hover{
+        transition:all 500ms;
+        transform: scale(1.2);
+        background-color: rgba(255, 255, 255, 0.312);
+        border-radius:30px;
+        padding: 7px;
     }
 
     ul{

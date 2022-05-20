@@ -103,8 +103,6 @@ public class queryprocessing {
             return null;
 
         long timeqpw1 = System.currentTimeMillis();
-//        if (docarr_Array[0]==null)
-//            return null;
 
         query_process_work(finalword, new Vector<JSONArray>(List.of(docarr_Array)), Original_Results, Steam_Results, NonCommon_Results, Notfound);
         long timeqpw2 = System.currentTimeMillis();

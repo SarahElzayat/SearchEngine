@@ -19,7 +19,9 @@
         max-width: 1321px;
         width: calc(100% - 4rem);
         margin: 0 auto;
-        background-color: #1e272e;
+        /* background-color: #30336b; */
+        background-color: #1e272e
+
     }
 
     .pagination {
@@ -66,6 +68,8 @@
 
     ul {
         margin-bottom: 1rem;
+        /* background: linear-gradient(to left , #2d1e2e9c , rgba(70, 118, 185, 0.316)); */
+        /* background-color: rgba(20, 2, 32, 0.66); */
     }
 
     ul li {
@@ -73,14 +77,26 @@
         flex-direction: column;
         gap: 0.25rem;
         margin-bottom: 1.25rem;
-        border-radius: 10px;
+        margin-left: 1rem;
+        margin-right: 1rem;
+        border-radius: 15px;
         padding:  1rem;
-        border-color: rgba(181, 229, 244, 0.636);
+        border-color: rgb(255, 255, 255);
         background-color:rgba(255, 255, 255, 0.064);
+        background: linear-gradient(90deg,#1e272e ,rgba(69, 41, 75, 0.255), rgba(55, 84, 124, 0.688));
+
+    } 
+
+    ul li:hover{
+        background-color: #33c8ee48;
+        /* background-color: #ef4dda48; */
+        transition:all 500ms;
+        transform: scale(1.03);
+
     }
 
     a:link {
-        color: #2d98da;
+        color: #59b8f3;
         background-color: transparent;
         text-decoration: none;
 
@@ -96,6 +112,8 @@
         color: #d27dee;
         background-color: transparent;
         text-decoration: underline;
+        transition:all 500ms;
+
     }
 
     .resultsHead {
@@ -107,11 +125,11 @@
     }
     ul.results{
         /* border-style: solid ; */
-        border: 1px solid #9bccf2;
+        border: 2px solid #ffffff;
+        /* border-style: inset; */
         border-radius: 30px;
         padding: 2rem;
-      
-
+        
     
     }
     .homeButton{
@@ -136,9 +154,13 @@
 
 }
 #home:hover {
+    transition:all 500ms;
+
     border: none;
     background:#9bccf2dd;
     box-shadow: 0px 0px 1px #777;
+    transform: scale(1.2);
+
 }
 </style>
 
