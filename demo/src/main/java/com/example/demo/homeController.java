@@ -67,7 +67,7 @@ public class homeController {
         UpdateOptions options = new UpdateOptions().upsert(true);
         suggestions.updateOne(filter, update, options);
         r.getResults(query.trim());
-        FindIterable<Document> d = r.rankerCollection.find().sort(new Document("rank",-1));
+        FindIterable<Document> d = r.rankerCollection.find().sort(new Document("type",1).append("rank",-1));
         JSONArray responseArray = new JSONArray();
         for (Document doc : d) {
             JSONObject record = new JSONObject();

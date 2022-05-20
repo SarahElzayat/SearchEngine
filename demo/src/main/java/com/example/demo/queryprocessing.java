@@ -86,7 +86,7 @@ int print1=0;
 
 
         //get documents of the words
-        JSONArray[]docarr_Array=new JSONArray[finalword.size()];
+        Vector<JSONArray> docarr_Array=new Vector<>(finalword.size());
         FindIterable<Document> DBresult = database_Indexer.collection.find(new Document("_id", new BasicDBObject("$in",(Steam_Words_Arr))));
         MongoCursor<Document> iterator = DBresult.iterator();
         int counter_for_Documents_from_DB=0;
@@ -97,14 +97,17 @@ int print1=0;
             JSONObject Jsonobj = new JSONObject(s);
             String id=Jsonobj.getString("_id");//stem word
             int index= Steam_Words_Arr.indexOf(id);
-            docarr_Array[index]=Jsonobj.getJSONArray("DOC");
+            docarr_Array.add(index,Jsonobj.getJSONArray("DOC"));
             DF.add(Jsonobj.getInt("DF"));
         }
         if(counter_for_Documents_from_DB!=finalword.size())
             Notfound=true;
 
         long timeqpw1 =System.currentTimeMillis();
-        query_process_work(finalword,new Vector<JSONArray>(List.of(docarr_Array)),Original_Results,Steam_Results,NonCommon_Results,Notfound);
+        if(docarr_Array.size()==0)
+            return null;
+
+        query_process_work(finalword,docarr_Array,Original_Results,Steam_Results,NonCommon_Results,Notfound);
         long timeqpw2 =System.currentTimeMillis();
 
 
