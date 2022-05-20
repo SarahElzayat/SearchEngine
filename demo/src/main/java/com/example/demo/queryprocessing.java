@@ -319,11 +319,13 @@ public class queryprocessing {
             temp2.reverse();
             snippet.append(temp2 + " ");
             i--;
-            while (i >= 0 && !body[i].endsWith(".")) {
+            int counter=0;
+            while (i >= 0 && counter!=10) {
                 //snippet.insert(0,body.getString(i)+" ");
                 StringBuffer temp = new StringBuffer(body[i]);
                 temp.reverse();
                 snippet.append(temp + " ");
+                counter++;
                 i--;
             }
             snippet.reverse();
@@ -332,11 +334,11 @@ public class queryprocessing {
             if (body[Start_index.get(j)].endsWith("."))
                 all_Sinppet.add(snippet.toString());
             else {
-
-
-                while (i <= body.length - 1 && !body[i].endsWith(".")) {
+                counter=0;
+                while (i <= body.length - 1 &&counter!=10) {
                     snippet.append(body[i] + " ");
                     i++;
+                    counter++;
                 }
                 if (i <= body.length - 1)
                     snippet.append(body[i] + " ");

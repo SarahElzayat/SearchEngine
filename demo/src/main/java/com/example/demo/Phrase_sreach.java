@@ -53,6 +53,7 @@ public class Phrase_sreach {
         //Preprocessing the Query
         String[] words = (QP_str).toLowerCase().split("\\s+");//splits the string based on whitespace
         Vector<String> finalword = new Vector<String>(0);
+        Vector<String>QueryStringBinary=new Vector<>(0);
 
         for (int i = 0; i < words.length; i++) {
             if (!ImportantWords.contains(words[i])) {
@@ -62,15 +63,18 @@ public class Phrase_sreach {
                 for (String sw : subwords) {
                     if (stopWords.contains(sw)) {
 //                        finalword.add(sw);
+                        QueryStringBinary.add(sw);
                         continue;
                     }
                     String stemw = porterStemmer.stem(sw);
                     Steam_Words_Arr.add(stemw);
+                    QueryStringBinary.add("");
                     finalword.add(sw);
                 }
             } else {
                 String stemw = porterStemmer.stem(words[i]);
                 Steam_Words_Arr.add(stemw);
+                QueryStringBinary.add("");
                 finalword.add(words[i]);
             }
         }//end of loop
@@ -89,11 +93,11 @@ public class Phrase_sreach {
             docarr_Array[index] = Jsonobj.getJSONArray("DOC");
             DF.add(Jsonobj.getInt("DF"));
         }
-        if (counter_for_Documents_from_DB != finalword.size())
+        if (counter_for_Documents_from_DB != finalword.size()||counter_for_Documents_from_DB==0)
             return -1;
 
 
-        phrase_Search_work(finalword, new Vector<JSONArray>(List.of(docarr_Array)), Original_Results, snippet_for_all_urls);
+        phrase_Search_work(finalword,QueryStringBinary, new Vector<JSONArray>(List.of(docarr_Array)), Original_Results, snippet_for_all_urls);
         long time03 = System.currentTimeMillis();
         System.out.println("\nTime to phrase query:" + (time03 - time01));
         return 1;
@@ -101,7 +105,7 @@ public class Phrase_sreach {
 
 
     //*********************************************Private Functions
-    private void phrase_Search_work(Vector<String> words, Vector<JSONArray> docarr, HashMap<String, JSONObject> Original_Results, HashMap<String, String> snippet_for_all_urls) throws JSONException {
+    private void phrase_Search_work(Vector<String> words,Vector<String>QueryStringBinary ,Vector<JSONArray> docarr, HashMap<String, JSONObject> Original_Results, HashMap<String, String> snippet_for_all_urls) throws JSONException {
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
 
@@ -218,7 +222,7 @@ public class Phrase_sreach {
                         }
                         if (has) {
                             //check order
-                            int first_Index = compare_Json_array(TagArray, Tags_Indexes);
+                            int first_Index = compare_Json_array(TagArray, Tags_Indexes,bodies.get(url),QueryStringBinary);
                             long Time10 = System.currentTimeMillis();
                             if (first_Index != -1)//if true then this url is valid
                             {
@@ -262,20 +266,67 @@ public class Phrase_sreach {
     }
 
 
-    //Compare Json Arrays to find consecutive numbers
-    private int compare_Json_array(Vector<JSONArray> tagarr, Vector<Integer> Indexes_Of_Tags) throws JSONException {
+    private int compare_Json_array(Vector<JSONArray> tagarr, Vector<Integer> Indexes_Of_Tags,String body_String,Vector<String>Query_Words) throws JSONException {
+        //  ""   "and"   ""
+        //The "" "" ""
+        String[] body = body_String.split("\\s+");
+
+        Boolean start_with_stop_word = false;
+        //special case if the first word is stop word
+        int index_Query_words = 0;
+        while (!Query_Words.get(index_Query_words).equals("")) {
+            start_with_stop_word = true;//stop word
+            index_Query_words++;
+        }
+
+
+        int l=1;
+
         int k = 0;
         for (; k < tagarr.get(0).length(); k++) {
             int x = ((int) tagarr.get(0).get(k));
-            int j = 1;
-            for (; j < tagarr.size(); j++) {
-                int y = next_number_greater_than_or_equal_target(tagarr.get(j), x);
-                if (x + 1 == y || x == y)
-                    x = y;
-                else
-                    break;
+            if(start_with_stop_word==true)
+            {
+                int st;
+                for(st=1;st<=index_Query_words;st++) {
+                    if ((x-st) < 0)
+                        break;
+                    if (!(body[x - st].toLowerCase()).equals(Query_Words.get(0))) {
+                        break;
+                    }
+                    l++;
+                }
+                if(st!=index_Query_words+1)
+                    continue;
             }
-            if (j == tagarr.size()) {
+
+            int j = 1;
+            for (; l < Query_Words.size(); l++){
+                if(!Query_Words.get(l).equals(""))
+                {
+                    //stop words
+                    if(x+1==body.length)
+                        break;
+                    if((body[x+1].toLowerCase()).equals(Query_Words.get(l)))
+                    {
+                        x = x+1;
+                    }
+                    else if((body[x].toLowerCase()).equals(Query_Words.get(l))); //right
+                    else break;
+
+//                    continue;
+                }
+                //Not stop word
+                else {
+                    int y = next_number_greater_than_or_equal_target(tagarr.get(j), x);
+                    j++;
+                    if (x + 1 == y || x == y)
+                        x = y;
+                    else
+                        break;
+                }
+            }
+            if (l == Query_Words.size()) {
 //                    return  ((int) tagarr.get(0).get(k));
                 Indexes_Of_Tags.add((int) tagarr.get(0).get(k));
             }
@@ -317,14 +368,16 @@ public class Phrase_sreach {
         int i = start_index;
         StringBuffer temp2 = new StringBuffer(body[start_index]);
         temp2.reverse();
-        snippet.append(temp2 + " ");
+        snippet.append(temp2 + "****** ");
         i--;
-        while (i >= 0 && !body[i].endsWith(".") && !body[i].endsWith(",") && !body[i].endsWith("-")) {
+        int counter=0;
+        while (i >= 0 && counter!=10) {
             //snippet.insert(0,body.getString(i)+" ");
             StringBuffer temp = new StringBuffer(body[i]);
             temp.reverse();
             snippet.append(temp + " ");
             i--;
+            counter++;
         }
         snippet.reverse();
         snippet.append(" ");
@@ -332,9 +385,11 @@ public class Phrase_sreach {
         i = start_index + 1;
         if (body[start_index].endsWith("."))
             return snippet.toString();
-        while (i <= body.length - 1 && !body[i].endsWith(".") && !body[i].endsWith(",") && !body[i].endsWith("-")) {
+        counter=0;
+        while (i <= body.length - 1 &&counter!=10) {
             snippet.append(body[i] + " ");
             i++;
+            counter++;
         }
         if (i <= body.length - 1)
             snippet.append(body[i] + " ");
