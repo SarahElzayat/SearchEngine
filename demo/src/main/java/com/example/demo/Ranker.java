@@ -78,6 +78,7 @@ public class Ranker {
 
             if (weights.has("p"))
                 headers += weights.getJSONArray("p").length();
+
             internalRank = headers;
             System.out.println("HEADERS " + internalRank);
             internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
