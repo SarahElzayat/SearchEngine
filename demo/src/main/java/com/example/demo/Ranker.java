@@ -271,7 +271,6 @@ public class Ranker {
             calculateRank(Original_Results);
             calculateStemmedRank(Steam_Results, 0);
             calculateStemmedRank(NonCommon_Results, 1);
-//            calculateRank(NonCommon_Results);
             timeR2 = System.currentTimeMillis();
 
 

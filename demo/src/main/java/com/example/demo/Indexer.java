@@ -185,11 +185,11 @@ public class Indexer {
 
     public static void main(String[] args) throws IOException {
         Indexer indexer=new Indexer();
-//        indexer.Index_crawlar();
+        indexer.Index_crawlar();
 
 
         //reindexing
-        indexer.ReIndex_Crawlar_New_URLS();
+        //indexer.ReIndex_Crawlar_New_URLS();
         return;
     }
 
