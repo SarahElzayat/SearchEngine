@@ -147,7 +147,7 @@
            style="font-size:150px;color:lightblue;text-shadow:2px 2px 4px #13131398;"></i>
     </div>
 
-    <form name="search" action="http://localhost:8080/search" class="form">
+    <form name="search" action="http://localhost:8000/search" class="form">
 
         <input type="text" placeholder=" " id="query" name="query">
         <label for=""> search </label>
@@ -173,7 +173,7 @@
     function changeFormAction() {
         var query = document.getElementById("query").value;
         var form = this;
-        form.action = "https://localhost:8080/search/" + query;
+        form.action = "https://localhost:8000/search/" + query;
         form.submit();
     }
     function record() {

@@ -190,7 +190,8 @@ public class Crawler extends Thread {
       int hashedOld = html.hashCode();
       if (hashedOld != hashedNew) {
 
-        dbMongo.updateSeed(temp.toString(), url, html);
+        dbMongo.updateSeed(temp.toString(), url, html,temp.title());
+
         //        System.out.println("Updated document url " + url);
       }
     }

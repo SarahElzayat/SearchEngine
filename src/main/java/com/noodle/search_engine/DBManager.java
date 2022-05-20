@@ -131,10 +131,10 @@ public class DBManager {
     }
   }
 
-  public void updateSeed(String html, String id,String oldHTML ){
+  public void updateSeed(String html, String id,String oldHTML,String title ){
 
     Document update = new Document();
-    update.append("$set", new Document().append("html", html).append("_body","").append("NoOfWords",0));
+    update.append("$set", new Document().append("html", html).append("_body","").append("NoOfWords",0).append("title",title));
     URLSWithHTML.updateOne(new Document().append("_id", id), update);
     OldSeeds.insertOne(new Document("_id",id).append("html",oldHTML));
 

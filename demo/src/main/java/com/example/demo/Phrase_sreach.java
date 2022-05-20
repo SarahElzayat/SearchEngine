@@ -1,4 +1,5 @@
 package com.example.demo;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
@@ -9,64 +10,57 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.*;
-public class Phrase_sreach
-{
+
+public class Phrase_sreach {
     private MongoDB database;
     private MongoDB database_Indexer;
-    private PorterStemmer porterStemmer ;//stemmer
-    private static HashSet<String> stopWords ;
+    private PorterStemmer porterStemmer;//stemmer
+    private static HashSet<String> stopWords;
     private static HashSet<String> ImportantWords;
 
     Indexer indexer;
-    public HashSet<String>tags;
-
-
-
+    public HashSet<String> tags;
 
 
     //Constructor
-    public Phrase_sreach()  {
+    public Phrase_sreach() {
         //connect to DB
-        database=new MongoDB("SearchEngine","URLSWithHTML");
-        database_Indexer=new MongoDB("SearchEngine","Indexer");
+        database = new MongoDB("SearchEngine", "URLSWithHTML");
+        database_Indexer = new MongoDB("SearchEngine", "Indexer");
         porterStemmer = new PorterStemmer();
-        stopWords=Indexer.getStopWords();
-        ImportantWords=Indexer.getImportantword();
+        stopWords = Indexer.getStopWords();
+        ImportantWords = Indexer.getImportantword();
 
 
-
-        indexer=new Indexer();
-        tags=indexer.tagsnames;
+        indexer = new Indexer();
+        tags = indexer.tagsnames;
 
     }
+
     //Gets Urls that contain the Phrase, The snippets ,The DF for each Word
     //return -1 if one No website conatin one of the words of the Phrase and 0 sucess
     //But Note still the Original Results may be empty if the Phrase isn't found in The URLS
-    public int Phrase_Search(String QP_str, HashMap<String,JSONObject> Original_Results,HashMap<String,String> snippet_for_all_urls,Vector<Integer>DF) throws JSONException {
-        long time01 =System.currentTimeMillis();
+    public int Phrase_Search(String QP_str, HashMap<String, JSONObject> Original_Results, HashMap<String, String> snippet_for_all_urls, Vector<Integer> DF) throws JSONException {
+        long time01 = System.currentTimeMillis();
 
-        Vector<String>Steam_Words_Arr=new Vector<>();
+        Vector<String> Steam_Words_Arr = new Vector<>();
         //remove quotations
-        StringBuilder To_remove_space=new StringBuilder(QP_str);
+        StringBuilder To_remove_space = new StringBuilder(QP_str);
         To_remove_space.deleteCharAt(0);
-        To_remove_space.deleteCharAt(QP_str.length()-2);
-        QP_str=To_remove_space.toString();
+        To_remove_space.deleteCharAt(QP_str.length() - 2);
+        QP_str = To_remove_space.toString();
 
         //Preprocessing the Query
         String[] words = (QP_str).toLowerCase().split("\\s+");//splits the string based on whitespace
-        Vector<String>finalword=new Vector<String>(0);
+        Vector<String> finalword = new Vector<String>(0);
 
-        for (int i = 0; i < words.length; i++)
-        {
-            if (!ImportantWords.contains(words[i]))
-            {
+        for (int i = 0; i < words.length; i++) {
+            if (!ImportantWords.contains(words[i])) {
                 words[i] = words[i].replaceAll("[^a-zA-Z0-9]", " ");
                 //System.out.println(words[i]);
                 String[] subwords = words[i].split("\\s+");//splits the string based on whitespace
-                for (String sw : subwords)
-                {
-                    if (stopWords.contains(sw))
-                    {
+                for (String sw : subwords) {
+                    if (stopWords.contains(sw)) {
 //                        finalword.add(sw);
                         continue;
                     }
@@ -74,8 +68,7 @@ public class Phrase_sreach
                     Steam_Words_Arr.add(stemw);
                     finalword.add(sw);
                 }
-            }
-            else{
+            } else {
                 String stemw = porterStemmer.stem(words[i]);
                 Steam_Words_Arr.add(stemw);
                 finalword.add(words[i]);
@@ -83,32 +76,32 @@ public class Phrase_sreach
         }//end of loop
 
         //get Documents for those final word
-        JSONArray[]docarr_Array=new JSONArray[finalword.size()];
-        FindIterable<Document>  DBresult = database_Indexer.collection.find(new Document("_id", new BasicDBObject("$in",(Steam_Words_Arr))));
+        JSONArray[] docarr_Array = new JSONArray[finalword.size()];
+        FindIterable<Document> DBresult = database_Indexer.collection.find(new Document("_id", new BasicDBObject("$in", (Steam_Words_Arr))));
         MongoCursor<Document> iterator = DBresult.iterator();
-        int counter_for_Documents_from_DB=0;
+        int counter_for_Documents_from_DB = 0;
         while (iterator.hasNext()) {
             counter_for_Documents_from_DB++;
             String s = iterator.next().toJson();
             JSONObject Jsonobj = new JSONObject(s);
-            String id=Jsonobj.getString("_id");//stem word
-            int index= Steam_Words_Arr.indexOf(id);
-            docarr_Array[index]=Jsonobj.getJSONArray("DOC");
+            String id = Jsonobj.getString("_id");//stem word
+            int index = Steam_Words_Arr.indexOf(id);
+            docarr_Array[index] = Jsonobj.getJSONArray("DOC");
             DF.add(Jsonobj.getInt("DF"));
         }
-        if(counter_for_Documents_from_DB!=finalword.size())
+        if (counter_for_Documents_from_DB != finalword.size())
             return -1;
 
 
-        phrase_Search_work(finalword,new Vector<JSONArray>(List.of(docarr_Array)),Original_Results,snippet_for_all_urls);
-        long time03 =System.currentTimeMillis();
-        System.out.println("\nTime to phrase query:"+(time03-time01));
+        phrase_Search_work(finalword, new Vector<JSONArray>(List.of(docarr_Array)), Original_Results, snippet_for_all_urls);
+        long time03 = System.currentTimeMillis();
+        System.out.println("\nTime to phrase query:" + (time03 - time01));
         return 1;
     }
 
 
     //*********************************************Private Functions
-     private void phrase_Search_work(  Vector<String>words, Vector<JSONArray> docarr,  HashMap<String,JSONObject>Original_Results,HashMap<String,String> snippet_for_all_urls) throws JSONException  {
+    private void phrase_Search_work(Vector<String> words, Vector<JSONArray> docarr, HashMap<String, JSONObject> Original_Results, HashMap<String, String> snippet_for_all_urls) throws JSONException {
         HashMap<String, HashMap<String, JSONObject>> Inedxer_Results = new HashMap();
         Vector<JSONObject> Temp_Original = new Vector<JSONObject>(0);
 
@@ -117,12 +110,11 @@ public class Phrase_sreach
         HashMap<String, Integer> Urls = new HashMap<String, Integer>();
         //loop over each word
         //O(n2)
-        long time1 =System.currentTimeMillis();
-        for (int j = 0; j < docarr.size(); j++){
+        long time1 = System.currentTimeMillis();
+        for (int j = 0; j < docarr.size(); j++) {
             HashMap<String, JSONObject> HashMap_Word = new HashMap<>();
             //loop over each url for this word
-            for (int k = 0; k < docarr.get(j).length(); k++)
-            {
+            for (int k = 0; k < docarr.get(j).length(); k++) {
                 String url = docarr.get(j).getJSONObject(k).getString("_url");
                 HashMap_Word.put(docarr.get(j).getJSONObject(k).getString("_url"), docarr.get(j).getJSONObject(k));
                 //getting Frequency
@@ -134,10 +126,8 @@ public class Phrase_sreach
             }
             Inedxer_Results.put(words.get(j), HashMap_Word);
         }
-        long time2 =System.currentTimeMillis();
-      long loop1=time2-time1;
-
-
+        long time2 = System.currentTimeMillis();
+        long loop1 = time2 - time1;
 
 
 //        long time3 =System.currentTimeMillis();
@@ -145,36 +135,36 @@ public class Phrase_sreach
 //        System.out.println("\nloop2:"+(time4-time3));
         //filing bodies and getting snippets
         //get Documents for those final word
-        long time3 =System.currentTimeMillis();
+        long time3 = System.currentTimeMillis();
         //HashMap<String,JSONArray>bodies=new HashMap<>();
-        HashMap<String,String>bodies=new HashMap<>();
-        FindIterable<Document>  DBresult = database.collection.find(new Document("_id", new BasicDBObject("$in",Urls.keySet())));
+        HashMap<String, String> bodies = new HashMap<>();
+        FindIterable<Document> DBresult = database.collection.find(new Document("_id", new BasicDBObject("$in", Urls.keySet())));
         MongoCursor<Document> iterator = DBresult.iterator();
         JSONArray body = null;
-        Document doc=null;
+        Document doc = null;
         while (iterator.hasNext()) {
-            doc=iterator.next();
+            doc = iterator.next();
 //            JSONObject Jsonobj = new JSONObject(s);
 //            String url=Jsonobj.getString("_id");
 //            bodies.put(url,Jsonobj.getJSONArray("_body"));
-            bodies.put(doc.getString("_id"),doc.getString("_body"));
+            bodies.put(doc.getString("_id"), doc.getString("_body"));
         }
-        long time4 =System.currentTimeMillis();
-        long loop2=time4-time3;
+        long time4 = System.currentTimeMillis();
+        long loop2 = time4 - time3;
 
 
         //loop over all urls
         //O(n2)
-        long totaltime=0;
-        long time5 =System.currentTimeMillis();
-        long totaltime1=0;
+        long totaltime = 0;
+        long time5 = System.currentTimeMillis();
+        long totaltime1 = 0;
         for (Map.Entry<String, Integer> set : Urls.entrySet()) {
             //each url
             Boolean common = true;
             String url = set.getKey();
             Integer freq = set.getValue();
             //loop over all words in the query
-            long time20=System.currentTimeMillis();
+            long time20 = System.currentTimeMillis();
             for (int i = 0; i < docarr.size(); i++) {
                 //loop over all urls of this word to compare with url
                 //Getting hashmap of this word
@@ -192,31 +182,31 @@ public class Phrase_sreach
                         break;
                     }
                 }
-            }long time30=System.currentTimeMillis();
-            totaltime1=time20-time30;
-
+            }
+            long time30 = System.currentTimeMillis();
+            totaltime1 = time20 - time30;
 
 
             //tik=ll here this url is common betweeen the 2 words
-            long time40=System.currentTimeMillis();
-            boolean Valid_URL=false;
+            long time40 = System.currentTimeMillis();
+            boolean Valid_URL = false;
             if (Temp_Original.size() == words.size())//Valid URL
             {
                 //for this url check it has the Phrase
 
-                Iterator<String> it=tags.iterator();
+                Iterator<String> it = tags.iterator();
                 Vector<JSONArray> TagArray = new Vector<>(0);
-                Vector<Integer>Tags_Indexes=new Vector<Integer>(0);
+                Vector<Integer> Tags_Indexes = new Vector<Integer>(0);
                 //loop over all tags ==> to get common Tag & Phrase Word
                 //O(n2)
-                JSONObject Weights_Of_Phrase=new JSONObject();
+                JSONObject Weights_Of_Phrase = new JSONObject();
                 while (it.hasNext()) {
                     String Tag = it.next();
                     if (Temp_Original.get(0).has(Tag)) {
                         TagArray.add(Temp_Original.get(0).getJSONArray(Tag));
 
                         boolean has = true;
-                        boolean Done_Snippet=false;
+                        boolean Done_Snippet = false;
                         //loop over other words ==> to see if this tag is common
                         for (int k = 1; k < Temp_Original.size(); k++) {
                             if (!Temp_Original.get(k).has((Tag))) {
@@ -225,135 +215,128 @@ public class Phrase_sreach
                             }
                             TagArray.add(Temp_Original.get(k).getJSONArray(Tag));
                         }
-                        if (has)
-                        {
+                        if (has) {
                             //check order
-                            int first_Index = compare_Json_array(TagArray,Tags_Indexes);
-                            long Time10=System.currentTimeMillis();
+                            int first_Index = compare_Json_array(TagArray, Tags_Indexes);
+                            long Time10 = System.currentTimeMillis();
                             if (first_Index != -1)//if true then this url is valid
                             {
                                 //add  this row to the resutlst to be returned
-                                Weights_Of_Phrase.put(Tag,new Vector<Integer>(Tags_Indexes));
-                               // Original_Results.put(url, new Vector<>(Temp_Original));
+                                Weights_Of_Phrase.put(Tag, new Vector<Integer>(Tags_Indexes));
+                                // Original_Results.put(url, new Vector<>(Temp_Original));
 //                                 //getting Snippet
 //                                String s =shosho.get(url).toJson();
 //                                JSONObject Jsonobj = new JSONObject(s);
-                                snippet_for_all_urls.put(url,snippet_url(bodies.get(url), first_Index));
+                                snippet_for_all_urls.put(url, snippet_url(bodies.get(url), first_Index));
                                 // snippet_for_all_urls.add(snippet_url(Jsonobj.getJSONArray("_body"), first_Index));
-                                long Time11=System.currentTimeMillis();
-                                totaltime+=Time11-Time10;
+                                long Time11 = System.currentTimeMillis();
+                                totaltime += Time11 - Time10;
                                 /////////////////////
-                               // break;//break out of loop of searching for tags
+                                // break;//break out of loop of searching for tags
                             }
                             //else//this Tag doesn't contain this Phrase==> go to another tag
 
                         }
                         TagArray.clear();
-                        Tags_Indexes.clear();                  }
+                        Tags_Indexes.clear();
+                    }
                 }//end of loop of tags
 
-            Original_Results.put(url, new JSONObject(Weights_Of_Phrase, new String[]{""}));
+                Original_Results.put(url, new JSONObject(Weights_Of_Phrase, new String[]{""}));
             }
             //else{} //==>Invlaid URL
 
             Temp_Original.clear();
         }//end loop of urls
-        System.out.println("\nTotal==>:"+totaltime);
-        long time6 =System.currentTimeMillis();
-        System.out.println("\nloop1"+loop1);
-        System.out.println("\nloop2"+loop2);
-        System.out.println("\nloop3:"+(time6-time5));
+        System.out.println("\nTotal==>:" + totaltime);
+        long time6 = System.currentTimeMillis();
+        System.out.println("\nloop1" + loop1);
+        System.out.println("\nloop2" + loop2);
+        System.out.println("\nloop3:" + (time6 - time5));
 
 
     }
 
 
-
     //Compare Json Arrays to find consecutive numbers
-    private int compare_Json_array(Vector<JSONArray>tagarr,Vector<Integer> Indexes_Of_Tags) throws JSONException {
-        int k=0;
-        for (;k<tagarr.get(0).length();k++)
-        {
-            int x= ((int) tagarr.get(0).get(k));
-            int j=1;
-            for (;j< tagarr.size();j++)
-            {
-                int y=next_number_greater_than_or_equal_target(tagarr.get(j),x);
-                if(x+1==y||x==y)
+    private int compare_Json_array(Vector<JSONArray> tagarr, Vector<Integer> Indexes_Of_Tags) throws JSONException {
+        int k = 0;
+        for (; k < tagarr.get(0).length(); k++) {
+            int x = ((int) tagarr.get(0).get(k));
+            int j = 1;
+            for (; j < tagarr.size(); j++) {
+                int y = next_number_greater_than_or_equal_target(tagarr.get(j), x);
+                if (x + 1 == y || x == y)
                     x = y;
                 else
                     break;
             }
-            if(j==tagarr.size())
-                {
+            if (j == tagarr.size()) {
 //                    return  ((int) tagarr.get(0).get(k));
-                    Indexes_Of_Tags.add((int) tagarr.get(0).get(k));
-                }
+                Indexes_Of_Tags.add((int) tagarr.get(0).get(k));
+            }
         }
-       if(Indexes_Of_Tags.size()==0)
-           return -1;
-       return Indexes_Of_Tags.get(0);
+        if (Indexes_Of_Tags.size() == 0)
+            return -1;
+        return Indexes_Of_Tags.get(0);
     }
 
 
     private static int next_number_greater_than_or_equal_target(JSONArray arr, int target) throws JSONException {
-            int start = 0, end = arr.length() - 1;
+        int start = 0, end = arr.length() - 1;
 
-            int ans = -1;
-            while (start <= end) {
-                int mid = (start + end) / 2;
+        int ans = -1;
+        while (start <= end) {
+            int mid = (start + end) / 2;
 
-                // Move to right side if target is
-                // greater.
-                if ((int)arr.get(mid) < target) {
-                    start = mid + 1;
-                }
-
-                // Move left side.
-                else {
-                    ans = (int)arr.get(mid);
-                    end = mid - 1;
-                }
+            // Move to right side if target is
+            // greater.
+            if ((int) arr.get(mid) < target) {
+                start = mid + 1;
             }
-            return ans;
+
+            // Move left side.
+            else {
+                ans = (int) arr.get(mid);
+                end = mid - 1;
+            }
         }
+        return ans;
+    }
 
     //Get Snippet from the Start index(It is Logically correct Sentence )
 //    private String snippet_url(JSONArray body,int start_index) throws JSONException {
-    private String snippet_url(String body_String,int start_index) throws JSONException {
-        String[]body=body_String.split("\\s+");
+    private String snippet_url(String body_String, int start_index) throws JSONException {
+        String[] body = body_String.split("\\s+");
 
-        StringBuffer snippet=new StringBuffer();
-        int i=start_index;
-        StringBuffer temp2=new StringBuffer(body[start_index]);
+        StringBuffer snippet = new StringBuffer();
+        int i = start_index;
+        StringBuffer temp2 = new StringBuffer(body[start_index]);
         temp2.reverse();
-        snippet.append(temp2+" ");
+        snippet.append(temp2 + " ");
         i--;
-        while (i>=0&&!body[i].endsWith(".")&&!body[i].endsWith(",")&&!body[i].endsWith("-"))
-        {
+        while (i >= 0 && !body[i].endsWith(".") && !body[i].endsWith(",") && !body[i].endsWith("-")) {
             //snippet.insert(0,body.getString(i)+" ");
-            StringBuffer temp=new StringBuffer(body[i]);
+            StringBuffer temp = new StringBuffer(body[i]);
             temp.reverse();
-            snippet.append(temp+" ");
+            snippet.append(temp + " ");
             i--;
         }
         snippet.reverse();
         snippet.append(" ");
         snippet.deleteCharAt(0);//remove space;
-        i=start_index+1;
-        if(body[start_index].endsWith("."))
+        i = start_index + 1;
+        if (body[start_index].endsWith("."))
             return snippet.toString();
-        while (i<= body.length-1&&!body[i].endsWith(".")&&!body[i].endsWith(",")&&!body[i].endsWith("-"))
-        {
-            snippet.append(body[i]+" ");
+        while (i <= body.length - 1 && !body[i].endsWith(".") && !body[i].endsWith(",") && !body[i].endsWith("-")) {
+            snippet.append(body[i] + " ");
             i++;
         }
-        if (i<= body.length-1)
-            snippet.append(body[i]+" ");
+        if (i <= body.length - 1)
+            snippet.append(body[i] + " ");
 
         return snippet.toString();
     }
-
 
 
     ///***************************************MAIN for Test***********************************////
