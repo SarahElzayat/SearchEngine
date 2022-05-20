@@ -200,6 +200,7 @@ public class Phrase_sreach {
                 //loop over all tags ==> to get common Tag & Phrase Word
                 //O(n2)
                 JSONObject Weights_Of_Phrase = new JSONObject();
+                Boolean PhraseURL=false;
                 while (it.hasNext()) {
                     String Tag = it.next();
                     if (Temp_Original.get(0).has(Tag)) {
@@ -223,11 +224,13 @@ public class Phrase_sreach {
                             {
                                 //add  this row to the resutlst to be returned
                                 Weights_Of_Phrase.put(Tag, new JSONArray(Tags_Indexes));
+                                if(PhraseURL==false)
+                                   snippet_for_all_urls.put(url, snippet_url(bodies.get(url), first_Index));
+                                PhraseURL=true;
                                 // Original_Results.put(url, new Vector<>(Temp_Original));
 //                                 //getting Snippet
 //                                String s =shosho.get(url).toJson();
 //                                JSONObject Jsonobj = new JSONObject(s);
-                                snippet_for_all_urls.put(url, snippet_url(bodies.get(url), first_Index));
                                 // snippet_for_all_urls.add(snippet_url(Jsonobj.getJSONArray("_body"), first_Index));
                                 long Time11 = System.currentTimeMillis();
                                 totaltime += Time11 - Time10;
@@ -242,7 +245,8 @@ public class Phrase_sreach {
                     }
                 }//end of loop of tags
 
-                Original_Results.put(url,Weights_Of_Phrase);
+                if(PhraseURL==true)
+                  Original_Results.put(url,Weights_Of_Phrase);
             }
             //else{} //==>Invlaid URL
 
