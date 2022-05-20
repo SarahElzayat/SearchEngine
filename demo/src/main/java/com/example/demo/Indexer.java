@@ -185,11 +185,11 @@ public class Indexer {
 
     public static void main(String[] args) throws IOException {
         Indexer indexer=new Indexer();
-        indexer.Index_crawlar();
+//        indexer.Index_crawlar();
 
 
         //reindexing
-        //indexer.ReIndex_Crawlar_New_URLS();
+        indexer.ReIndex_Crawlar_New_URLS();
         return;
     }
 
@@ -324,7 +324,7 @@ public class Indexer {
 //        else
 //            body=body_String.deleteCharAt(body_String.length()-1).toString();
 //        Bson filter=eq("_id",url);
-//        Bson update2=Updates.combine(Updates.set("NoOfWords",no_Of_Words),Updates.set("_body",body));
+//        Document update =new Document("$pull",new Document("DOC",new Document("_url",url)));
 //        database_Crawler.collection.updateMany(filter, update2);
     }
 
@@ -334,8 +334,18 @@ public class Indexer {
         //steaming the word
         String stemword = porterStemmer.stem(word);//hello
         Document fillter=new Document("_id",stemword);
-        Document update =new Document("DOC",new Document("$pull",new Document("_url",url)));
-        database_Index.collection.updateOne(fillter,update);
+        Document update =new Document("$pull",new Document("DOC",new Document("_url",url)));
+
+
+        UpdateResult Up_result=database_Index.collection.updateOne(fillter,update);
+        if(Up_result.getModifiedCount()==1) {
+            Document fillter2 = new Document("_id", stemword);
+            Bson update2 =Updates.inc("DF",-1);
+
+
+           database_Index.collection.updateOne(fillter2, update2);
+        }
+
 
     }
 }

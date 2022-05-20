@@ -91,6 +91,16 @@ public class Phrase_sreach {
             String id = Jsonobj.getString("_id");//stem word
             int index = Steam_Words_Arr.indexOf(id);
             docarr_Array[index] = Jsonobj.getJSONArray("DOC");
+            if(index+1<Steam_Words_Arr.size())
+            {
+                index = Steam_Words_Arr.indexOf(id, index + 1);
+                while(index!=-1)
+                {
+                    docarr_Array[index] = Jsonobj.getJSONArray("DOC");
+                    index = Steam_Words_Arr.indexOf(id, index + 1);
+
+                }
+            }
             DF.add(Jsonobj.getInt("DF"));
         }
         if (counter_for_Documents_from_DB != finalword.size()||counter_for_Documents_from_DB==0)

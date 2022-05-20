@@ -94,6 +94,16 @@ public class queryprocessing {
             String id = Jsonobj.getString("_id");//stem word
             int index = Steam_Words_Arr.indexOf(id);
             docarr_Array[index] = Jsonobj.getJSONArray("DOC");
+            if(index+1<Steam_Words_Arr.size())
+            {
+                index = Steam_Words_Arr.indexOf(id, index + 1);
+                while(index!=-1)
+                {
+                    docarr_Array[index] = Jsonobj.getJSONArray("DOC");
+                    index = Steam_Words_Arr.indexOf(id, index + 1);
+
+                }
+            }
             DF.add(Jsonobj.getInt("DF"));
         }
         if (counter_for_Documents_from_DB != finalword.size())
@@ -103,6 +113,7 @@ public class queryprocessing {
             return null;
 
         long timeqpw1 = System.currentTimeMillis();
+
 
         query_process_work(finalword, new Vector<JSONArray>(List.of(docarr_Array)), Original_Results, Steam_Results, NonCommon_Results, Notfound);
         long timeqpw2 = System.currentTimeMillis();
@@ -315,7 +326,7 @@ public class queryprocessing {
             int i = Start_index.get(j);
             StringBuffer temp2 = new StringBuffer(body[i]);
             temp2.reverse();
-            snippet.append(temp2 + " ");
+            snippet.append(temp2 + "***** ");
             i--;
             int counter=0;
             while (i >= 0 && counter!=10) {
