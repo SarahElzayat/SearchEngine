@@ -256,10 +256,12 @@ public class Ranker {
         if (query.startsWith("\"") && query.endsWith("\"")) {
 
 
+            timeq1 = System.currentTimeMillis();
             if(PhraseSearch.Phrase_Search(query, phraseSearchResults, snippet_for_Phrase_Search, DF)==-1) {
                 System.out.println("No of URLS:" + phraseSearchResults.size());
                 return;
             }
+            timeq2 = System.currentTimeMillis();
             System.out.println("No of URLS:" + phraseSearchResults.size());
 
             Teamp_func();
@@ -278,6 +280,8 @@ public class Ranker {
 
 
         }
+
+        long Timec1 = System.currentTimeMillis();
         Original_Results.clear();
         NonCommon_Results.clear();
         Steam_Results.clear();
@@ -285,12 +289,13 @@ public class Ranker {
         DF.clear();
         snippet_for_Phrase_Search.clear();
         Snippets.clear();
-
+        long Timec2 = System.currentTimeMillis();
 
         long Time2 = System.currentTimeMillis();
         System.out.println("\n\nTotal Time to get result in fun get results:" + (Time2 - Time1));
         System.out.println("\nQuery Processing " + (timeq2 - timeq1));
         System.out.println("\nRanker " + (timeR2 - timeR1));
+        System.out.println("\n\nClearing:" + (Timec2 - Timec1));
 
     }
 

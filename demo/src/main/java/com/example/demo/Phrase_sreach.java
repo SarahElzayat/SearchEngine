@@ -5,9 +5,11 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCursor;
 import opennlp.tools.stemmer.PorterStemmer;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.*;
 
@@ -147,7 +149,7 @@ public class Phrase_sreach {
 //        long time3 =System.currentTimeMillis();
 //        long time4 =System.currentTimeMillis();
 //        System.out.println("\nloop2:"+(time4-time3));
-        //filing bodies and getting snippets
+        //filing bodies
         //get Documents for those final word
         long time3 = System.currentTimeMillis();
         //HashMap<String,JSONArray>bodies=new HashMap<>();
@@ -156,15 +158,14 @@ public class Phrase_sreach {
         MongoCursor<Document> iterator = DBresult.iterator();
         JSONArray body = null;
         Document doc = null;
+        long time = System.currentTimeMillis();
         while (iterator.hasNext()) {
             doc = iterator.next();
-//            JSONObject Jsonobj = new JSONObject(s);
-//            String url=Jsonobj.getString("_id");
-//            bodies.put(url,Jsonobj.getJSONArray("_body"));
             bodies.put(doc.getString("_id"), doc.getString("_body"));
         }
         long time4 = System.currentTimeMillis();
         long loop2 = time4 - time3;
+        long loop2bodies = time4 - time;
 
 
         //loop over all urls
@@ -270,6 +271,7 @@ public class Phrase_sreach {
         long time6 = System.currentTimeMillis();
         System.out.println("\nloop1" + loop1);
         System.out.println("\nloop2" + loop2);
+        System.out.println("\nloop2Body:" + loop2bodies);
         System.out.println("\nloop3:" + (time6 - time5));
 
 
