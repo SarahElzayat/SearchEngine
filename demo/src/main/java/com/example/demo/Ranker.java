@@ -255,8 +255,10 @@ public class Ranker {
         long Time1 = System.currentTimeMillis();
         if (query.startsWith("\"") && query.endsWith("\"")) {
 
-            PhraseSearch.Phrase_Search(query, phraseSearchResults, snippet_for_Phrase_Search, DF);
-            System.out.println("No of URLS:" + phraseSearchResults.size());
+            if(PhraseSearch.Phrase_Search(query, phraseSearchResults, snippet_for_Phrase_Search, DF)==-1) {
+                System.out.println("No of URLS:" + phraseSearchResults.size());
+                return;
+            }
             Teamp_func();
         } else {
 
