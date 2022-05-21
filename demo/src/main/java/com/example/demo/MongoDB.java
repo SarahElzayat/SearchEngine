@@ -1,35 +1,36 @@
-/*package MongoDBPackage;*/
 package com.example.demo;
-//Mongo DB
+//MongoDB
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.MongoCollection;
-//import com.mongodb.MongoClient;
 import com.mongodb.client.*;
 import org.bson.Document;
 
 
-
-
 public class MongoDB {
-    private MongoClient mongoClient ;
-    public MongoDatabase database ;
-    public MongoCollection<Document> collection;
 
-    //1.constructor;
-    public MongoDB(String Database,String collection_Name)
+    //Data Members
+    private MongoClient mongoClient ;
+    private MongoDatabase database ;
+
+
+    //1.constructor
+     public MongoDB(String Database)
     {
-//       mongoClient = new MongoClient("localhost", 27017);
+        //open Database
         String uri = "mongodb://localhost:27017";
         MongoClient mongo = MongoClients.create(uri);
         MongoDatabase database = mongo.getDatabase(Database);
-//       database = mongoClient.getDatabase(Database);
-       if(database!=null)
-       {
-           collection = database.getCollection(collection_Name);
-       }
+    }
 
-
-
+    //2.getting collection
+    public  MongoCollection<Document>  GetCollection(String collection_Name)
+    {
+        //return collection
+        if(database!=null)
+        {
+          return database.getCollection(collection_Name);
+        }
+        return  null;
     }
 
 
