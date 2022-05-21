@@ -240,10 +240,10 @@ public class Ranker {
                         headers += weights.get(i).getJSONObject(form).getJSONArray("h4").length() * 1.5;
 
                     if (weights.get(i).getJSONObject(form).has("h5"))
-                        headers += weights.get(i).getJSONObject(form).getJSONArray("h5").length() * 1;
+                        headers += weights.get(i).getJSONObject(form).getJSONArray("h5").length();
 
                     if (weights.get(i).getJSONObject(form).has("h6"))
-                        headers += weights.get(i).getJSONObject(form).getJSONArray("h6").length() * 1;
+                        headers += weights.get(i).getJSONObject(form).getJSONArray("h6").length();
 
                     if (weights.get(i).getJSONObject(form).has("p"))
                         headers += weights.get(i).getJSONObject(form).getJSONArray("p").length() * .5;
