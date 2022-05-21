@@ -44,6 +44,12 @@ public class Indexer {
 
     public HashSet<String>tagsnames;
 
+    /*
+    Q4.Mention roughly how much time does the Indexer take to run over the output of the Crawler. [Indexer]
+    35-50 mins
+    Q5.Mention if it works without runtime errors. (Yes or No only) [Indexer]
+    Yes
+    */
     //======================================Member Functions============================//
     //1.Constructor
     Indexer()
@@ -71,7 +77,16 @@ public class Indexer {
         database_Crawler=Search_Engine_Database.GetCollection("URLSWithHTML");
         database_Indexer=Search_Engine_Database.GetCollection("Indexer");
     }
+//Q1.Mention whether you calculated the TF_IDF and show the file(s) where you did this. (Don't explain the code, just mention where is it) [Indexer]
+    //part1:TF:No of this word in this Website / No of all words in the website
+    //No,we don't count the No of occurrence of  word in the url ==> We store all its locations
+    //So the size of this array is then the Count (in addWordtoDB())
+    //we Count No of all words in the website and store it in the Crawler DB (in Index())
 
+
+    //part2:IDF:No of all websites/No of websites of this word
+    //No,No of all websites:is by default 5000
+    //No of websites of this word:we store the DF of the steam of this word
 
     //2.Index Url
     public void Index(String url,String source_str) throws IOException {
@@ -153,6 +168,9 @@ public class Indexer {
         database_Crawler.updateMany(filter, update2);
     }
 
+    //Q3. Mention what do you save for each keyword while indexing. (for example: saving that the keyword in which type of HTML tags) [Indexer]
+    //Open DB Indexer
+
     //3.Add a word to the Indexer Collection
     private void addWordtoDB(String word,String url,String tag,int position)
     {
@@ -181,7 +199,9 @@ public class Indexer {
             }
         }
     }
-
+    //Q2.Mention where the indexer takes the input from the crawler and in which format did you save the output of the crawler.
+    //part1:take all urls and their source files from the crawler and loop over them Index_crawlar()
+    //part2:the output of each url is saved as string and passed to (Index())
     //4.Index 5000 Webpages
     public void Index_crawlar() throws IOException
     {

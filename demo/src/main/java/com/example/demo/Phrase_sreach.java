@@ -14,6 +14,14 @@ import org.json.JSONObject;
 import java.util.*;
 import java.util.List;
 
+/*Questions
+Q1.Mention What type of phrase searching did you test and your code handles it.
+(for example: ex1: "word1 word2" ex2: "word1 word2 word3") [Phrase Searching]
+"World War"
+"chocolate chip cookies"
+Q2.Mention if it works without runtime errors. (Yes or No only) [Phrase Searching]
+Yes
+ */
 public class Phrase_sreach {
     //Data Members
     private PorterStemmer porterStemmer;//stemmer
@@ -382,7 +390,7 @@ public class Phrase_sreach {
         int i = start_index;
         StringBuffer temp2 = new StringBuffer(body[start_index]);
         temp2.reverse();
-        snippet.append("* "+temp2);
+        snippet.append(temp2+" ");
 
         //10 words before this word
         i--;
