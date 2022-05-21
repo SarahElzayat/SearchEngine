@@ -1,7 +1,6 @@
 package com.example.demo;
 
 import com.mongodb.client.*;
-
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
 import org.bson.Document;
@@ -9,16 +8,11 @@ import org.bson.conversions.Bson;
 import org.json.JSONException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Vector;
 
 
 @RestController// Controller

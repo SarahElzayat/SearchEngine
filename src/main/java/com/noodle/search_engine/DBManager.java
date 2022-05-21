@@ -51,6 +51,13 @@ public class DBManager {
     }
   }
 
+  public void retrieveTitles(HashSet<String> hashedUrls){
+    FindIterable<Document> d = URLSWithHTML.find();
+    for(Document doc: d){
+      hashedUrls.add((String) doc.get("title"));
+    }
+  }
+
   public long getFetchedCount() {
     return fetchedURLS.countDocuments();
   }

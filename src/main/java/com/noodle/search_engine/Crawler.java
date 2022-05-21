@@ -14,6 +14,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
 ///////////////////////////////////////////
@@ -76,7 +77,6 @@ public class Crawler extends Thread {
         //        System.out.println("LANG " + taglang.attr("lang"));
 
         if (!doc.toString().toLowerCase().contains("<!doctype html>") || !doc.toString().toLowerCase().contains(" lang=\"en")) {
-          //            || !(taglang.attr("lang").contains("en"))) {
 
           //          System.out.println(returnedDoc.get("_url") + " doesn't contain <doc html>");
           dbMongo.updateDoc(new Document("_state", 1), currentID);
@@ -97,6 +97,8 @@ public class Crawler extends Thread {
                     + " "
                     + returnedDoc.get("_url").toString()
                     + TEXT_RESET);
+
+
             dbMongo.insertIntoDBHtmls(
                 returnedDoc.get("_url").toString(), doc.toString(), encryptedHTML);
           }
@@ -167,7 +169,7 @@ public class Crawler extends Thread {
       dbMongo.insertInFetchedurls(title, 0);
     }
     dbMongo.retrieveElements(urlsBGD);
-
+    dbMongo.retrieveTitles(hashedHTMLS);
     dbMongo.retrieveLinkWithState1();
   }
 
@@ -201,31 +203,31 @@ public class Crawler extends Thread {
       throws IOException, URISyntaxException, InterruptedException {
     DBManager db = new DBManager();
     Crawler crawl = new Crawler(db, new RobotsManager());
-//     crawl.initializeSeeds();
-//     System.out.println("ENTER NUMBER OF THREADS");
-//     // crawl.run();
-//     Scanner sc = new Scanner(System.in);
-//     int numberOfThreads;
-//     int sleepSecs = 0;
-//     numberOfThreads = sc.nextInt();
-// //    if (numberOfThreads > 6) sleepSecs = 3000;
+     crawl.initializeSeeds();
+     System.out.println("ENTER NUMBER OF THREADS");
+     // crawl.run();
+     Scanner sc = new Scanner(System.in);
+     int numberOfThreads;
+     int sleepSecs = 0;
+     numberOfThreads = sc.nextInt();
+ //    if (numberOfThreads > 6) sleepSecs = 3000;
 
-//     Crawler threads[] = new Crawler[numberOfThreads];
-//     for (int i = 0; i < numberOfThreads; i++) {
-//       threads[i] = new Crawler(new DBManager(), new RobotsManager());
-//       threads[i].setName(Integer.toString(i));
-//       threads[i].start();
-//       threads[i].sleep(3000);
-//     }
-//     try {
-//       for (int i = 0; i < numberOfThreads; i++) {
-//         threads[i].join();
-//       }
-//     } catch (InterruptedException e) {
-//       e.printStackTrace();
-//     }
-//     java.awt.Toolkit.getDefaultToolkit().beep();
+     Crawler threads[] = new Crawler[numberOfThreads];
+     for (int i = 0; i < numberOfThreads; i++) {
+       threads[i] = new Crawler(new DBManager(), new RobotsManager());
+       threads[i].setName(Integer.toString(i));
+       threads[i].start();
+       threads[i].sleep(3000);
+     }
+     try {
+       for (int i = 0; i < numberOfThreads; i++) {
+         threads[i].join();
+       }
+     } catch (InterruptedException e) {
+       e.printStackTrace();
+     }
+     java.awt.Toolkit.getDefaultToolkit().beep();
 
-   crawl.recrawlSeeds();
+//   crawl.recrawlSeeds();
   }
 }
