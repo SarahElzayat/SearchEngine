@@ -66,7 +66,8 @@ public class homeController {
                 new Document("query", query));
         UpdateOptions options = new UpdateOptions().upsert(true);
         suggestions.updateOne(filter, update, options);
-        r.getResults(query.trim());
+        double time = r.getResults(query.trim());
+        time /=1000;
         FindIterable<Document> d = r.rankerCollection.find().sort(new Document("type",1).append("rank",-1));
         JSONArray responseArray = new JSONArray();
         for (Document doc : d) {
@@ -78,19 +79,11 @@ public class homeController {
         }
         ModelAndView modelAndView = new ModelAndView();
         modelAndView.addObject("results", responseArray);
+        modelAndView.addObject("time",time);
+        modelAndView.addObject("resultQuery",query);
         modelAndView.setViewName("results");
-//         query=query.trim();
-//        Vector<Vector<org.json.JSONObject>> resultorginal=new Vector<Vector<org.json.JSONObject>>(1);
-//        Vector<Vector<org.json.JSONObject>>  resultforms=new Vector<Vector<org.json.JSONObject>>(1);
-//        Vector<Integer> NoofDocumentsforword=new Vector<Integer>(1);
-//         if(query.startsWith("\"") && query.endsWith("\"")){
-////            phraseSearch.Phraseprocess(query);
-//         }
-//         else{
-////             queryProcessing.query_process(query,resultorginal, resultforms, NoofDocumentsforword);
-//         }
-////         System.out.println(word.startsWith("\""));
-//        System.out.println(word.endsWith("\""));
+
+
         return modelAndView;
 
     }

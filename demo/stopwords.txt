@@ -677,7 +677,6 @@ empty
 fifteen
 fifty
 fill
-first
 find
 fire
 forty

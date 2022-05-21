@@ -11,7 +11,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.awt.*;
+import java.awt.font.TextAttribute;
+import java.text.AttributedString;
 import java.util.*;
+import java.util.List;
 
 public class Phrase_sreach {
     private MongoDB database;
@@ -59,12 +63,16 @@ public class Phrase_sreach {
 
         for (int i = 0; i < words.length; i++) {
             if (!ImportantWords.contains(words[i])) {
+                String temp=words[i];
+
                 words[i] = words[i].replaceAll("[^a-zA-Z0-9]", " ");
                 //System.out.println(words[i]);
                 String[] subwords = words[i].split("\\s+");//splits the string based on whitespace
                 for (String sw : subwords) {
                     if (stopWords.contains(sw)) {
 //                        finalword.add(sw);
+                        if(subwords.length==1)//case: found,'
+                            sw=temp;
                         QueryStringBinary.add(sw);
                         continue;
                     }

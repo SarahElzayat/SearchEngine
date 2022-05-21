@@ -103,7 +103,7 @@
     }
 
     a:visited {
-        color: #2d98da;
+        color: #59b8f3;
         background-color: transparent;
         text-decoration: none;
     }
@@ -162,17 +162,53 @@
     transform: scale(1.2);
 
 }
-</style>
+.resultQuery{
+    /* position: absolute; */
+    display: flex;
+    flex-direction: column;
+    /*width: 70%*/
+   color: #d9e2ec;
+    font-size: 30px;
+    font-family: 'Radio Canada', sans-serif;
+    text-align: center;
+    justify-content: center;
+    border: solid 1px white;
+    border-radius:20px;
+    margin:0 auto;
+    padding: 10px;
+    max-width: 70%;
 
+}
+</style>
+<br><br>
 <body id="bodyId">
     <br>
+
 <div class="homeButton">
     <form action="http://localhost:8000/">
     <button type="submit"  id="home">Home</button>
 </form>
+    <br><br>
 </div>
-<br>
-    <div class="resultsHead"><span class="results-count"></span> RESULTS</div>
+    <div class="resultQuery" id="resultQuery">
+        Searching for:
+        <script th:inline="javascript">
+            var resultQuery = [[${resultQuery}]]
+            // var time = 0.5
+            document.write(resultQuery)
+        </script>
+
+    </div>
+<br><br>
+    <div class="resultsHead"><span class="results-count"></span> RESULTS (
+        <script th:inline="javascript">
+            var time = [[${time}]]
+            // var time = 0.5
+            document.write(time)
+        </script>
+        seconds)
+    </div>
+
     <br>
     <ul class="results"></ul>
 
@@ -183,13 +219,14 @@
     </div>
     <script th:inline="javascript">
          var results = [[${results}]]
-        //  var results = [
-        //  {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
-        //  {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
+         // var time = [[${time}]]
+    //      var results = [
+    //      {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
+    //      {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
         
-        //  {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
-        //  {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
-         
+    //      {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
+    //      {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
+    // ]
         //  {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
         //  {  "_id": {    "$oid": "62727c32da25a0665ffb432c"  },  "paragraph": "Wikipedia is a multilingual open online encyclopedia written and maintained by a community of volunteers through open collaboration and a wiki-based editing ...",  "header": "Google1",  "url": "https://www.google.com"},
          

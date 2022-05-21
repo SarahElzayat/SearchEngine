@@ -1,12 +1,10 @@
 package com.example.demo;
 
 import com.mongodb.client.*;
+import org.apache.commons.lang3.StringUtils;
 import org.bson.Document;
-import org.bson.json.JsonObject;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,12 +40,17 @@ public class Ranker {
         }
     }
 
-    public void Teamp_func() throws JSONException {
+    public void Teamp_func(String q) throws JSONException {
         System.out.println(phraseSearchResults);
         String url = new String();
         Iterator<String> it = phraseSearchResults.keySet().iterator();
         int NoofURLS = phraseSearchResults.size();
 //        int i = -1;
+        String query = q.replaceAll("\"", "");
+        StringBuilder builder = new StringBuilder(query.toLowerCase());
+        builder.append(" ");
+        System.out.println("Query " +query);
+        System.out.println("Builder " +builder);
         while (it.hasNext()) {
             url = it.next();
 //            i++;
@@ -58,6 +61,10 @@ public class Ranker {
 //            for (int i = 0; i < weights.size(); i++) {
             float internalRank = 0;
             System.out.println("URL " + url);
+            StringBuilder title = new StringBuilder(shosho.get(url).get("title").toString().toLowerCase());
+            title.append(" ");
+            if(title.toString().contains(builder))
+                headers+= 100;
             if (weights.has("h1"))
                 headers += weights.getJSONArray("h1").length() * 12;
 
@@ -77,7 +84,7 @@ public class Ranker {
                 headers += weights.getJSONArray("h6").length() * 1;
 
             if (weights.has("p"))
-                headers += weights.getJSONArray("p").length()*.5;
+                headers += weights.getJSONArray("p").length() * .5;
 
             internalRank = headers;
             System.out.println("HEADERS " + internalRank);
@@ -86,7 +93,7 @@ public class Ranker {
             //internalRank += DF.get(i) / 5000.0;
             internalRank *= Math.log(5000.0 / NoofURLS);
             System.out.println("AFTER DF " + internalRank);
-            internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString()) ;
+            internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
             System.out.println("AFTER POPULARITY " + internalRank);
             rank += internalRank;
 
@@ -94,6 +101,10 @@ public class Ranker {
             Document temp = new Document();
             temp.append("url", url);//s=>url
             temp.append("header", shosho.get(url).get("title"));
+//            Font f = new Font("Arial",Font.BOLD,25);
+//            AttributedString s = new AttributedString(snippet_for_Phrase_Search.get(url));
+//            s.addAttribute(TextAttribute.FONT,f);
+//            temp.append("paragraph", s.toString());
             temp.append("paragraph", snippet_for_Phrase_Search.get(url));
             temp.append("rank", rank);
             rankerCollection.insertOne(temp);
@@ -103,7 +114,7 @@ public class Ranker {
 
     }
 
-    public void calculateRank(HashMap<String, Vector<JSONObject>> vec) throws JSONException {
+    public void calculateRank(String q,HashMap<String, Vector<JSONObject>> vec) throws JSONException {
 
 
         String s = new String();
@@ -112,6 +123,7 @@ public class Ranker {
         Iterator<String> it = vec.keySet().iterator();
 //        int i = -1;
         float rank = 0;
+
         while (it.hasNext()) {
             url = it.next(); //urls
 //            i++;
@@ -120,6 +132,14 @@ public class Ranker {
             System.out.println("Url " + url);
             for (int i = 0; i < weights.size(); i++) {
                 float headers = 0;
+                StringBuilder sw = new StringBuilder(searchWords.get(i));
+                sw.append(" ");
+                StringBuilder title = new StringBuilder(shosho.get(url).get("title").toString().toLowerCase());
+                title.append(" ");
+                if(title.toString().contains(sw)){
+                    System.out.println("Title weight "+StringUtils.countMatches(title.toString(),sw.toString()));
+                    headers+= StringUtils.countMatches(title.toString(),sw.toString())*100;
+                }
 
                 if (weights.get(i).getJSONObject(searchWords.get(i)).has("h1"))
                     headers += weights.get(i).getJSONObject(searchWords.get(i)).getJSONArray("h1").length() * 12;
@@ -140,7 +160,7 @@ public class Ranker {
                     headers += weights.get(i).getJSONObject(searchWords.get(i)).getJSONArray("h6").length() * 1;
 
                 if (weights.get(i).getJSONObject(searchWords.get(i)).has("p"))
-                    headers += weights.get(i).getJSONObject(searchWords.get(i)).getJSONArray("p").length()*.5;
+                    headers += weights.get(i).getJSONObject(searchWords.get(i)).getJSONArray("p").length() * .5;
                 internalRank = headers;
                 System.out.println("Headers " + internalRank);
                 internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
@@ -194,22 +214,22 @@ public class Ranker {
                         headers += weights.get(i).getJSONObject(form).getJSONArray("h1").length() * 12;
 
                     if (weights.get(i).getJSONObject(form).has("h2"))
-                        headers += weights.get(i).getJSONObject(form).getJSONArray("h2").length() * 10;
+                        headers += weights.get(i).getJSONObject(form).getJSONArray("h2").length() * 6;
 
                     if (weights.get(i).getJSONObject(form).has("h3"))
-                        headers += weights.get(i).getJSONObject(form).getJSONArray("h3").length() * 8;
+                        headers += weights.get(i).getJSONObject(form).getJSONArray("h3").length() * 3;
 
                     if (weights.get(i).getJSONObject(form).has("h4"))
-                        headers += weights.get(i).getJSONObject(form).getJSONArray("h4").length() * 6;
+                        headers += weights.get(i).getJSONObject(form).getJSONArray("h4").length() * 1.5;
 
                     if (weights.get(i).getJSONObject(form).has("h5"))
-                        headers += weights.get(i).getJSONObject(form).getJSONArray("h5").length() * 4;
+                        headers += weights.get(i).getJSONObject(form).getJSONArray("h5").length() * 1;
 
                     if (weights.get(i).getJSONObject(form).has("h6"))
-                        headers += weights.get(i).getJSONObject(form).getJSONArray("h6").length() * 2;
+                        headers += weights.get(i).getJSONObject(form).getJSONArray("h6").length() * 1;
 
                     if (weights.get(i).getJSONObject(form).has("p"))
-                        headers += weights.get(i).getJSONObject(form).getJSONArray("p").length();
+                        headers += weights.get(i).getJSONObject(form).getJSONArray("p").length() * .5;
                 }
                 internalRank = headers;
                 System.out.println("Headers " + internalRank);
@@ -250,38 +270,30 @@ public class Ranker {
     }
 
 
-    public void getResults(String query) throws JSONException {
-        long timeq1 = 0, timeq2 = 0, timeR1 = 0, timeR2 = 0;
+    public long getResults(String query) throws JSONException {
         long Time1 = System.currentTimeMillis();
         if (query.startsWith("\"") && query.endsWith("\"")) {
 
 
-            timeq1 = System.currentTimeMillis();
-            if(PhraseSearch.Phrase_Search(query, phraseSearchResults, snippet_for_Phrase_Search, DF)==-1) {
+            if (PhraseSearch.Phrase_Search(query, phraseSearchResults, snippet_for_Phrase_Search, DF) == -1) {
                 System.out.println("No of URLS:" + phraseSearchResults.size());
-                return;
+                return 0;
             }
-            timeq2 = System.currentTimeMillis();
             System.out.println("No of URLS:" + phraseSearchResults.size());
 
-            Teamp_func();
+            Teamp_func(query);
         } else {
 
-            timeq1 = System.currentTimeMillis();
             searchWords = queryProcessor.query_process(query, Original_Results, Steam_Results, NonCommon_Results, DF, Snippets);
-            if (searchWords==null)
-                return;
-            timeq2 = System.currentTimeMillis();
-            timeR1 = System.currentTimeMillis();
-            calculateRank(Original_Results);
+            if (searchWords == null)
+                return 0;
+            calculateRank(query,Original_Results);
             calculateStemmedRank(Steam_Results, 0);
             calculateStemmedRank(NonCommon_Results, 1);
-            timeR2 = System.currentTimeMillis();
 
 
         }
 
-        long Timec1 = System.currentTimeMillis();
         Original_Results.clear();
         NonCommon_Results.clear();
         Steam_Results.clear();
@@ -289,13 +301,13 @@ public class Ranker {
         DF.clear();
         snippet_for_Phrase_Search.clear();
         Snippets.clear();
-        long Timec2 = System.currentTimeMillis();
 
         long Time2 = System.currentTimeMillis();
         System.out.println("\n\nTotal Time to get result in fun get results:" + (Time2 - Time1));
-        System.out.println("\nQuery Processing " + (timeq2 - timeq1));
-        System.out.println("\nRanker " + (timeR2 - timeR1));
-        System.out.println("\n\nClearing:" + (Timec2 - Timec1));
+        return Time2 - Time1;
+//        System.out.println("\nQuery Processing " + (timeq2 - timeq1));
+//        System.out.println("\nRanker " + (timeR2 - timeR1));
+//        System.out.println("\n\nClearing:" + (Timec2 - Timec1));
 
     }
 
