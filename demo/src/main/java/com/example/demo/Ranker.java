@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 public class Ranker {
     //Urls
@@ -101,11 +102,7 @@ public class Ranker {
             Document temp = new Document();
             temp.append("url", url);//s=>url
             temp.append("header", shosho.get(url).get("title"));
-//            Font f = new Font("Arial",Font.BOLD,25);
-//            AttributedString s = new AttributedString(snippet_for_Phrase_Search.get(url));
-//            s.addAttribute(TextAttribute.FONT,f);
-//            temp.append("paragraph", s.toString());
-            temp.append("paragraph", snippet_for_Phrase_Search.get(url));
+          temp.append("paragraph", snippet_for_Phrase_Search.get(url));
             temp.append("rank", rank);
             rankerCollection.insertOne(temp);
             rank = 0;
@@ -136,9 +133,12 @@ public class Ranker {
                 sw.append(" ");
                 StringBuilder title = new StringBuilder(shosho.get(url).get("title").toString().toLowerCase());
                 title.append(" ");
-                if(title.toString().contains(sw)){
+
+                if(title.toString().toLowerCase().replaceAll("\\p{Punct}", "").contains(sw)){
+//                    if(title.charAt(title.indexOf(sw.toString())+1).matches())
+//                    if(!Pattern.compile("[a-zA-Z]*").matcher(Character.toString(title.charAt(title.lastIndexOf(sw.toString())+1))).matches())
+                        headers+= StringUtils.countMatches(title.toString(),sw.toString())*100;
                     System.out.println("Title weight "+StringUtils.countMatches(title.toString(),sw.toString()));
-                    headers+= StringUtils.countMatches(title.toString(),sw.toString())*100;
                 }
 
                 if (weights.get(i).getJSONObject(searchWords.get(i)).has("h1"))
@@ -164,6 +164,8 @@ public class Ranker {
                 internalRank = headers;
                 System.out.println("Headers " + internalRank);
                 internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
+                if(Integer.parseInt(shosho.get(url).get("NoOfWords").toString())<50)
+                    internalRank/=10;
                 System.out.println("Normalization " + internalRank);
 
                 internalRank *= Math.log(5000.0 / vec.size());
