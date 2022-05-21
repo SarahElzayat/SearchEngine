@@ -5,10 +5,8 @@ import java.io.IOException;
 import java.util.*;
 
 //Elements
-import com.mongodb.BasicDBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import org.jsoup.Jsoup;
@@ -16,43 +14,47 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 //Database
-/*import MongoDBPackage.MongoDB;*/
 import org.bson.Document;
+
 //Stemmer
 import opennlp.tools.stemmer.PorterStemmer;
+
 //get from DB
-import org.bson.Document;
 import org.bson.conversions.Bson;
-import com.mongodb.client.model.Projections;
 import java.lang.String;
-import com.mongodb.client.model.Sorts;//sort
-
-import com.mongodb.client.model.Updates;//update
-
 import static com.mongodb.client.model.Filters.*;
 
 
 public class Indexer {
-    //private String[] tags={"h1","h2","h3","h4","h5","h6","p","abbr","article","div","header","label","q","title","thead","th","textarea","sub","caption","td","li","option","dt"};
-    //static public String[] tags={"title","h1","h2","h3","h4","h5","h6","p"};
 
+    //============================Data Members===========================//
     private static HashSet<String> stopWords ;
     private static HashSet<String> ImportantWords;
 
     private PorterStemmer porterStemmer;//stemmer
 
-    private MongoDB database_Index;
-    private MongoDB database_Crawler;
-    private MongoDB database_Old_Crawler;
 
+    //MongoDB Class Objects
+    private MongoDB Search_Engine_Database;
+
+    //Collections
+    public MongoCollection<Document> database_Indexer;
+    public MongoCollection<Document> database_Crawler;
+    public MongoCollection<Document> database_Old_Crawler;
 
     public HashSet<String>tagsnames;
+
+    //======================================Member Functions============================//
+    //1.Constructor
     Indexer()
     {
-        //load stopwords
         porterStemmer = new PorterStemmer();
+        //load stop words
         stopWords= getStopWords();
+        //load important words
         ImportantWords= getImportantword();;
+
+        //Tags_to_Search_for
         tagsnames=new HashSet<String>();
         tagsnames.add("h1");
         tagsnames.add("h2");
@@ -62,43 +64,182 @@ public class Indexer {
         tagsnames.add("h6");
         tagsnames.add("p");
 
-        //connect to DB
-        database_Index=new MongoDB("SearchEngine","Indexer");
-        database_Crawler=new MongoDB("SearchEngine","URLSWithHTML");
-        database_Old_Crawler = new MongoDB("SearchEngine","OldSeeds");
+        //connect to Search Engine DB
+        Search_Engine_Database=new MongoDB("SearchEngine");
+
+        //Collections
+        database_Crawler=Search_Engine_Database.GetCollection("URLSWithHTML");
+        database_Indexer=Search_Engine_Database.GetCollection("Indexer");
     }
 
+
+    //2.Index Url
     public void Index(String url,String source_str) throws IOException {
-        StringBuffer body_String=new StringBuffer("");
-        int no_Of_Words=0;
-        int position=0;
+        StringBuffer body_String=new StringBuffer("");//to store body of this url
+        int no_Of_Words=0;//count of words in this url
+        int position=0;//position for words to add in the body
+
+        //Parse Source Source file
+        org.jsoup.nodes.Document doc= Jsoup.parse(source_str,"UTF-8");
+        Elements bodyElements=doc.body().select("*");//select all ("*") tags in the body
+
+        //======================================Main Loop====================================//
+        //loop over all elements in the body==>element
+        for(Element element:bodyElements)
+        {
+            if(element.ownText().isEmpty())
+                continue;
+            //element==> String[]
+            String[] word = (element.ownText().split("\\s+"));//splits the string based on whitespace
+
+            //tag name of the element
+            String tag=element.tagName();
+            boolean take=false;
+            //check if this tag isn't from our desired tags
+            if (!tagsnames.contains(tag)) {
+                //another chance for the first parent tag  <h1><a>hello</a><h1>
+                if(tagsnames.contains(element.parent().tagName()))
+                {
+                    tag=element.parent().tagName();
+                }
+                else continue;//not desired tag
+            }
+            //loop over each word in this String[] ==>has tag (valid one)
+            for (int i = 0; i < word.length; i++) {
+
+                body_String.append(word[i]+" ");//filling body
+                String search_word=word[i].toLowerCase();//to lower
+                search_word=search_word.trim();
+
+
+                //Check if this word is an important word
+                if (!ImportantWords.contains(search_word))
+                {
+                    //preprocessing
+                    search_word =search_word.replaceAll("[^a-zA-Z0-9]", " ");
+                    String[] subwords = search_word.split("\\s+");//splits the string based on whitespace
+                    //further, sub words
+                    for (int j = 0; j < subwords.length; j++) {
+                        search_word=subwords[j];
+                        if (stopWords.contains(search_word)) {
+                            //don't add to the indexer
+                            no_Of_Words++;
+                            continue;
+                        }
+                        addWordtoDB(search_word, url, tag, position);
+                        no_Of_Words++;
+                    }//end of loop Sub words
+                    position++;
+                } else {
+                    //No preprocessing
+                    addWordtoDB(search_word, url, tag, position);
+                    no_Of_Words++;
+                    position++;
+                }
+            }//end of loop of words in each element
+        }//end of Main loop
+
+
+        //=====================================Putting body===============================================//
+        String body;
+        if(body_String.length()==0)
+            body=body_String.toString();
+        else
+            body=body_String.deleteCharAt(body_String.length()-1).toString();//remove last space
+
+        //put  this Body in the Crawler collection
+        Bson filter=eq("_id",url);
+        Bson update2=Updates.combine(Updates.set("NoOfWords",no_Of_Words),Updates.set("_body",body));
+        database_Crawler.updateMany(filter, update2);
+    }
+
+    //3.Add a word to the Indexer Collection
+    private void addWordtoDB(String word,String url,String tag,int position)
+    {
+        //steaming the word
+        String stemword = porterStemmer.stem(word);
+
+        Bson fillter=and(eq("_id",stemword),eq("DOC._url",url));
+        Bson update=Updates.addToSet("DOC.$."+word+"."+tag,position);
+        UpdateResult Up_result= database_Indexer.updateMany(fillter,update);
+        if(Up_result.getMatchedCount()==0)//new url or word
+        {
+            // new_url
+            Document tagdoc=new Document(tag,Arrays.asList(position));//"p":[1,7,9]
+            Document doc=new Document("_url",url).append(word,tagdoc);
+
+            fillter=eq("_id",stemword);
+            update=Updates.combine(Updates.push("DOC",doc),Updates.inc("DF",1));
+            Up_result= database_Indexer.updateMany(fillter,update);
+
+            if(Up_result.getMatchedCount()==0)//new word
+            {
+                tagdoc=new Document(tag,Arrays.asList(position));
+                Document arrdoc=new Document("_url",url).append(word,tagdoc);
+                doc=new Document("_id",stemword).append("DF",1).append("DOC", Arrays.asList(arrdoc));
+                database_Indexer.insertOne(doc);
+            }
+        }
+    }
+
+    //4.Index 5000 Webpages
+    public void Index_crawlar() throws IOException
+    {
+        int i=0;
+        FindIterable<Document> itratot_Doc=database_Crawler.find();
+        for (Document d:itratot_Doc)
+        {
+            Index(d.get("_id").toString(),d.get("html").toString());
+            i++;
+            System.out.println("Indexed: "+i+" webpages:)\n\n");
+        }
+    }
+
+
+    //5.Reindex 6 webpages
+    public void ReIndex_Crawlar_New_URLS() throws IOException {
+        //Old page Source Pages
+        database_Old_Crawler=Search_Engine_Database.GetCollection("OldSeeds");
+
+        //Remove previous version
+        FindIterable<Document> itratdoc_to_remove=database_Old_Crawler.find();
+        Vector<String>old_URLs=new Vector<>();
+        int j=0;
+        for (Document d:itratdoc_to_remove)
+        {
+            String url=d.get("_id").toString();
+            ReIndex_URL(url,d.get("html").toString());
+            old_URLs.add(url);
+            j++;
+            System.out.println("Reindexed:"+j+"webpages:)\n\n");
+        }
+        //drop this database
+        database_Old_Crawler.drop();
+        //newly index
+        int i=0;
+        FindIterable<Document> itratdoc=database_Crawler.find().limit(6);
+        for (Document d:itratdoc)
+        {
+            Index(d.get("_id").toString(),d.get("html").toString());
+            i++;
+            System.out.println("indexed"+i+" webpages\n\n");
+        }
+    }
+
+    //6.Reindex a new url
+    public void ReIndex_URL(String url,String source_str) throws IOException {
+
         org.jsoup.nodes.Document doc= Jsoup.parse(source_str,"UTF-8");
         Elements bodyElements=doc.body().select("*");//select al tags in the body
 
-//        Elements Tags = doc.select("title , h1 , h2 , h3 , h4 , h5 , h6 , p");
         //loop over all elements
         for(Element element:bodyElements)
         {
-            //basam Hate
             if(element.ownText().isEmpty())
                 continue;
             String[] word = (element.ownText().split("\\s+"));//splits the string based on whitespace
 
-            String tag=element.tagName();
-//            List<String>words=Arrays.asList(word) ;
-            boolean take=false;
-            if (!tagsnames.contains(tag)) {
-
-                if(tagsnames.contains(element.parent().tagName())) {
-                    tag=element.parent().tagName();
-                }
-                else continue;
-            }
-//            Bson update2 = Updates.pushEach("_body",words);
-//            database_Crawler.collection.updateMany(filter, update2);
-            //each word in the par
             for (int i = 0; i < word.length; i++) {//all words
-                body_String.append(word[i]+" ");
                 String search_word=word[i].toLowerCase();
                 search_word=search_word.trim();
 
@@ -108,92 +249,41 @@ public class Indexer {
                     String[] subwords = search_word.split("\\s+");//splits the string based on whitespace
                     for (int j = 0; j < subwords.length; j++) {
                         search_word=subwords[j];
-//                        if (search_word == null || search_word.trim().isEmpty()) {
-//                            continue;
-//                        }
                         if (stopWords.contains(search_word)) {
-                            no_Of_Words++;
                             continue;
                         }
-
-                        addWordtoDB(search_word, url, tag, position);
-                        no_Of_Words++;
+                        Remove_Words_Old_URL(search_word, url);
                     }
-                    position++;
                 } else {
-                    addWordtoDB(search_word, url, tag, position);
-                    no_Of_Words++;
-                    position++;
+                    Remove_Words_Old_URL(search_word, url);
                 }
             }
         }
-
-//        addWordtoDB("zeinab","WWW.Google.COM","p");
-//        MongoCursor<Document> cursor = database_Index.collection.find().iterator();
-//        while (cursor.hasNext()) {
-//            System.out.println("collection is " +cursor.next() );}
-        String body;
-        if(body_String.length()==0)
-            body=body_String.toString();
-        else
-            body=body_String.deleteCharAt(body_String.length()-1).toString();
-        Bson filter=eq("_id",url);
-        Bson update2=Updates.combine(Updates.set("NoOfWords",no_Of_Words),Updates.set("_body",body));
-        database_Crawler.collection.updateMany(filter, update2);
     }
 
 
-    private void addWordtoDB(String word,String url,String tag,int position )
+    //6.Remove a word from the Old Page source
+    private void Remove_Words_Old_URL(String word,String url )
     {
         //steaming the word
         String stemword = porterStemmer.stem(word);//hello
-        Bson fillter=and(eq("_id",stemword),eq("DOC._url",url));
-        Bson update=Updates.addToSet("DOC.$."+word+"."+tag,position);
-        UpdateResult Up_result= database_Index.collection.updateMany(fillter,update);
-        if(Up_result.getMatchedCount()==0)//new url or word
-        {
-            // new_url
-            Document tagdoc=new Document(tag,Arrays.asList(position));////////////////////////////////
-            Document doc=new Document("_url",url).append(word,tagdoc);
-            fillter=eq("_id",stemword);
-            update=Updates.combine(Updates.push("DOC",doc),Updates.inc("DF",1));
-            Up_result= database_Index.collection.updateMany(fillter,update);
 
-            if(Up_result.getMatchedCount()==0)//new  word
-            {
-                tagdoc=new Document(tag,Arrays.asList(position));
-                Document arrdoc=new Document("_url",url).append(word,tagdoc);
-                doc=new Document("_id",stemword).append("DF",1).append("DOC", Arrays.asList(arrdoc));
-                database_Index.collection.insertOne(doc);
+        Document fillter=new Document("_id",stemword);
+        //remove this url from the DOC[] of this word
+        Document update =new Document("$pull",new Document("DOC",new Document("_url",url)));
 
-            }
+        UpdateResult Up_result=database_Indexer.updateOne(fillter,update);
+        if(Up_result.getModifiedCount()==1) {
+            //dec the DF
+            Document fillter2 = new Document("_id", stemword);
+            Bson update2 =Updates.inc("DF",-1);
+
+           database_Indexer.updateOne(fillter2, update2);
         }
     }
 
 
-    public void Index_crawlar() throws IOException
-    {
-        int i=0;
-        FindIterable<Document> itratdoc=database_Crawler.collection.find();
-        for (Document d:itratdoc)
-        {
-            Index(d.get("_id").toString(),d.get("html").toString());
-            i++;
-            System.out.println("\n\n"+i+"\n\n");
-        }
-    }
-
-    public static void main(String[] args) throws IOException {
-        Indexer indexer=new Indexer();
-//        indexer.Index_crawlar();
-
-
-        //reindexing
-        indexer.ReIndex_Crawlar_New_URLS();
-        return;
-    }
-
-
+   //7.Getting Stop words
     public static HashSet<String>  getStopWords() {
         HashSet<String> stopw=new HashSet<String>();
         try {
@@ -205,13 +295,14 @@ public class Indexer {
             }
             reader.close();
         } catch (Exception e) {
-            System.out.println("An exception occured while reading the stop words!");
+            System.out.println("An exception occurred while reading the stop words!");
             e.printStackTrace();
         }
         return stopw;
     }
 
 
+    //8.Getting Important words
     public static HashSet<String> getImportantword() {
         HashSet<String> impword=new HashSet<String>();
         try {
@@ -229,123 +320,17 @@ public class Indexer {
         return impword;
     }
 
-    public void ReIndex_Crawlar_New_URLS() throws IOException {
 
-        //Remove prvious version
-        FindIterable<Document> itratdoc_to_remove=database_Old_Crawler.collection.find();
-        Vector<String>old_URLs=new Vector<>();
-        int j=0;
-        for (Document d:itratdoc_to_remove)
-        {
-            String url=d.get("_id").toString();
-            ReIndex_URL(url,d.get("html").toString());
-            old_URLs.add(url);
-            j++;
-            System.out.println("\n\n"+j+"\n\n");
-        }
-        //drop this database
-        database_Old_Crawler.collection.drop();
+    //====================================MAIN=======================================//
+    public static void main(String[] args) throws IOException {
+        Indexer indexer=new Indexer();
 
+        //Indexing 5000
+        indexer.Index_crawlar();
 
-        int i=0;
-        FindIterable<Document> itratdoc=database_Crawler.collection.find().limit(6);
-        for (Document d:itratdoc)
-        {
-            Index(d.get("_id").toString(),d.get("html").toString());
-            i++;
-            System.out.println("\n\n"+i+"\n\n");
-        }
+        //reindexing 6 webpages
+//        indexer.ReIndex_Crawlar_New_URLS();
+        return;
     }
 
-
-
-    public void ReIndex_URL(String url,String source_str) throws IOException {
-        //StringBuffer body_String=new StringBuffer("");
-        //int no_Of_Words=0;
-        //int position=0;
-        org.jsoup.nodes.Document doc= Jsoup.parse(source_str,"UTF-8");
-        Elements bodyElements=doc.body().select("*");//select al tags in the body
-
-//        Elements Tags = doc.select("title , h1 , h2 , h3 , h4 , h5 , h6 , p");
-        //loop over all elements
-        for(Element element:bodyElements)
-        {
-            //basam Hate
-            if(element.ownText().isEmpty())
-                continue;
-            String[] word = (element.ownText().split("\\s+"));//splits the string based on whitespace
-
-            //String tag=element.tagName();
-//            List<String>words=Arrays.asList(word) ;
-//            boolean take=false;
-//            if (!tagsnames.contains(tag)) {
-//
-//                if(tagsnames.contains(element.parent().tagName())) {
-//                    tag=element.parent().tagName();
-//                }
-//                else continue;
-//            }
-//            Bson update2 = Updates.pushEach("_body",words);
-//            database_Crawler.collection.updateMany(filter, update2);
-            //each word in the par
-            for (int i = 0; i < word.length; i++) {//all words
-                //      body_String.append(word[i]+" ");
-                String search_word=word[i].toLowerCase();
-                search_word=search_word.trim();
-
-                if (!ImportantWords.contains(search_word))
-                {
-                    search_word =search_word.replaceAll("[^a-zA-Z0-9]", " ");
-                    String[] subwords = search_word.split("\\s+");//splits the string based on whitespace
-                    for (int j = 0; j < subwords.length; j++) {
-                        search_word=subwords[j];
-//                        if (search_word == null || search_word.trim().isEmpty()) {
-//                            continue;
-//                        }
-                        if (stopWords.contains(search_word)) {
-                            // no_Of_Words++;
-                            continue;
-                        }
-
-                        Remove_Words_Old_URL(search_word, url);
-//                        no_Of_Words++;
-                    }
-//                    position++;
-                } else {
-                    Remove_Words_Old_URL(search_word, url);
-                    // no_Of_Words++;
-                    //position++;
-                }
-            }
-        }
-//        String body;
-//        if(body_String.length()==0)
-//            body=body_String.toString();
-//        else
-//            body=body_String.deleteCharAt(body_String.length()-1).toString();
-//        Bson filter=eq("_id",url);
-//        Document update =new Document("$pull",new Document("DOC",new Document("_url",url)));
-//        database_Crawler.collection.updateMany(filter, update2);
-    }
-
-
-    private void Remove_Words_Old_URL(String word,String url )
-    {
-        //steaming the word
-        String stemword = porterStemmer.stem(word);//hello
-        Document fillter=new Document("_id",stemword);
-        Document update =new Document("$pull",new Document("DOC",new Document("_url",url)));
-
-
-        UpdateResult Up_result=database_Index.collection.updateOne(fillter,update);
-        if(Up_result.getModifiedCount()==1) {
-            Document fillter2 = new Document("_id", stemword);
-            Bson update2 =Updates.inc("DF",-1);
-
-
-           database_Index.collection.updateOne(fillter2, update2);
-        }
-
-
-    }
 }
