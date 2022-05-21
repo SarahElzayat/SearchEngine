@@ -30,7 +30,7 @@ public class Phrase_sreach {
     public MongoCollection<Document> database_Crawler;
 
 
-    public HashSet<String> tags;
+    public HashSet<String> tags ;
 
     //====================================Member Functions===========================================//
 
@@ -47,6 +47,8 @@ public class Phrase_sreach {
 
         stopWords = Indexer.getStopWords();
         ImportantWords = Indexer.getImportantword();
+
+        tags = new HashSet<String>();
 
         tags.add("h1");
         tags.add("h2");

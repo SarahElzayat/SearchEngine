@@ -9,14 +9,12 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Vector;
-import java.util.regex.Pattern;
 
 public class Ranker {
     //Urls
     HashMap<String, Vector<JSONObject>> Original_Results = new HashMap<>();
     HashMap<String, JSONObject> phraseSearchResults = new HashMap<>();
     HashMap<String, String> snippet_for_Phrase_Search = new HashMap<String, String>(0);
-    Vector<Integer> DF = new Vector<Integer>(0); // EH DA?
     HashMap<String, Vector<JSONObject>> Steam_Results = new HashMap<>();
     HashMap<String, Vector<JSONObject>> NonCommon_Results = new HashMap<>();
     HashMap<String, Vector<String>> Snippets = new HashMap<>(0);
@@ -24,48 +22,42 @@ public class Ranker {
     queryprocessing queryProcessor = new queryprocessing();
     Phrase_sreach PhraseSearch = new Phrase_sreach();
     MongoCollection<Document> rankerCollection;
-    MongoCollection<Document> crawlerCollection;
     MongoDatabase db;
     Vector<String> searchWords = new Vector<String>(0);
-    public static HashMap<String, Document> shosho = new HashMap<String, Document>(5007);
+    public static HashMap<String, Document> URLSWithHTMLDatabase = new HashMap<String, Document>(5007);
 
     public Ranker() {
         String uri = "mongodb://localhost:27017";
         MongoClient mongo = MongoClients.create(uri);
         db = mongo.getDatabase("SearchEngine");
-//        db.getCollection("Ranker").drop();
         rankerCollection = db.getCollection("Ranker");
-        FindIterable<Document> shoshoGet = db.getCollection("URLSWithHTML").find();
-        for (Document doc : shoshoGet) {
-            shosho.put(doc.get("_id").toString(), doc);
+        FindIterable<Document> crawlerDatabase = db.getCollection("URLSWithHTML").find();
+        /*Retrieves the URLSWithHTML database to avoid unnecessary overhead*/
+        for (Document doc : crawlerDatabase) {
+            URLSWithHTMLDatabase.put(doc.get("_id").toString(), doc);
         }
     }
+    /*This function ranks the phrase search results*/
+    public void phraseSearchRanker(String q) throws JSONException {
 
-    public void Teamp_func(String q) throws JSONException {
-        System.out.println(phraseSearchResults);
         String url = new String();
-        Iterator<String> it = phraseSearchResults.keySet().iterator();
-        int NoofURLS = phraseSearchResults.size();
-//        int i = -1;
-        String query = q.replaceAll("\"", "");
+        Iterator<String> it = phraseSearchResults.keySet().iterator(); //an iterator for the urls that should be ranked
+        int noOfURLS = phraseSearchResults.size();
+        String query = q.replaceAll("\"", ""); //gets rid of ""
         StringBuilder builder = new StringBuilder(query.toLowerCase());
         builder.append(" ");
-        System.out.println("Query " +query);
-        System.out.println("Builder " +builder);
+        /*adds space to the end of the query to avoid finding the query in the middle of another word
+         ex -> finding new in newspaper
+         */
+        //iterating over the urls
         while (it.hasNext()) {
             url = it.next();
-//            i++;
-            JSONObject weights = phraseSearchResults.get(url);//==> the original words only
-            System.out.println(weights);
-            float rank = 0;
-            float headers = 0;
-//            for (int i = 0; i < weights.size(); i++) {
-            float internalRank = 0;
-            System.out.println("URL " + url);
-            StringBuilder title = new StringBuilder(shosho.get(url).get("title").toString().toLowerCase());
+            JSONObject weights = phraseSearchResults.get(url); // gets the JSON Object associated with the current URL
+            float rank = 0, headers = 0, internalRank = 0;
+            StringBuilder title = new StringBuilder(URLSWithHTMLDatabase.get(url).get("title").toString().toLowerCase());
             title.append(" ");
-            if(title.toString().contains(builder))
-                headers+= 100;
+            if (title.toString().contains(builder))
+                headers += 100;
             if (weights.has("h1"))
                 headers += weights.getJSONArray("h1").length() * 12;
 
@@ -89,20 +81,20 @@ public class Ranker {
 
             internalRank = headers;
             System.out.println("HEADERS " + internalRank);
-            internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
+            internalRank /= Integer.parseInt(URLSWithHTMLDatabase.get(url).get("NoOfWords").toString());
             System.out.println("AFTER NORMALIZATION " + internalRank);
             //internalRank += DF.get(i) / 5000.0;
-            internalRank *= Math.log(5000.0 / NoofURLS);
+            internalRank *= Math.log(5000.0 / noOfURLS);
             System.out.println("AFTER DF " + internalRank);
-            internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
+            internalRank *= Integer.parseInt(URLSWithHTMLDatabase.get(url).get("popularity").toString());
             System.out.println("AFTER POPULARITY " + internalRank);
             rank += internalRank;
 
 
             Document temp = new Document();
             temp.append("url", url);//s=>url
-            temp.append("header", shosho.get(url).get("title"));
-          temp.append("paragraph", snippet_for_Phrase_Search.get(url));
+            temp.append("header", URLSWithHTMLDatabase.get(url).get("title"));
+            temp.append("paragraph", snippet_for_Phrase_Search.get(url));
             temp.append("rank", rank);
             rankerCollection.insertOne(temp);
             rank = 0;
@@ -111,7 +103,7 @@ public class Ranker {
 
     }
 
-    public void calculateRank(String q,HashMap<String, Vector<JSONObject>> vec) throws JSONException {
+    public void calculateRank(String q, HashMap<String, Vector<JSONObject>> vec) throws JSONException {
 
 
         String s = new String();
@@ -131,14 +123,14 @@ public class Ranker {
                 float headers = 0;
                 StringBuilder sw = new StringBuilder(searchWords.get(i));
                 sw.append(" ");
-                StringBuilder title = new StringBuilder(shosho.get(url).get("title").toString().toLowerCase());
+                StringBuilder title = new StringBuilder(URLSWithHTMLDatabase.get(url).get("title").toString().toLowerCase());
                 title.append(" ");
 
-                if(title.toString().toLowerCase().replaceAll("\\p{Punct}", "").contains(sw)){
+                if (title.toString().toLowerCase().replaceAll("\\p{Punct}", "").contains(sw)) {
 //                    if(title.charAt(title.indexOf(sw.toString())+1).matches())
 //                    if(!Pattern.compile("[a-zA-Z]*").matcher(Character.toString(title.charAt(title.lastIndexOf(sw.toString())+1))).matches())
-                        headers+= StringUtils.countMatches(title.toString(),sw.toString())*100;
-                    System.out.println("Title weight "+StringUtils.countMatches(title.toString(),sw.toString()));
+                    headers += StringUtils.countMatches(title.toString(), sw.toString()) * 100;
+                    System.out.println("Title weight " + StringUtils.countMatches(title.toString(), sw.toString()));
                 }
 
                 if (weights.get(i).getJSONObject(searchWords.get(i)).has("h1"))
@@ -163,16 +155,16 @@ public class Ranker {
                     headers += weights.get(i).getJSONObject(searchWords.get(i)).getJSONArray("p").length() * .5;
                 internalRank = headers;
                 System.out.println("Headers " + internalRank);
-                internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
-                if(Integer.parseInt(shosho.get(url).get("NoOfWords").toString())<50)
-                    internalRank/=10;
+                internalRank /= Integer.parseInt(URLSWithHTMLDatabase.get(url).get("NoOfWords").toString());
+                if (Integer.parseInt(URLSWithHTMLDatabase.get(url).get("NoOfWords").toString()) < 50)
+                    internalRank /= 10;
                 System.out.println("Normalization " + internalRank);
 
                 internalRank *= Math.log(5000.0 / vec.size());
                 System.out.println("DF" + vec.size());
                 System.out.println("DF  " + internalRank);
 
-                internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
+                internalRank *= Integer.parseInt(URLSWithHTMLDatabase.get(url).get("popularity").toString());
                 System.out.println("Popularity " + internalRank);
 
                 rank += internalRank;
@@ -180,7 +172,7 @@ public class Ranker {
             }
             Document temp = new Document();
             temp.append("url", url);//s=>url
-            temp.append("header", shosho.get(url).get("title"));
+            temp.append("header", URLSWithHTMLDatabase.get(url).get("title"));
             temp.append("paragraph", Snippets.get(url));
             temp.append("rank", rank);
             temp.append("type", 1);
@@ -235,7 +227,7 @@ public class Ranker {
                 }
                 internalRank = headers;
                 System.out.println("Headers " + internalRank);
-                internalRank /= Integer.parseInt(shosho.get(url).get("NoOfWords").toString());
+                internalRank /= Integer.parseInt(URLSWithHTMLDatabase.get(url).get("NoOfWords").toString());
                 System.out.println("Normalization " + internalRank);
                 if (x == 0)
                     internalRank *= Math.log(5000.0 / vec.size());
@@ -245,7 +237,7 @@ public class Ranker {
                 System.out.println("DF" + vec.size());
                 System.out.println("DF  " + internalRank);
 
-                internalRank *= Integer.parseInt(shosho.get(url).get("popularity").toString());
+                internalRank *= Integer.parseInt(URLSWithHTMLDatabase.get(url).get("popularity").toString());
                 System.out.println("Popularity " + internalRank);
 
                 rank += internalRank;
@@ -258,7 +250,7 @@ public class Ranker {
             System.out.println("Rank " + rank);
             Document temp = new Document();
             temp.append("url", url);//s=>url
-            temp.append("header", shosho.get(url).get("title"));
+            temp.append("header", URLSWithHTMLDatabase.get(url).get("title"));
             temp.append("paragraph", Snippets.get(url));
             temp.append("rank", rank);
             if (x == 0)
@@ -277,19 +269,19 @@ public class Ranker {
         if (query.startsWith("\"") && query.endsWith("\"")) {
 
 
-            if (PhraseSearch.Phrase_Search(query, phraseSearchResults, snippet_for_Phrase_Search, DF) == -1) {
+            if (PhraseSearch.Phrase_Search(query, phraseSearchResults, snippet_for_Phrase_Search) == -1) {
                 System.out.println("No of URLS:" + phraseSearchResults.size());
                 return 0;
             }
             System.out.println("No of URLS:" + phraseSearchResults.size());
 
-            Teamp_func(query);
+            phraseSearchRanker(query);
         } else {
 
-            searchWords = queryProcessor.query_process(query, Original_Results, Steam_Results, NonCommon_Results, DF, Snippets);
+            searchWords = queryProcessor.query_process(query, Original_Results, Steam_Results, NonCommon_Results, Snippets);
             if (searchWords == null)
                 return 0;
-            calculateRank(query,Original_Results);
+            calculateRank(query, Original_Results);
             calculateStemmedRank(Steam_Results, 0);
             calculateStemmedRank(NonCommon_Results, 1);
 
@@ -300,7 +292,7 @@ public class Ranker {
         NonCommon_Results.clear();
         Steam_Results.clear();
         phraseSearchResults.clear();
-        DF.clear();
+//        DF.clear();
         snippet_for_Phrase_Search.clear();
         Snippets.clear();
 

@@ -47,6 +47,7 @@ public class queryprocessing {
         stopWords = Indexer.getStopWords();
         ImportantWords = Indexer.getImportantword();
 
+        tags = new HashSet<String>();
         tags.add("h1");
         tags.add("h2");
         tags.add("h3");
@@ -330,7 +331,7 @@ public class queryprocessing {
             int i = Start_index.get(j);
             StringBuffer temp2 = new StringBuffer(body[i]);
             temp2.reverse();
-            snippet.append("\""+temp2 + "\" ");
+            snippet.append(temp2 + " ");
 
             //10 words before this word
             i--;

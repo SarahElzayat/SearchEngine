@@ -19,7 +19,7 @@ public class MongoDB {
         //open Database
         String uri = "mongodb://localhost:27017";
         MongoClient mongo = MongoClients.create(uri);
-        MongoDatabase database = mongo.getDatabase(Database);
+        database = mongo.getDatabase(Database);
     }
 
     //2.getting collection
