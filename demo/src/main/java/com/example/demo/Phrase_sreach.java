@@ -382,7 +382,7 @@ public class Phrase_sreach {
         int i = start_index;
         StringBuffer temp2 = new StringBuffer(body[start_index]);
         temp2.reverse();
-        snippet.append(temp2 + " ");
+        snippet.append("* "+temp2);
 
         //10 words before this word
         i--;
