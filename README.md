@@ -1,5 +1,18 @@
-# Search-Engine
+#  Search-Engine  <img align= center width=100px src="https://github.com/SarahElzayat/SearchEngine/assets/72309546/dc319725-9c2e-4ab9-9b57-5b6c712eff77">
 Google-like simple search engine, supporting phrase search. 
+
+![1140-search-engine-tips-removebg-preview](https://github.com/SarahElzayat/SearchEngine/assets/72309546/dc319725-9c2e-4ab9-9b57-5b6c712eff77)
+
+
+## <img align= center width=50px height=50px src="https://user-images.githubusercontent.com/71986226/154075883-2a5679d2-b411-448f-b423-9565babf35aa.gif"> Table of Contents
+- <a href ="#Overview">Overview</a>
+
+- <a href ="#contributors">Contributors</a>
+- <a href ="#license">License</a>
+
+
+## <img align="center"  width =50px  height =40px src="https://em-content.zobj.net/source/animated-noto-color-emoji/356/waving-hand_1f44b.gif"> Overview <a id = "Overview"></a>
+
 
 <!-- Contributors -->
 ## <img  align= center width=50px height=50px src="https://media1.giphy.com/media/WFZvB7VIXBgiz3oDXE/giphy.gif?cid=6c09b952tmewuarqtlyfot8t8i0kh6ov6vrypnwdrihlsshb&rid=giphy.gif&ct=s"> Contributors <a id = "contributors"></a>
