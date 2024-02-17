@@ -25,7 +25,7 @@ https://github.com/SarahElzayat/SearchEngine/assets/76779284/727be42d-cbbc-421d-
 <!-- Contributors list -->
 <table align="center" >
   <tr>
-    <td align="center"><a href="https://github.com/SarahElzayat"><img src="https://avatars.githubusercontent.com/u/76779284?v=4" width="150px;" alt=""/><br /><sub><b>ٍSarah Elzayat</b></sub></a></td>
+    <td align="center"><a href="https://github.com/SarahElzayat"><img src="https://avatars.githubusercontent.com/u/76779284?v=4" width="150px;" alt=""/><br /><sub><b>Sarah Elzayat</b></sub></a></td>
     <td align="center"><a href=""https://github.com/emanshahda" ><img src="https://avatars.githubusercontent.com/u/89708797?v=4" width="150px;" alt=""/><br /><sub><b>Eman Shahda</b></sub></a><br />
     <td align="center"><a href="https://github.com/zeinabmoawad"><img src="https://avatars.githubusercontent.com/u/92188433?v=4" width="150px" width="150px;" alt=""/><br /><sub><b>Zeinab Moawad</b></sub></a><br />
     <td align="center"><a href="https://github.com/BasmaElhoseny01"><img src="https://avatars.githubusercontent.com/u/72309546?v=4" width="150px;" alt=""/><br /><sub><b>Basma Elhoseny</b></sub></a><br /></td>
